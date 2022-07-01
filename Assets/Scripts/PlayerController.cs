@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
 {
 
     [SerializeField] Rigidbody _rb;
+    [SerializeField] Animator animator;
     [SerializeField] float _walkSpeed;
     [SerializeField] float _cameraSpeed;
     [SerializeField] float _jumpForce;
@@ -60,6 +61,8 @@ public class PlayerController : MonoBehaviour
         //カメラの向いてる方にプレイヤーを動かす
         _rb.velocity = new Vector3(moveForward.x * _walkSpeed, _rb.velocity.y, moveForward.z * _walkSpeed);
         
+        animator.SetFloat("Speed", Mathf.Abs(_vertical));
+        
         
     }
 
@@ -83,6 +86,7 @@ public class PlayerController : MonoBehaviour
 
             _rb.AddForce(transform.up * _jumpForce);
             _jumpCount++;
+            animator.Play("Jump");
         }
 
         
