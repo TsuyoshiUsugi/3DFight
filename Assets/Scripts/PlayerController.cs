@@ -45,6 +45,7 @@ public class PlayerController : MonoBehaviour
 
         PlayerRotate();
 
+        Attack();
     }
 
     /// <summary>
@@ -103,5 +104,17 @@ public class PlayerController : MonoBehaviour
             _jumpCount = 0;
         }
         _jumpCount = 0;
+    }
+
+    /// <summary>
+    /// çUåÇópÇÃä÷êî
+    /// </summary>
+    void Attack()
+    {
+        if (Input.GetButtonDown("Attack"))
+        {
+            animator.SetTrigger("Attack");
+            //animator.SetBool("Attack", false);
+        }
     }
 }
