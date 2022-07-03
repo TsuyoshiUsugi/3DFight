@@ -117,4 +117,10 @@ public class PlayerController : MonoBehaviour
             //animator.SetBool("Attack", false);
         }
     }
+
+    //“–‚½‚è”»’è‚ğŠm”F‚·‚éŠÖ”
+    void onDamage()
+    {
+
+    }
 }
