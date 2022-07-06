@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 視点操作のコンポーネント（cinemachineで代用)
+/// </summary>
 public class PlayerCameraController : MonoBehaviour
 {
     [SerializeField] GameObject targetObj;

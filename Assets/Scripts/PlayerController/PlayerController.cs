@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// プレイヤーの制御をするコンポーネント
+/// </summary>
 public class PlayerController : MonoBehaviour
 {
 
