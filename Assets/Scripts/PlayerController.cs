@@ -7,21 +7,36 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] Rigidbody _rb;
     [SerializeField] Animator animator;
-    [SerializeField] float _walkSpeed;
-    [SerializeField] float _cameraSpeed;
-    [SerializeField] float _jumpForce;
-    [SerializeField] float _jumpCount;
-    [SerializeField] float _jumpLimit;
-    [SerializeField] float _gravity;
 
+    /// <summary>歩く速さ</summary>
+    [SerializeField] float _walkSpeed;
+
+    /// <summary>カメラのスピード</summary>
+    [SerializeField] float _cameraSpeed;
+
+    /// <summary>ジャンプ力</summary>
+    [SerializeField] float _jumpForce;
+
+    /// <summary>ジャンプ回数</summary>
+    [SerializeField] float _jumpCount;
+
+    /// <summary>ジャンプ回数の制限</summary>
+    [SerializeField] float _jumpLimit;
+
+    /// <summary>前進入力の入力値を入れる変数</summary>
     float _horizontal;
+
+    /// <summary>左右入力の入力値を入れる変数</summary>
     float _vertical;
+
+    /// <summary>マウスの左右の入力値を入れる変数</summary>
     float mouseInputX;
+
+    /// <summary>マウスの上下の入力値を入れる変数</summary>
     float mouseInputY;
     // Start is called before the first frame update
     void Start()
     {
-        //Physics.gravity = new Vector3(0, _gravity, 0);
         _rb = GetComponent<Rigidbody>();
     }
 
@@ -29,8 +44,8 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         //WASDのキーを読み取る
-        _horizontal = Input.GetAxisRaw("Horizontal");
-        _vertical = Input.GetAxisRaw("Vertical");
+        _horizontal = Input.GetAxis("Horizontal");
+        _vertical = Input.GetAxis("Vertical");
 
         //マウスの位置を読み取る
         mouseInputX = Input.GetAxis("Mouse X");
@@ -62,9 +77,7 @@ public class PlayerController : MonoBehaviour
         //カメラの向いてる方にプレイヤーを動かす
         _rb.velocity = new Vector3(moveForward.x * _walkSpeed, _rb.velocity.y, moveForward.z * _walkSpeed);
         
-        animator.SetFloat("Speed", Mathf.Abs(_vertical));
-        
-        
+        animator.SetFloat("VSpeed", _vertical);
     }
 
     /// <summary>
@@ -84,13 +97,10 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetButtonDown("Jump") && _jumpCount < _jumpLimit)
         {
-
             _rb.AddForce(transform.up * _jumpForce);
             _jumpCount++;
             animator.Play("Jump");
         }
-
-        
     }
 
     /// <summary>
@@ -99,10 +109,12 @@ public class PlayerController : MonoBehaviour
     /// <param name="collision"></param>
     private void OnCollisionEnter(Collision collision)
     {
+        /*
         if(collision.gameObject.CompareTag("Ground") == true)
         {
             _jumpCount = 0;
         }
+        */
         _jumpCount = 0;
     }
 
@@ -111,10 +123,13 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     void Attack()
     {
-        if (Input.GetButtonDown("Attack"))
+        if (Input.GetButton("Aim"))
         {
-            animator.SetTrigger("Attack");
-            //animator.SetBool("Attack", false);
+            animator.SetBool("Aim", true);
+        }
+        else
+        {
+            animator.SetBool("Aim", false);
         }
     }
 

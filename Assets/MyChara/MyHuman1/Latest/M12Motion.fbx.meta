@@ -1,8 +1,59 @@
 fileFormatVersion: 2
-guid: 9c99238a64dac5d419e00cd1453243cc
+guid: 152ea8e98d8a0da4d93c14a7abcdeff0
 ModelImporter:
   serializedVersion: 21202
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      74: 6501840394324257518
+    second: HoldGun2
+  - first:
+      74: 7226565454028564262
+    second: GunAndRun
+  - first:
+      74: 7583080319782976921
+    second: "\u30A2\u30FC\u30DE\u30C1\u30E5\u30A2|Action"
+  - first:
+      74: 6396828155121186910
+    second: "\u30A2\u30FC\u30DE\u30C1\u30E5\u30A2|Attack"
+  - first:
+      74: 5954146657284386642
+    second: "\u30A2\u30FC\u30DE\u30C1\u30E5\u30A2|Cube.001Action"
+  - first:
+      74: -8754308550835490650
+    second: "\u30A2\u30FC\u30DE\u30C1\u30E5\u30A2|GunAndRun"
+  - first:
+      74: -7975283346167123440
+    second: "\u30A2\u30FC\u30DE\u30C1\u30E5\u30A2|HoldGun2"
+  - first:
+      74: -6330136862491513495
+    second: "\u30A2\u30FC\u30DE\u30C1\u30E5\u30A2|jump"
+  - first:
+      74: 3284188779437416314
+    second: "\u30A2\u30FC\u30DE\u30C1\u30E5\u30A2|Jump"
+  - first:
+      74: -960081853429349833
+    second: "\u30A2\u30FC\u30DE\u30C1\u30E5\u30A2|PoseLib"
+  - first:
+      74: 4400453606987535483
+    second: "\u30A2\u30FC\u30DE\u30C1\u30E5\u30A2|Run"
+  - first:
+      74: -5128187436313340429
+    second: "\u30A2\u30FC\u30DE\u30C1\u30E5\u30A2|SideStep"
+  - first:
+      74: 278634830412336701
+    second: "\u30A2\u30FC\u30DE\u30C1\u30E5\u30A2|taiki"
+  - first:
+      74: -6140374235425719669
+    second: "\u30A2\u30FC\u30DE\u30C1\u30E5\u30A2|\u30A2\u30FC\u30DE\u30C1\u30E5\u30A2Action"
+  - first:
+      74: -4834216788075965445
+    second: "\u30A2\u30FC\u30DE\u30C1\u30E5\u30A2|\u30A2\u30FC\u30DE\u30C1\u30E5\u30A2Action.001"
+  - first:
+      74: 8125854857852294858
+    second: "\u30A2\u30FC\u30DE\u30C1\u30E5\u30A2|\u30A2\u30FC\u30DE\u30C1\u30E5\u30A2Action.002"
+  - first:
+      74: 3697288825279552442
+    second: "\u30A2\u30FC\u30DE\u30C1\u30E5\u30A2|\u30A2\u30FC\u30DE\u30C1\u30E5\u30A2Action.003"
   externalObjects: {}
   materials:
     materialImportMode: 2
