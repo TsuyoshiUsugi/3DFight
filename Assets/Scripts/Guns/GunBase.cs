@@ -18,11 +18,14 @@ public abstract class GunBase : MonoBehaviour
     /// <summary>射撃音</summary>
     [SerializeField] AudioClip _shotSound = default;
 
+    /// <summary>射撃音</summary>
+    [SerializeField] AudioClip _noAmmoSound = default;
+
     /// <summary>最大装弾数</summary>
     [SerializeField] int _bulletsCapacity = default;
 
     /// <summary>残弾数</summary>
-    [SerializeField] int _bullets = default;
+    [SerializeField] int _restBullets = default;
 
     /// <summary>射撃間隔</summary>
     [SerializeField] float _shotInterval = default;
@@ -42,6 +45,8 @@ public abstract class GunBase : MonoBehaviour
     /// <summary>弾丸のPrefab</summary>
     [SerializeField] GameObject _bullet = default;
 
+    [SerializeField] AudioSource audioSource;
+
     /// <summary>
     /// 射撃のメソッド
     /// </summary>
@@ -49,8 +54,19 @@ public abstract class GunBase : MonoBehaviour
     {
         if (_pullTrigger)
         {
-            Instantiate(_bullet, transform.position, _bullet.transform.rotation);
-            StartCoroutine("ShotInterva");
+            //残弾あり
+            if (_restBullets > 0)
+            {
+                Instantiate(_bullet, transform.position, _bullet.transform.rotation);
+                _restBullets--;
+                audioSource.PlayOneShot(_shotSound);
+                StartCoroutine("ShotInterva");
+            }
+            //残弾なし
+            else
+            {
+                audioSource.PlayOneShot(_noAmmoSound);
+            }
         }
     }
 
@@ -63,6 +79,23 @@ public abstract class GunBase : MonoBehaviour
         yield return new WaitForSeconds(_shotInterval);
     }
 
+    /// <summary>
+    /// リロードのメソッド
+    /// </summary>
+    private void Reload()
+    {
+        //リロードアニメーション（未実装）これはリロードインターバルと合わせる？
+        StartCoroutine("ReloadInterval");
+        _restBullets = _bulletsCapacity;
+    }
     
+    /// <summary>
+    /// リロード時間用のコルーチン
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator ReloadInterval()
+    {
+        yield return new WaitForSeconds(_reloadTime);
+    }
 
 }
