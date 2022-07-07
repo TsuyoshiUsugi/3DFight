@@ -40,7 +40,10 @@ public abstract class GunBase : MonoBehaviour
     [SerializeField] float _damage = default;
 
     /// <summary>引き金が引かれたか</summary>
-    [SerializeField] bool _pullTrigger = default;
+    [SerializeField] bool _pullTrigger = false;
+
+    /// <summary>撃つことが出来るか</summary>
+    [SerializeField] bool _canShot = true;
 
     /// <summary>弾丸のPrefab</summary>
     [SerializeField] GameObject _bullet = default;
@@ -48,24 +51,45 @@ public abstract class GunBase : MonoBehaviour
     [SerializeField] AudioSource audioSource;
 
     /// <summary>
+    /// 引き金のプロパティ
+    /// </summary>
+    public bool PullTrigger
+    {
+        get
+        {
+            return _pullTrigger;
+        }
+        set
+        {
+            _pullTrigger = value;
+        }
+    }
+
+    /// <summary>
     /// 射撃のメソッド
     /// </summary>
     private void Shot()
     {
-        if (_pullTrigger)
+        if (_pullTrigger == true && _canShot == true)
         {
             //残弾あり
+
             if (_restBullets > 0)
             {
+                _canShot = false;
                 Instantiate(_bullet, transform.position, _bullet.transform.rotation);
                 _restBullets--;
                 audioSource.PlayOneShot(_shotSound);
                 StartCoroutine("ShotInterva");
+                _canShot = true;
             }
             //残弾なし
             else
             {
+                _canShot = false;
                 audioSource.PlayOneShot(_noAmmoSound);
+                StartCoroutine("ShotInterval");
+                _canShot = true;
             }
         }
     }
@@ -97,5 +121,4 @@ public abstract class GunBase : MonoBehaviour
     {
         yield return new WaitForSeconds(_reloadTime);
     }
-
 }

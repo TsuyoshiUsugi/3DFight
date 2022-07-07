@@ -67,7 +67,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// プレイヤーの移動の関数
+    /// プレイヤーの移動のメソッド
     /// </summary>
     void Move()
     {
@@ -84,7 +84,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// プレイヤーの向きの関数
+    /// プレイヤーの向きのメソッド
     /// </summary>
     void PlayerRotate()
     {
@@ -94,7 +94,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// ジャンプの関数
+    /// ジャンプのメソッド
     /// </summary>
     void Jump()
     {
@@ -107,7 +107,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// 着地判定の関数
+    /// 着地判定のメソッド
     /// </summary>
     /// <param name="collision"></param>
     private void OnCollisionEnter(Collision collision)
@@ -136,9 +136,15 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    //当たり判定を確認する関数
-    void onDamage()
+    /// <summary>
+    /// 攻撃用の関数
+    /// </summary>
+    void Shoot()
     {
-
+        if (Input.GetButtonDown("Shot"))
+        {
+            FindObjectOfType<GunBase>().PullTrigger = true;
+        }
     }
+    
 }
