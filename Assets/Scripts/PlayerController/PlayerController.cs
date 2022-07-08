@@ -38,11 +38,11 @@ public class PlayerController : MonoBehaviour
     /// <summary>マウスの上下の入力値を入れる変数</summary>
     float mouseInputY;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        _rb = GetComponent<Rigidbody>();
-    }
+    /// <summary>右腕のボーンを入れる変数</summary>
+    [SerializeField] Transform _rightArm;
+
+    /// <summary>右腕の角度</summary>
+    [SerializeField] Vector3 _rightArmRotation;
 
     // Update is called once per frame
     void Update()
@@ -66,11 +66,17 @@ public class PlayerController : MonoBehaviour
     {
         Move();
 
+        if (Input.GetButtonDown("Aim") == false)
+        {
+            //PlayerRotate();
+        }
         PlayerRotate();
+    }
 
+    private void LateUpdate()
+    {
         Aim();
-
-       
+        
     }
 
     /// <summary>
@@ -86,7 +92,8 @@ public class PlayerController : MonoBehaviour
 
         //カメラの向いてる方にプレイヤーを動かす
         _rb.velocity = new Vector3(moveForward.x * _walkSpeed, _rb.velocity.y, moveForward.z * _walkSpeed);
-        
+
+        //_rb.velocity = new Vector3(_horizontal * _walkSpeed, _rb.velocity.y, _vertical * _walkSpeed);
         animator.SetFloat("VSpeed", _vertical);
     }
 
@@ -133,14 +140,32 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     void Aim()
     {
+        Ray ray = Camera.main.ViewportPointToRay(new Vector2(0.5f, 0.5f));
+
+
         if (Input.GetButton("Aim"))
         {
+            if (Physics.Raycast(ray, out RaycastHit hit))
+            {
+                Vector3 playerLook = hit.transform.position - transform.position;
+                Quaternion quaternion = Quaternion.LookRotation(playerLook);
+                _rightArm.Rotate(_rightArmRotation);
+            }
             animator.SetBool("Aim", true);
+            //_rightArm.rotation = Quaternion._rightArmRotation;
         }
         else
         {
             animator.SetBool("Aim", false);
         }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    void AimTarget()
+    {
+
     }
 
     /// <summary>
@@ -155,6 +180,9 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 銃のリロードのメソッド
+    /// </summary>
     void Reload()
     {
         if (Input.GetButtonDown("Reload"))
