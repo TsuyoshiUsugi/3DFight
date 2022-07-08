@@ -37,6 +37,7 @@ public class PlayerController : MonoBehaviour
 
     /// <summary>マウスの上下の入力値を入れる変数</summary>
     float mouseInputY;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -55,6 +56,10 @@ public class PlayerController : MonoBehaviour
         mouseInputY = Input.GetAxis("Mouse Y");
 
         Jump();
+
+        Shot();
+
+        Reload();
     }
 
     private void FixedUpdate()
@@ -63,7 +68,9 @@ public class PlayerController : MonoBehaviour
 
         PlayerRotate();
 
-        Attack();
+        Aim();
+
+       
     }
 
     /// <summary>
@@ -122,9 +129,9 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// 攻撃用の関数
+    /// 射撃体勢のメソッド
     /// </summary>
-    void Attack()
+    void Aim()
     {
         if (Input.GetButton("Aim"))
         {
@@ -137,14 +144,23 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// 攻撃用の関数
+    /// 攻撃用のメソッド
     /// </summary>
-    void Shoot()
+    void Shot()
     {
         if (Input.GetButtonDown("Shot"))
         {
-            FindObjectOfType<GunBase>().PullTrigger = true;
+            FindObjectOfType<FirstGun>().PullTrigger = true;
+            FindObjectOfType<FirstGun>().Shot();
         }
     }
-    
+
+    void Reload()
+    {
+        if (Input.GetButtonDown("Reload"))
+        {
+            FindObjectOfType<FirstGun>().Reload();
+        }
+    }
+
 }

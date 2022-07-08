@@ -4,7 +4,11 @@ using UnityEngine;
 
 public class FirstGun : GunBase
 {
+    /// <summary>íeä€ÇÃPrefab</summary>
+    //[SerializeField] GameObject _bullet;
+
     // Start is called before the first frame update
+
     void Start()
     {
         
@@ -12,6 +16,10 @@ public class FirstGun : GunBase
 
     // Update is called once per frame
     void Update()
+    {
+    }
+
+    private void FixedUpdate()
     {
         
     }

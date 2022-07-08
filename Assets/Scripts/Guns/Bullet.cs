@@ -3,28 +3,36 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 弾の動きを追加するコンポーネント
+/// 弾丸のコンポーネント
 /// </summary>
 public class Bullet : MonoBehaviour
 {
+    /// <summary>弾丸のスピード</summary>
+    [SerializeField] float bulletSpeed;
 
-    [SerializeField] Rigidbody rb;
+    [SerializeField] Rigidbody _bulletRb;
 
-    /// <summary>発射する銃のオブジェクト</summary>
-    [SerializeField] GameObject _gun;
-    
+    GameObject _muzzle;
+
+    public GameObject Muzzle { get => _muzzle; set => _muzzle = value; }
+
+    Vector3 _dir;
+    // Start is called before the first frame update
     void Start()
     {
 
+        _dir = -transform.up;
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-        /*
-        rb.velocity = new Vector3(_gun.transform.forward.x,
-            _gun.transform.forward.y,
-            _gun.transform.forward.z);
-        */
+        _bulletRb.AddForce(_dir * bulletSpeed * Time.deltaTime, ForceMode.Impulse);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        Destroy(this.gameObject);
     }
 }

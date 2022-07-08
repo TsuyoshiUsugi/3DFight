@@ -48,7 +48,11 @@ public abstract class GunBase : MonoBehaviour
     /// <summary>弾丸のPrefab</summary>
     [SerializeField] GameObject _bullet = default;
 
+    /// <summary>銃口のPrefab</summary>
+    [SerializeField] GameObject _muzzle = default;
+
     [SerializeField] AudioSource audioSource;
+
 
     /// <summary>
     /// 引き金のプロパティ
@@ -66,22 +70,26 @@ public abstract class GunBase : MonoBehaviour
     }
 
     /// <summary>
+    /// 弾丸のプロパティ
+    /// </summary>
+    public GameObject Bullet { get => _bullet; }
+    
+
+    /// <summary>
     /// 射撃のメソッド
     /// </summary>
-    private void Shot()
+    public void Shot()
     {
         if (_pullTrigger == true && _canShot == true)
         {
             //残弾あり
-
             if (_restBullets > 0)
             {
                 _canShot = false;
-                Instantiate(_bullet, transform.position, _bullet.transform.rotation);
+                Instantiate(_bullet, _muzzle.transform.position, _muzzle.transform.rotation);
                 _restBullets--;
                 audioSource.PlayOneShot(_shotSound);
-                StartCoroutine("ShotInterva");
-                _canShot = true;
+                StartCoroutine("ShotInterval");
             }
             //残弾なし
             else
@@ -89,7 +97,7 @@ public abstract class GunBase : MonoBehaviour
                 _canShot = false;
                 audioSource.PlayOneShot(_noAmmoSound);
                 StartCoroutine("ShotInterval");
-                _canShot = true;
+
             }
         }
     }
@@ -101,16 +109,17 @@ public abstract class GunBase : MonoBehaviour
     IEnumerator ShotInterval()
     {
         yield return new WaitForSeconds(_shotInterval);
+        _canShot = true;
     }
 
     /// <summary>
     /// リロードのメソッド
     /// </summary>
-    private void Reload()
+    public void Reload()
     {
         //リロードアニメーション（未実装）これはリロードインターバルと合わせる？
         StartCoroutine("ReloadInterval");
-        _restBullets = _bulletsCapacity;
+
     }
     
     /// <summary>
@@ -120,5 +129,6 @@ public abstract class GunBase : MonoBehaviour
     IEnumerator ReloadInterval()
     {
         yield return new WaitForSeconds(_reloadTime);
+        _restBullets = _bulletsCapacity;
     }
 }
