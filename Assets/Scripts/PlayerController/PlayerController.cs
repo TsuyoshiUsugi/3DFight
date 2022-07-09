@@ -44,6 +44,17 @@ public class PlayerController : MonoBehaviour
     /// <summary>右腕の角度</summary>
     [SerializeField] Vector3 _rightArmRotation;
 
+    /// <summary>PlayerのHP</summary>
+    [SerializeField] float _playerHp;
+
+    /// <summary>Playerのdamage</summary>
+    [SerializeField] float _playerDamage;
+
+    /// <summary>
+    /// ダメージのプロパティ
+    /// </summary>
+    public float PlayerDamage { get => _playerDamage; set => _playerDamage = value; }
+
     // Update is called once per frame
     void Update()
     {
@@ -60,6 +71,8 @@ public class PlayerController : MonoBehaviour
         Shot();
 
         Reload();
+
+        Damage();
     }
 
     private void FixedUpdate()
@@ -126,12 +139,7 @@ public class PlayerController : MonoBehaviour
     /// <param name="collision"></param>
     private void OnCollisionEnter(Collision collision)
     {
-        /*
-        if(collision.gameObject.CompareTag("Ground") == true)
-        {
-            _jumpCount = 0;
-        }
-        */
+
         _jumpCount = 0;
     }
 
@@ -142,6 +150,9 @@ public class PlayerController : MonoBehaviour
     {
         Ray ray = Camera.main.ViewportPointToRay(new Vector2(0.5f, 0.5f));
 
+        Debug.DrawRay(ray.origin, ray.direction * 1000, Color.red, 0.1f, false);
+
+        
 
         if (Input.GetButton("Aim"))
         {
@@ -149,9 +160,10 @@ public class PlayerController : MonoBehaviour
             {
                 Vector3 playerLook = hit.transform.position - transform.position;
                 Quaternion quaternion = Quaternion.LookRotation(playerLook);
-                _rightArm.Rotate(_rightArmRotation);
+                //_rightArm.Rotate(_rightArmRotation);
+                //_rightArm.LookAt(hit.transform.position, Vector3.forward);
+                animator.SetBool("Aim", true);
             }
-            animator.SetBool("Aim", true);
             //_rightArm.rotation = Quaternion._rightArmRotation;
         }
         else
@@ -191,4 +203,8 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    void Damage()
+    {
+
+    }
 }

@@ -10,11 +10,15 @@ public class PlayerCameraController : MonoBehaviour
     [SerializeField] GameObject targetObj;
     [SerializeField] Vector3 targetPos;
     [SerializeField] float _cameraSpeed;
+    [SerializeField] float _cameraPos;
+
+    [SerializeField] Vector3 _distCamAndPlayerPos;
     float mouseInputX;
     float mouseInputY;
     // Start is called before the first frame update
     void Start()
     {
+        _distCamAndPlayerPos = targetPos - transform.position;
     }
 
     // Update is called once per frame
@@ -25,10 +29,17 @@ public class PlayerCameraController : MonoBehaviour
         mouseInputY = Input.GetAxis("Mouse Y");
 
         CameraRotate();
+
+        CameraPosition();
     }
 
     void CameraRotate()
     {
         transform.RotateAround(targetPos, Vector3.up, mouseInputX * Time.deltaTime * _cameraSpeed);
+    }
+
+    void CameraPosition()
+    {
+        transform.position = targetPos - (_distCamAndPlayerPos);
     }
 }

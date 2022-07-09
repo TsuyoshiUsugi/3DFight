@@ -36,9 +36,6 @@ public abstract class GunBase : MonoBehaviour
     /// <summary>反動</summary>
     [SerializeField] float _recoil = default;
 
-    /// <summary>ダメージ</summary>
-    [SerializeField] float _damage = default;
-
     /// <summary>引き金が引かれたか</summary>
     [SerializeField] bool _pullTrigger = false;
 
@@ -90,6 +87,7 @@ public abstract class GunBase : MonoBehaviour
                 _restBullets--;
                 audioSource.PlayOneShot(_shotSound);
                 StartCoroutine("ShotInterval");
+                _pullTrigger = false;
             }
             //残弾なし
             else
@@ -97,7 +95,7 @@ public abstract class GunBase : MonoBehaviour
                 _canShot = false;
                 audioSource.PlayOneShot(_noAmmoSound);
                 StartCoroutine("ShotInterval");
-
+                _pullTrigger = false;
             }
         }
     }
@@ -131,4 +129,5 @@ public abstract class GunBase : MonoBehaviour
         yield return new WaitForSeconds(_reloadTime);
         _restBullets = _bulletsCapacity;
     }
+
 }
