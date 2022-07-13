@@ -85,16 +85,13 @@ public class PlayerController : MonoBehaviour
 
         Damage();
 
+
     }
 
     private void FixedUpdate()
     {
         Move();
 
-        if (Input.GetButtonDown("Aim") == false)
-        {
-            //PlayerRotate();
-        }
         PlayerRotate();
     }
 
@@ -118,7 +115,6 @@ public class PlayerController : MonoBehaviour
         //カメラの向いてる方にプレイヤーを動かす
         _rb.velocity = new Vector3(moveForward.x * _walkSpeed, _rb.velocity.y, moveForward.z * _walkSpeed);
 
-        //_rb.velocity = new Vector3(_horizontal * _walkSpeed, _rb.velocity.y, _vertical * _walkSpeed);
         animator.SetFloat("VSpeed", _vertical);
     }
 
@@ -160,10 +156,6 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     void Aim()
     {
-     
-
-        
-
         if (Input.GetButton("Aim"))
         {    
                 animator.SetBool("Aim", true);
