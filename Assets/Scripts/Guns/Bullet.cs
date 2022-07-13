@@ -29,17 +29,26 @@ public class Bullet : MonoBehaviour
     /// 銃のダメ―ジのプロパティ
     /// </summary>
     public float BulletDamage { get => _bulletDamage; set => _bulletDamage = value; } 
+
+    //public Vector3 BulletDir { get => _dir ; set => _dir = value; }
     
     // Start is called before the first frame update
     void Start()
     {
-        _dir = -transform.up;
+        Vector3 dirPoint = FindObjectOfType<PlayerController>().PlayerLook;
+
+        _dir = (dirPoint - transform.position).normalized;
+        //_dir = -transform.up;
+        //_bulletRb.AddForce(_dir * bulletSpeed * Time.deltaTime, ForceMode.Impulse);
+
+        _bulletRb.AddForce(_dir * bulletSpeed, ForceMode.Impulse);
+        //_bulletRb.velocity = _dir * bulletSpeed
     }
 
     // Update is called once per frame
     void Update()
     {
-        _bulletRb.AddForce(_dir * bulletSpeed * Time.deltaTime, ForceMode.Impulse);
+        //_bulletRb.AddForce(_dir * bulletSpeed * Time.deltaTime, ForceMode.Impulse);
     }
 
     /// <summary>

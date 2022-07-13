@@ -38,17 +38,19 @@ public class PlayerController : MonoBehaviour
     /// <summary>マウスの上下の入力値を入れる変数</summary>
     float mouseInputY;
 
-    /// <summary>右腕のボーンを入れる変数</summary>
-    [SerializeField] Transform _rightArm;
-
-    /// <summary>右腕の角度</summary>
-    [SerializeField] Vector3 _rightArmRotation;
+    /// <summary>目線のオブジェクト</summary>
+    [SerializeField] GameObject _eye;
 
     /// <summary>PlayerのHP</summary>
     [SerializeField] float _playerHp;
 
     /// <summary>Playerのdamage</summary>
     [SerializeField] float _playerDamage;
+
+    /// <summary>Playerの見ている地点</summary>
+    [SerializeField] Vector3 _playerLook;
+
+    public Vector3 PlayerLook { get => _playerLook; set => _playerLook = value; }
 
     /// <summary>
     /// ダメージのプロパティ
@@ -64,7 +66,16 @@ public class PlayerController : MonoBehaviour
 
         //マウスの位置を読み取る
         mouseInputX = Input.GetAxis("Mouse X");
-        mouseInputY = Input.GetAxis("Mouse Y");
+        mouseInputY += Input.GetAxis("Mouse Y");
+        //mouseInputY = Mathf.Clamp(mouseInputY, -90f, 90f);
+
+        //playerの見ている地点を読み取りfieldに格納
+        Ray ray = Camera.main.ViewportPointToRay(new Vector2(0.5f, 0.5f));
+        if(Physics.Raycast(ray, out RaycastHit  hit))
+        {
+            _playerLook = hit.point;
+        }
+        PlayerCamRotate();
 
         Jump();
 
@@ -73,6 +84,7 @@ public class PlayerController : MonoBehaviour
         Reload();
 
         Damage();
+
     }
 
     private void FixedUpdate()
@@ -148,23 +160,13 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     void Aim()
     {
-        Ray ray = Camera.main.ViewportPointToRay(new Vector2(0.5f, 0.5f));
-
-        Debug.DrawRay(ray.origin, ray.direction * 1000, Color.red, 0.1f, false);
+     
 
         
 
         if (Input.GetButton("Aim"))
-        {
-            if (Physics.Raycast(ray, out RaycastHit hit))
-            {
-                Vector3 playerLook = hit.transform.position - transform.position;
-                Quaternion quaternion = Quaternion.LookRotation(playerLook);
-                //_rightArm.Rotate(_rightArmRotation);
-                //_rightArm.LookAt(hit.transform.position, Vector3.forward);
+        {    
                 animator.SetBool("Aim", true);
-            }
-            //_rightArm.rotation = Quaternion._rightArmRotation;
         }
         else
         {
@@ -206,5 +208,11 @@ public class PlayerController : MonoBehaviour
     void Damage()
     {
 
+    }
+
+    void PlayerCamRotate()
+    {
+        //_eye.transform.forward = transform.forward;
+        Camera.main.transform.rotation = Quaternion.Euler(-mouseInputY, mouseInputX, 0);
     }
 }
