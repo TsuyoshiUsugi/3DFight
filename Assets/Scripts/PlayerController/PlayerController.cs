@@ -7,9 +7,12 @@ using UnityEngine;
 /// </summary>
 public class PlayerController : MonoBehaviour
 {
-
+    [Header("参照")]
     [SerializeField] Rigidbody _rb;
     [SerializeField] Animator animator;
+
+    /// <summary>目線のオブジェクト</summary>
+    [SerializeField] GameObject _eye;
 
     /// <summary>歩く速さ</summary>
     [SerializeField] float _walkSpeed;
@@ -23,8 +26,11 @@ public class PlayerController : MonoBehaviour
     /// <summary>ジャンプ回数</summary>
     [SerializeField] float _jumpCount;
 
-    /// <summary>ジャンプ回数の制限</summary>
+    
     [SerializeField] float _jumpLimit;
+
+    /// <summary>ジャンプしたときに飛びすぎない為の制限</summary>
+    [SerializeField] float _maxJumpLimit;
 
     /// <summary>前進入力の入力値を入れる変数</summary>
     float _horizontal;
@@ -38,9 +44,6 @@ public class PlayerController : MonoBehaviour
     /// <summary>マウスの上下の入力値を入れる変数</summary>
     float mouseInputY;
 
-    /// <summary>目線のオブジェクト</summary>
-    [SerializeField] GameObject _eye;
-
     /// <summary>PlayerのHP</summary>
     [SerializeField] float _playerHp;
 
@@ -50,6 +53,9 @@ public class PlayerController : MonoBehaviour
     /// <summary>Playerの見ている地点</summary>
     [SerializeField] Vector3 _playerLook;
 
+    /// <summary>
+    /// _playerLookのプロパティ
+    /// </summary>
     public Vector3 PlayerLook { get => _playerLook; set => _playerLook = value; }
 
     /// <summary>
@@ -75,7 +81,8 @@ public class PlayerController : MonoBehaviour
         {
             _playerLook = hit.point;
         }
-        PlayerCamRotate();
+
+        JampVelocityLimit();
 
         Jump();
 
@@ -84,7 +91,6 @@ public class PlayerController : MonoBehaviour
         Reload();
 
         Damage();
-
 
     }
 
@@ -167,14 +173,6 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// 
-    /// </summary>
-    void AimTarget()
-    {
-
-    }
-
-    /// <summary>
     /// 攻撃用のメソッド
     /// </summary>
     void Shot()
@@ -197,14 +195,24 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// ダメージ処理を行うメソッド
+    /// </summary>
     void Damage()
     {
 
     }
 
-    void PlayerCamRotate()
+    /// <summary>
+    /// 上方向の力を制限するメソッド
+    /// </summary>
+    void JampVelocityLimit()
     {
-        //_eye.transform.forward = transform.forward;
-        Camera.main.transform.rotation = Quaternion.Euler(-mouseInputY, mouseInputX, 0);
+        if (_rb.velocity.y > _maxJumpLimit)
+        {
+            _rb.velocity = new Vector3(_rb.velocity.x, _maxJumpLimit, _rb.velocity.z);
+        }
     }
+
+
 }
