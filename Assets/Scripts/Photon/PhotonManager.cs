@@ -2,10 +2,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
+using Photon.Realtime;
 
+/// <summary>
+/// Photonに関する主要な処理を行うクラス
+/// 
+/// 詳細動作
+/// ロビーやルームに接続したときの処理
+///
+/// </summary>
 public class PhotonManager : MonoBehaviourPunCallbacks
 {
     [SerializeField] static PhotonManager _instance;
+
+    public static PhotonManager Instance { get => _instance; set => _instance = value; }
 
     /// <summary>ロードパネル</summary>
     [SerializeField] GameObject _loadingPanel;
@@ -15,6 +25,48 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
     /// <summary>ボタンの親オブジェクト</summary>
     [SerializeField] GameObject _buttons;
+
+    
+    [SerializeField] GameObject _createRoomPanel;
+
+    /// <summary>ルーム名の入力テキスト</summary>
+    [SerializeField] Text enterRoomName;
+
+    /// <summary>ルームパネル</summary>
+    [SerializeField] GameObject _roomPanel;
+
+    /// <summary>ルームネーム</summary>
+    [SerializeField] Text _roomName;
+
+    /// <summary>エラーパネル</summary>
+    [SerializeField] GameObject _errorPanel;
+
+    /// <summary>エラーテキスト</summary>
+    [SerializeField] Text _errorText;
+
+    /// <summary>ルーム一覧</summary>
+    [SerializeField] GameObject _roomListPanel;
+
+    /// <summary>ルームボタン格納</summary>
+    [SerializeField] Room _originalRoomButton;
+
+    /// <summary>ルームボタンの親オブジェクト</summary>
+    [SerializeField] GameObject _roomButtonContent;
+
+    /// <summary>ルームの情報を扱う辞書</summary>
+    Dictionary<string, RoomInfo> _roomList = new Dictionary<string, RoomInfo>();
+
+    /// <summary>ルームボタンを扱うリスト</summary>
+    List<Room> _allRoomButtons = new List<Room>();
+
+    /// <summary>名前テキスト</summary>
+    [SerializeField] Text _playerNameText;
+
+    /// <summary>名前テキスト格納リスト</summary>
+    [SerializeField] List<Text> _allPlayerNames = new List<Text>();
+
+    /// <summary>名前テキストの親オブジェクト</summary>
+    [SerializeField] GameObject _playerNameContent;
 
     private void Awake()
     {
@@ -41,19 +93,28 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     }
 
     /// <summary>
-    /// メニューをすべて閉じる関数
+    /// メニューUIをすべて閉じる関数
     /// </summary>
     void CloseMenuUI()
     {
         _loadingPanel.SetActive(false);
 
         _buttons.SetActive(false);
+
+        _createRoomPanel.SetActive(false);
+
+        _roomPanel.SetActive(false);
+
+        _errorPanel.SetActive(false);
+
+        _roomListPanel.SetActive(false);
     }
 
     /// <summary>
     /// ロビーUIを表示する関数
+    /// ボタンで関数を使用する都合上publicになってしまっている。要検討
     /// </summary>
-    void LobbyMenuDisplay()
+    public void LobbyMenuDisplay()
     {
         CloseMenuUI();
         _buttons.SetActive(true);
@@ -71,8 +132,233 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         _loadingText.text = "ロビーに参加中…";
     }
 
+    /// <summary>
+    /// ロビー接続時に呼ばれる関数
+    /// </summary>
     public override void OnJoinedLobby()
     {
         LobbyMenuDisplay();
+
+        //辞書の初期化
+        _roomList.Clear();
+
+        PhotonNetwork.NickName = Random.Range(0, 1000).ToString();
     }
+
+    /// <summary>
+    /// ルームを作るボタン用の関数作成
+　　/// ボタンで関数を使用する都合上publicになってしまっている。要検討
+    /// </summary>
+    public　void OpenCreateRoomPanel()
+    {
+        CloseMenuUI();
+
+        _createRoomPanel.SetActive(true);
+    }
+
+    /// <summary>
+    /// ルームを作成ボタン用の関数 
+    /// ボタンで関数を使用する都合上publicになってしまっている。要検討
+    /// </summary>
+    public void CreateRoomButton()
+    {
+        if (!string.IsNullOrEmpty(enterRoomName.text))
+        {
+            RoomOptions options = new RoomOptions();
+            options.MaxPlayers = 2;
+
+            //ルーム作成
+            PhotonNetwork.CreateRoom(enterRoomName.text, options);
+
+            CloseMenuUI();
+
+            //ロードパネルを表示
+            _loadingText.text = "ルームを作成中...";
+            _loadingPanel.SetActive(true);
+        }
+         
+    }
+
+    /// <summary>
+    /// ルーム参加時に呼ばれる関数
+    /// </summary>
+    public override void OnJoinedRoom()
+    {
+        CloseMenuUI();
+        _roomPanel.SetActive(true);
+
+        //ルームの名前を反映
+        _roomName.text = PhotonNetwork.CurrentRoom.Name;
+
+        //ルームにいるプレイヤー情報を取得する
+        GetAllPlayer();
+    }
+
+    /// <summary>
+    /// ルームを退出する関数
+    /// ボタンで関数を使用する都合上publicになってしまっている。要検討
+    /// </summary>
+    public void LeaveRoom()
+    {
+        //ルームから退出
+        PhotonNetwork.LeaveRoom();
+
+        CloseMenuUI();
+
+        _loadingText.text = "退出中…";
+        _loadingPanel.SetActive(true);
+    }
+
+    /// <summary>
+    /// ルーム退出時に呼ばれる関数
+    /// </summary>
+    public override void OnLeftRoom()
+    {
+        //ロビーUI表示
+        LobbyMenuDisplay();
+    }
+
+    /// <summary>
+    /// ルーム作成に失敗したときに呼ばれる関数
+    /// </summary>
+    /// <param name="returnCode"></param>
+    /// <param name="message"></param>
+    public override void OnCreateRoomFailed(short returnCode, string message)
+    {
+        //UIの表示を変える
+        CloseMenuUI();
+
+        _errorText.text = "ルームの作成に失敗しました" + message;
+
+        _errorPanel.SetActive(true);
+    }
+
+    /// <summary>
+    /// ルーム一覧パネルを開く関数作成
+    /// ボタンで関数を使用する都合上publicになってしまっている。要検討
+    /// </summary>
+    public void FindRoom()
+    {
+        CloseMenuUI();
+        _roomListPanel.SetActive(true);
+    }
+
+    /// <summary>
+    /// ルームリストに更新があった時に呼ばれる関数
+    /// </summary>
+    /// <param name="roomList"></param>
+    public override void OnRoomListUpdate(List<RoomInfo> roomList)
+    {
+        //ルームボタン初期化
+        RoomUIInitialize();
+
+       　//辞書に登録
+        UpdateRoomList(roomList);
+    }
+
+    /// <summary>
+    /// ルーム情報を辞書に登録
+    /// </summary>
+    /// <param name="roomList"></param>
+    void UpdateRoomList(List<RoomInfo> roomList)
+    {
+        for (int i = 0; i < roomList.Count; i++)
+        {
+            RoomInfo info = roomList[i];
+
+            if (info.RemovedFromList)
+            {
+                _roomList.Remove(info.Name);
+            }
+            else
+            {
+                _roomList[info.Name] = info;
+            }
+        }
+
+        //ルームボタン表示関数
+        RoomListDisplay(_roomList);
+ 
+    }
+
+    /// <summary>
+    /// ルームボタンを作成して表示
+    /// </summary>
+    /// <param name="cachedRoomList"></param>
+    void RoomListDisplay(Dictionary<string, RoomInfo> cachedRoomList)
+    {
+        foreach (var roomInfo in cachedRoomList)
+        {
+            //ボタンを作成
+            Room newButton = Instantiate(_originalRoomButton);
+
+            //生成したボタンにルーム情報設定
+            newButton.RegisterRoomDetails(roomInfo.Value);
+
+            //親の設定
+            newButton.transform.SetParent(_roomButtonContent.transform);
+
+            _allRoomButtons.Add(newButton);
+        }
+    }
+
+    /// <summary>
+    /// ルームボタンのUI初期化関数
+    /// </summary>
+    void RoomUIInitialize()
+    {
+        foreach (Room rm in _allRoomButtons)
+        {
+            //削除
+            Destroy(rm.gameObject);
+        }
+
+        //リストの初期化
+        _allRoomButtons.Clear();
+    }
+
+    /// <summary>
+    /// 引数のルームに入る関数
+    /// Roomから参照されているpublicな関数
+    /// </summary>
+    public void JoinRoom(RoomInfo roomInfo)
+    {
+        //ルームに参加
+        PhotonNetwork.JoinRoom(roomInfo.Name);
+
+        //UIを閉じる
+        CloseMenuUI();
+
+        _loadingText.text = "ルームに参加中";
+        _loadingPanel.SetActive(true);
+    }
+
+    /// <summary>
+    /// ルームにいるプレイヤー情報を取得する
+    /// </summary>
+    void GetAllPlayer()
+    {
+        //名前テキストを初期化
+        InitializePlayerList();
+
+        //プレイヤー表示関数
+        PlayerDisplay();
+    }
+
+    /// <summary>
+    /// 名前テキストを初期化
+    /// </summary>
+    void InitializePlayerList()
+    {
+
+    }
+
+    /// <summary>
+    /// プレイヤーを表示する関数
+    /// </summary>
+    void PlayerDisplay()
+    {
+
+    }
+
 }
