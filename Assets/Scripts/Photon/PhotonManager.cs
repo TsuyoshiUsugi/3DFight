@@ -63,10 +63,22 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     [SerializeField] Text _playerNameText;
 
     /// <summary>名前テキスト格納リスト</summary>
-    [SerializeField] List<Text> _allPlayerNames = new List<Text>();
+    List<Text> _allPlayerNames = new List<Text>();
 
     /// <summary>名前テキストの親オブジェクト</summary>
     [SerializeField] GameObject _playerNameContent;
+
+    /// <summary>名前入力パネル</summary>
+    [SerializeField] GameObject _nameInputPanel;
+
+    /// <summary>名前入力表示テキスト</summary>
+    [SerializeField] Text _placeHolderText;
+
+    /// <summary>入力フィールド</summary>
+    [SerializeField] InputField _nameInput;
+
+    /// <summary>名前を入力したか判定</summary>
+    bool _setName;
 
     private void Awake()
     {
@@ -108,6 +120,8 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         _errorPanel.SetActive(false);
 
         _roomListPanel.SetActive(false);
+
+        _nameInputPanel.SetActive(false);
     }
 
     /// <summary>
@@ -143,6 +157,11 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         _roomList.Clear();
 
         PhotonNetwork.NickName = Random.Range(0, 1000).ToString();
+
+        //名前が入力済みか確認してUI更新
+        ConfirmationName();
+
+
     }
 
     /// <summary>
@@ -350,7 +369,12 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     /// </summary>
     void InitializePlayerList()
     {
+        foreach (var rm in _allPlayerNames)
+        {
+            Destroy(rm.gameObject);
+        }
 
+        _allPlayerNames.Clear();
     }
 
     /// <summary>
@@ -358,7 +382,72 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     /// </summary>
     void PlayerDisplay()
     {
-
+        //ルームに参加している人数分UI表示
+        foreach (var players in PhotonNetwork.PlayerList)
+        {
+            //UI作成関数
+            PlayerTextGeneration(players);
+        }
     }
 
+    /// <summary>
+    /// UIを生成する関数
+    /// </summary>
+    void PlayerTextGeneration(Player players)
+    {
+        //UI生成
+        Text newPlayerText = Instantiate(_playerNameText);
+
+        //テキストに名前を反映
+        newPlayerText.text = players.NickName;
+
+        //親オブジェクトの設定
+        newPlayerText.transform.SetParent(_playerNameContent.transform);
+
+        //リストに登録
+        _allPlayerNames.Add(newPlayerText);
+    }
+
+    /// <summary>
+    /// 名前が入力済みか確認してUI更新
+    /// </summary>
+    void ConfirmationName()
+    {
+        if(!_setName)
+        {
+            CloseMenuUI();
+            _nameInputPanel.SetActive(true);
+
+            if (PlayerPrefs.HasKey("playerName"))
+            {
+                _placeHolderText.text = PlayerPrefs.GetString("playerName");
+                _nameInput.text = PlayerPrefs.GetString("playerName");
+            }
+        }
+        else
+        {
+            PhotonNetwork.NickName = PlayerPrefs.GetString("playerName");
+        }
+    }
+
+    /// <summary>
+    /// 名前決定時のボタン用関数、publicになっている。
+    /// </summary>
+    public void SetName()
+    {
+        //入力フィールドに文字が入力されているかどうか
+        if(!string.IsNullOrEmpty(_nameInput.text))
+        {
+            //ユーザー名登録
+            PhotonNetwork.NickName = _nameInput.text;
+
+            //保存
+            PlayerPrefs.SetString("playerName", _nameInput.text);
+
+            //UI表示
+            LobbyMenuDisplay();
+
+            _setName = true;
+        }
+    }
 }
