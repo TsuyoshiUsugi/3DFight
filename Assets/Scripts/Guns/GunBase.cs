@@ -53,6 +53,9 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
 
     [SerializeField] Vector3 _playerLook;
 
+    /// <summary>’eŠÛ‚Ìprefab‚ª“ü‚Á‚½resource‚ÌƒpƒX</summary>
+    [SerializeField] string _resourcePath = "";
+
     private void Update()
     {
         _playerLook = GetComponentInParent<PlayerController>().PlayerLook;
@@ -95,14 +98,17 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
                 _canShot = false;
 
                 //’eŠÛ‚ğ¶¬‚µ‚ÄA”ò‚Ô•ûŒü‚ğ—^‚¦‚é
-                GameObject bullet = Instantiate(_bullet, _muzzle.transform.position, _muzzle.transform.rotation) as GameObject;
+                
+                GameObject bullet = PhotonNetwork.Instantiate(_resourcePath, _muzzle.transform.position, _muzzle.transform.rotation) as GameObject;
 
                 Bullet instantiateBullet = bullet.GetComponent<Bullet>();
 
                 instantiateBullet.Dir = _playerLook;
 
                 instantiateBullet.Shot();
+                
 
+                
                 //c’eŒ¸‚ç‚·
                 _restBullets--;
                 //audioSource.PlayOneShot(_shotSound);
