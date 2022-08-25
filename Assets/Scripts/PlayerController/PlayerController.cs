@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 /// <summary>
 /// プレイヤーの制御をするコンポーネント
 /// </summary>
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviourPunCallbacks
 {
     [Header("参照")]
     [SerializeField] Rigidbody _rb;
@@ -26,8 +27,8 @@ public class PlayerController : MonoBehaviour
     /// <summary>ジャンプ回数</summary>
     [SerializeField] float _jumpCount;
 
-    
-    [SerializeField] float _jumpLimit;
+    /// <summary>ジャンプ回数の制限</summary>
+    [SerializeField] float _jumpCountLimit;
 
     /// <summary>ジャンプしたときに飛びすぎない為の制限</summary>
     [SerializeField] float _maxJumpLimit;
@@ -63,9 +64,23 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public float PlayerDamage { get => _playerDamage; set => _playerDamage = value; }
 
-    // Update is called once per frame
+    /// <summary>SpawnManagerの参照</summary>
+    [SerializeField] SpawnManager _spawnManager;
+
+    private void Start()
+    {
+        
+    }
+
+
     void Update()
     {
+
+        if (!photonView.IsMine)
+        {
+            return;
+        }
+
         //WASDのキーを読み取る
         _horizontal = Input.GetAxis("Horizontal");
         _vertical = Input.GetAxis("Vertical");
@@ -96,6 +111,11 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (!photonView.IsMine)
+        {
+            return;
+        }
+
         Move();
 
         PlayerRotate();
@@ -103,6 +123,12 @@ public class PlayerController : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (!photonView.IsMine)
+        {
+            return;
+        }
+
+
         Aim();
         
     }
@@ -139,7 +165,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     void Jump()
     {
-        if (Input.GetButtonDown("Jump") && _jumpCount < _jumpLimit)
+        if (Input.GetButtonDown("Jump") && _jumpCount < _jumpCountLimit)
         {
             _rb.AddForce(transform.up * _jumpForce);
             _jumpCount++;
@@ -214,5 +240,5 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
+    
 }
