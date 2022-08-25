@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 /// <summary>
 /// 銃の共通要素をもつ基底クラス
 /// </summary>
-public abstract class GunBase : MonoBehaviour
+public abstract class GunBase : MonoBehaviourPunCallbacks
 {
     /*
      銃の共通要素
@@ -50,6 +51,12 @@ public abstract class GunBase : MonoBehaviour
 
     [SerializeField] AudioSource audioSource;
 
+    [SerializeField] Vector3 _playerLook;
+
+    private void Update()
+    {
+        _playerLook = GetComponentInParent<PlayerController>().PlayerLook;
+    }
 
     /// <summary>
     /// 引き金のプロパティ
@@ -75,17 +82,32 @@ public abstract class GunBase : MonoBehaviour
     /// <summary>
     /// 射撃のメソッド
     /// </summary>
+    [PunRPC]
     public void Shot()
     {
+   
         if (_pullTrigger == true && _canShot == true)
         {
             //残弾あり
             if (_restBullets > 0)
             {
+                //連続で撃てなくさせる
                 _canShot = false;
-                Instantiate(_bullet, _muzzle.transform.position, _muzzle.transform.rotation);
+
+                //弾丸を生成して、飛ぶ方向を与える
+                GameObject bullet = Instantiate(_bullet, _muzzle.transform.position, _muzzle.transform.rotation) as GameObject;
+
+                Bullet instantiateBullet = bullet.GetComponent<Bullet>();
+
+                instantiateBullet.Dir = _playerLook;
+
+                instantiateBullet.Shot();
+
+                //残弾減らす
                 _restBullets--;
-                audioSource.PlayOneShot(_shotSound);
+                //audioSource.PlayOneShot(_shotSound);
+
+                //次に撃てるまで間を空ける
                 StartCoroutine("ShotInterval");
                 _pullTrigger = false;
             }
@@ -93,7 +115,7 @@ public abstract class GunBase : MonoBehaviour
             else
             {
                 _canShot = false;
-                audioSource.PlayOneShot(_noAmmoSound);
+               // audioSource.PlayOneShot(_noAmmoSound);
                 StartCoroutine("ShotInterval");
                 _pullTrigger = false;
             }

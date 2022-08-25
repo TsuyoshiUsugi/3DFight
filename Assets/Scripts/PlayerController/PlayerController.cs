@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+using Cinemachine;
 
 /// <summary>
 /// プレイヤーの制御をするコンポーネント
@@ -67,9 +68,22 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// <summary>SpawnManagerの参照</summary>
     [SerializeField] SpawnManager _spawnManager;
 
+    /// <summary>Chinemachineカメラの参照</summary>
+    [SerializeField] CinemachineFreeLook _virtualCamera;
+
+    [SerializeField] GunBase _gun;
+
     private void Start()
     {
-        
+        if (!photonView.IsMine)
+        {
+            return;
+        }
+
+        //Chinemachineカメラの参照を読みこむ
+        _virtualCamera = GameObject.FindGameObjectWithTag("Camera").GetComponent<CinemachineFreeLook>();
+
+        _gun = this.GetComponentInChildren<GunBase>();
     }
 
 
@@ -80,6 +94,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             return;
         }
+
+        //カメラの位置をきめる
+        _virtualCamera.LookAt = _eye.transform;
+        _virtualCamera.Follow = _eye.transform;
 
         //WASDのキーを読み取る
         _horizontal = Input.GetAxis("Horizontal");
@@ -205,8 +223,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         if (Input.GetButtonDown("Shot"))
         {
-            FindObjectOfType<FirstGun>().PullTrigger = true;
-            FindObjectOfType<FirstGun>().Shot();
+            _gun.PullTrigger = true;
+            _gun.Shot();
         }
     }
 

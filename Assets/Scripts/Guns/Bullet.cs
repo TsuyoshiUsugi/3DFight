@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 /// <summary>
 /// 弾丸のコンポーネント
 /// </summary>
-public class Bullet : MonoBehaviour
+public class Bullet : MonoBehaviourPunCallbacks
 {
     /// <summary>弾丸のスピード</summary>
     [SerializeField] float bulletSpeed;
@@ -15,6 +16,8 @@ public class Bullet : MonoBehaviour
 
     /// <summary>弾丸のとぶ方向</summary>
     Vector3 _dir;
+
+    public Vector3 Dir { get => _dir; set => _dir = value; }
 
     [SerializeField] Rigidbody _bulletRb;
 
@@ -30,25 +33,25 @@ public class Bullet : MonoBehaviour
     /// </summary>
     public float BulletDamage { get => _bulletDamage; set => _bulletDamage = value; } 
 
-    //public Vector3 BulletDir { get => _dir ; set => _dir = value; }
-    
-    // Start is called before the first frame update
     void Start()
     {
+        /*
         Vector3 dirPoint = FindObjectOfType<PlayerController>().PlayerLook;
 
         _dir = (dirPoint - transform.position).normalized;
-        //_dir = -transform.up;
-        //_bulletRb.AddForce(_dir * bulletSpeed * Time.deltaTime, ForceMode.Impulse);
-
+        
         _bulletRb.AddForce(_dir * bulletSpeed, ForceMode.Impulse);
-        //_bulletRb.velocity = _dir * bulletSpeed
+        */
     }
 
-    // Update is called once per frame
-    void Update()
+    /// <summary>
+    /// gunBaseから参照されておりpublic
+    /// </summary>
+    public void Shot()
     {
-        //_bulletRb.AddForce(_dir * bulletSpeed * Time.deltaTime, ForceMode.Impulse);
+        Vector3 dir = _dir = (_dir - transform.position).normalized;
+
+        _bulletRb.AddForce(dir * bulletSpeed, ForceMode.Impulse);
     }
 
     /// <summary>
