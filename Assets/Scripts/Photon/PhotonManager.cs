@@ -80,6 +80,12 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     /// <summary>名前を入力したか判定</summary>
     bool _setName;
 
+    /// <summary>スタートボタン</summary>
+    [SerializeField] GameObject _startButton;
+
+    /// <summary>遷移シーン名</summary>
+    [SerializeField] string _levelToPlay;
+
     private void Awake()
     {
         //static変数に格納
@@ -144,6 +150,9 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
         //テキスト更新
         _loadingText.text = "ロビーに参加中…";
+
+        //Master Clientと同じレベルをロード
+        PhotonNetwork.AutomaticallySyncScene = true;
     }
 
     /// <summary>
@@ -211,6 +220,9 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
         //ルームにいるプレイヤー情報を取得する
         GetAllPlayer();
+
+        //マスターか判定してボタン表示
+        CheckRoomMaster();
     }
 
     /// <summary>
@@ -449,5 +461,59 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
             _setName = true;
         }
+    }
+
+    /// <summary>
+    /// プレイヤーがルームに入った時に呼び出される関数
+    /// </summary>
+    /// <param name="newPlayer"></param>
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        PlayerTextGeneration(newPlayer);
+    }
+
+    /// <summary>
+    /// プレイヤーがルームから離れるか、非アクティブになった時に呼び出される関数
+    /// </summary>
+    /// <param name="otherPlayer"></param>
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        GetAllPlayer();
+    }
+
+    /// <summary>
+    /// マスターか判定してボタン表示
+    /// </summary>
+    void CheckRoomMaster()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            _startButton.SetActive(true);
+        }
+        else
+        {
+            _startButton.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// マスターが切り替わった時に呼ばれる関数
+    /// </summary>
+    /// <param name="newMasterClient"></param>
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            _startButton.SetActive(true);
+        }
+    }
+
+    /// <summary>
+    /// 遷移関数
+    /// ボタンから設定しているのでpublicになってしまっている
+    /// </summary>
+    public void PlayGame()
+    {
+        PhotonNetwork.LoadLevel(_levelToPlay);
     }
 }
