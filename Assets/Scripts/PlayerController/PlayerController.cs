@@ -31,7 +31,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] float _jumpCountLimit;
 
     /// <summary>ジャンプしたときに飛びすぎない為の制限</summary>
-    [SerializeField] float _maxJumpLimit;
+    [SerializeField] float _maxJumpSpeedLimit;
 
     /// <summary>前進入力の入力値を入れる変数</summary>
     float _horizontal;
@@ -234,9 +234,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     void JampVelocityLimit()
     {
-        if (_rb.velocity.y > _maxJumpLimit)
+        if (_rb.velocity.y > _maxJumpSpeedLimit)
         {
-            _rb.velocity = new Vector3(_rb.velocity.x, _maxJumpLimit, _rb.velocity.z);
+            _rb.velocity = new Vector3(_rb.velocity.x, _maxJumpSpeedLimit, _rb.velocity.z);
         }
     }
 

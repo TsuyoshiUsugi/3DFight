@@ -3,10 +3,14 @@ using Cinemachine;
 using UnityEngine;
 using Photon.Pun;
 
+/// <summary>
+/// CinemachineÇÃFreeLookCamÇÃFollowÇ∆LookatÇê›íËÇ∑ÇÈ
+/// </summary>
 public class PlayerCam : MonoBehaviourPunCallbacks
 {
     private CinemachineVirtualCamera _virtualCamera;
-    private GameObject _playerEye;
+
+    [SerializeField] GameObject _playerEye;
 
     void Start()
     {
@@ -30,8 +34,10 @@ public class PlayerCam : MonoBehaviourPunCallbacks
             _playerEye = GameObject.FindWithTag("Eye");
             if (_playerEye != null )
             {
-                _virtualCamera.Follow = _playerEye.transform;
                 _virtualCamera.LookAt = _playerEye.transform;
+                _virtualCamera.Follow = _playerEye.transform;
+
+                Debug.Log("ok");
             }
         }
     }
