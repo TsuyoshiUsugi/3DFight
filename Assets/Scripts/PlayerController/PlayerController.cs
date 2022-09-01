@@ -123,8 +123,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         Reload();
 
-        Damage();
-
     }
 
     private void FixedUpdate()
@@ -240,11 +238,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
     }
 
     /// <summary>
-    /// ダメージ処理を行うメソッド
+    /// ダメージ処理を行うメソッド。Bulletクラスから呼び出されるパブリック関数
     /// </summary>
-    void Damage()
+    public void Damage(float damage)
     {
-
+        Debug.Log("ookk");
+        _playerHp -= damage;
     }
 
     /// <summary>
@@ -258,5 +257,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
-    
+    private void OnTriggerEnter(Collider other)
+    {
+        if (photonView.IsMine)
+        {
+            if (other.TryGetComponent<Bullet>(out var bullet))
+            {
+                Debug.Log("Aaaaa");
+                _playerHp -= bullet.GetComponent<Bullet>().BulletDamage;
+            }
+        }
+    }
+
+
 }

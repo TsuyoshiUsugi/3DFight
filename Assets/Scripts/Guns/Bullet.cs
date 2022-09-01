@@ -35,13 +35,7 @@ public class Bullet : MonoBehaviourPunCallbacks
 
     void Start()
     {
-        /*
-        Vector3 dirPoint = FindObjectOfType<PlayerController>().PlayerLook;
 
-        _dir = (dirPoint - transform.position).normalized;
-        
-        _bulletRb.AddForce(_dir * bulletSpeed, ForceMode.Impulse);
-        */
     }
 
     /// <summary>
@@ -63,15 +57,9 @@ public class Bullet : MonoBehaviourPunCallbacks
     {
         if (other.tag == "Player")
         {
-            other.GetComponent<PlayerController>().PlayerDamage = _bulletDamage;
-            string tag = other.tag;
+            Debug.Log("qqq");
+            other.GetComponent<PlayerController>().Damage(_bulletDamage);
         }
-        if (other.tag == "Body")
-        {
-            other.GetComponent<TargetBody>().Damage = _bulletDamage;
-            Debug.Log("OKKK");
-        }
-        Debug.Log(other.tag);
         Destroy(this.gameObject);
     }
 
