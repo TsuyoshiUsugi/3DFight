@@ -24,6 +24,7 @@ public class MoveScene : MonoBehaviour
     string _result = "Result";
     string _setting = "Settings";
 
+    
     public void MoveToMenu()
     {
         SceneManager.LoadScene(_menu);
