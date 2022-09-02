@@ -73,12 +73,18 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     [SerializeField] GunBase _gun;
 
+    /// <summary>PhotonGameManagerのインスタンス</summary>
+    [SerializeField] PhotonGameManager _photonGameManager;
+
     private void Start()
     {
         if (!photonView.IsMine)
         {
             return;
         }
+        gameObject.name = PhotonNetwork.NickName;
+
+        _photonGameManager = GameObject.FindGameObjectWithTag("PhotonManager").GetComponent<PhotonGameManager>();
 
         //Chinemachineカメラの参照を読みこむ
         _virtualCamera = GameObject.FindGameObjectWithTag("Camera").GetComponent<CinemachineFreeLook>();
@@ -242,8 +248,25 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     public void Damage(float damage)
     {
-        Debug.Log("ookk");
+        if (!photonView.IsMine)
+        {
+            return;
+        }
+
         _playerHp -= damage;
+
+        if(_playerHp <= 0)
+        {
+            Die();
+        }
+    }
+
+    /// <summary>
+    /// 死亡時の関数
+    /// </summary>
+    void Die()
+    {
+        _photonGameManager.GameEnd = true;
     }
 
     /// <summary>
@@ -257,6 +280,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
+    /*
+    /// <summary>
+    /// 弾と
+    /// </summary>
+    /// <param name="other"></param>
     private void OnTriggerEnter(Collider other)
     {
         if (photonView.IsMine)
@@ -267,7 +295,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 _playerHp -= bullet.GetComponent<Bullet>().BulletDamage;
             }
         }
-    }
+    }*/
+    
 
+    public override void OnDisable()
+    {
+        //マウス表示
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+    }
 
 }

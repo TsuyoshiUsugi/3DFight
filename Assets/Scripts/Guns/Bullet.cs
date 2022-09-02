@@ -48,6 +48,7 @@ public class Bullet : MonoBehaviourPunCallbacks
         _bulletRb.AddForce(dir * bulletSpeed, ForceMode.Impulse);
     }
 
+    
     /// <summary>
     /// 衝突時のメソッド
     /// Playerと当たった時にダメージを与える
@@ -57,7 +58,6 @@ public class Bullet : MonoBehaviourPunCallbacks
     {
         if (other.tag == "Player")
         {
-            Debug.Log("qqq");
             other.GetComponent<PlayerController>().Damage(_bulletDamage);
         }
         Destroy(this.gameObject);
