@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ゲーム全体の管理を行うコンポーネント
+/// バトルシーンのの管理を行うコンポーネント
 /// 機能
 /// カーソルを消す
 /// 
