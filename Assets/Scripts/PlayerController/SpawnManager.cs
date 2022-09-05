@@ -1,10 +1,13 @@
 using UnityEngine;
 using Photon.Pun;
+using System.Collections.Generic;
 
 public class SpawnManager : MonoBehaviour
 {
     /// <summary>スポーンポイントの参照</summary>
     [SerializeField] Transform[] _spawnPositons;
+
+    [SerializeField] List<Transform> _spawnPos = new List<Transform>();
 
     /// <summary>スポーンするプレイヤーオブジェクト</summary>
     [SerializeField] GameObject _playerPrefab;
@@ -15,10 +18,7 @@ public class SpawnManager : MonoBehaviour
     private void Start()
     {
         //スポーンポイントオブジェクトをすべて非表示
-        foreach (var pos in _spawnPositons)
-        {
-            pos.gameObject.SetActive(false);
-        }
+        _spawnPos.ForEach(pos => pos.gameObject.SetActive(false));
 
         //生成関数呼び出し
         if (PhotonNetwork.IsConnected)
@@ -33,8 +33,9 @@ public class SpawnManager : MonoBehaviour
     /// </summary>
     public Transform GetSpawnPoint()
     {
-        //ランダムでスポーンポイント１つ選んで位置情報を返す
-        return _spawnPositons[Random.Range(0, _spawnPositons.Length)];
+        //ランダムでスポーンポイント１つ選んで位置情報を返す    
+        return _spawnPos[Random.Range(0, _spawnPos.Count)];
+        
     }
 
     /// <summary>
@@ -42,8 +43,12 @@ public class SpawnManager : MonoBehaviour
     /// </summary>
     void SpawnPlayer()
     {
+
         //ランダムなスポーンポジションを変数に格納
         Transform spawnPoint = GetSpawnPoint();
+
+        //同じところからスポーンしないように配列からスポーンポイントを削除
+        _spawnPos.Remove(spawnPoint);
 
         //ネットワークオブジェクト生成
         _player = PhotonNetwork.Instantiate(_playerPrefab.name, spawnPoint.position, spawnPoint.rotation);
