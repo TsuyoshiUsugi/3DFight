@@ -145,7 +145,6 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     {
         //リロードアニメーション（未実装）これはリロードインターバルと合わせる？
         StartCoroutine("ReloadInterval");
-
     }
     
     /// <summary>

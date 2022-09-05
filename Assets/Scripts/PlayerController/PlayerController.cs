@@ -7,7 +7,7 @@ using Cinemachine;
 /// <summary>
 /// プレイヤーの制御をするコンポーネント
 /// </summary>
-public class PlayerController : MonoBehaviourPunCallbacks
+public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 {
     [Header("参照")]
     [SerializeField] Rigidbody _rb;
@@ -55,6 +55,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// <summary>Playerの見ている地点</summary>
     [SerializeField] Vector3 _playerLook;
 
+    /// <summary>操作可能か判定する</summary>
+    [SerializeField] bool _wait = true;
+
     /// <summary>
     /// _playerLookのプロパティ
     /// </summary>
@@ -75,6 +78,19 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     /// <summary>PhotonGameManagerのインスタンス</summary>
     [SerializeField] PhotonGameManager _photonGameManager;
+
+    void IPunObservable.OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            stream.SendNext(_playerHp);
+        }
+        else
+        {
+            _playerHp = (float)stream.ReceiveNext();
+        }
+
+    }
 
     private void Start()
     {
@@ -105,6 +121,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _virtualCamera.LookAt = _eye.transform;
         _virtualCamera.Follow = _eye.transform;
 
+        if (_wait)
+        {
+            return; 
+        }
         //WASDのキーを読み取る
         _horizontal = Input.GetAxis("Horizontal");
         _vertical = Input.GetAxis("Vertical");
@@ -112,7 +132,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         //マウスの位置を読み取る
         mouseInputX = Input.GetAxis("Mouse X");
         mouseInputY += Input.GetAxis("Mouse Y");
-        //mouseInputY = Mathf.Clamp(mouseInputY, -90f, 90f);
 
         //playerの見ている地点を読み取りfieldに格納
         Ray ray = Camera.main.ViewportPointToRay(new Vector2(0.5f, 0.5f));
@@ -201,6 +220,16 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// <param name="collision"></param>
     private void OnCollisionEnter(Collision collision)
     {
+        if (!photonView.IsMine)
+        {
+            return;
+        }
+
+        if (collision.gameObject.tag == "Bullet")
+        {
+            Debug.Log("hitdamage");
+            _playerHp -= collision.gameObject.GetComponent<Bullet>().BulletDamage;
+        }
 
         _jumpCount = 0;
     }
@@ -212,7 +241,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         if (Input.GetButton("Aim"))
         {    
-                animator.SetBool("Aim", true);
+            animator.SetBool("Aim", true);
         }
         else
         {
@@ -239,7 +268,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         if (Input.GetButtonDown("Reload"))
         {
-            FindObjectOfType<FirstGun>().Reload();
+            GetComponentInChildren<FirstGun>().Reload();
         }
     }
 
@@ -280,24 +309,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
-    /*
-    /// <summary>
-    /// 弾と
-    /// </summary>
-    /// <param name="other"></param>
-    private void OnTriggerEnter(Collider other)
-    {
-        if (photonView.IsMine)
-        {
-            if (other.TryGetComponent<Bullet>(out var bullet))
-            {
-                Debug.Log("Aaaaa");
-                _playerHp -= bullet.GetComponent<Bullet>().BulletDamage;
-            }
-        }
-    }*/
-    
-
     public override void OnDisable()
     {
         //マウス表示
@@ -305,4 +316,5 @@ public class PlayerController : MonoBehaviourPunCallbacks
         Cursor.lockState = CursorLockMode.None;
     }
 
+   
 }

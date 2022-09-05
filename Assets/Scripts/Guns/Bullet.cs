@@ -14,6 +14,8 @@ public class Bullet : MonoBehaviourPunCallbacks
     /// <summary>弾丸のダメージ</summary>
     [SerializeField] float _bulletDamage = 1;
 
+    
+
     /// <summary>弾丸のとぶ方向</summary>
     Vector3 _dir;
 
@@ -31,7 +33,7 @@ public class Bullet : MonoBehaviourPunCallbacks
     /// <summary>
     /// 銃のダメ―ジのプロパティ
     /// </summary>
-    public float BulletDamage { get => _bulletDamage; set => _bulletDamage = value; } 
+    public float BulletDamage { get => _bulletDamage; } 
 
     void Start()
     {

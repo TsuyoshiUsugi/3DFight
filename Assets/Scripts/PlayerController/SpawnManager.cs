@@ -2,11 +2,8 @@ using UnityEngine;
 using Photon.Pun;
 using System.Collections.Generic;
 
-public class SpawnManager : MonoBehaviour
+public class SpawnManager : MonoBehaviour 
 {
-    /// <summary>スポーンポイントの参照</summary>
-    [SerializeField] Transform[] _spawnPositons;
-
     [SerializeField] List<Transform> _spawnPos = new List<Transform>();
 
     /// <summary>スポーンするプレイヤーオブジェクト</summary>
@@ -28,6 +25,8 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
+
+
     /// <summary>
     /// リスポーン地点をランダム取得する関数
     /// </summary>
@@ -40,17 +39,27 @@ public class SpawnManager : MonoBehaviour
 
     /// <summary>
     /// ネットワークオブジェクトとしてプレイヤー生成
+    /// masterなら外側それ以外は内側にスポーン
     /// </summary>
     void SpawnPlayer()
     {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            Spawn(_spawnPos[0]);
+        }
+        else
+        {
+            Spawn(_spawnPos[1]);
+        }
 
-        //ランダムなスポーンポジションを変数に格納
-        Transform spawnPoint = GetSpawnPoint();
+    }
 
-        //同じところからスポーンしないように配列からスポーンポイントを削除
-        _spawnPos.Remove(spawnPoint);
-
-        //ネットワークオブジェクト生成
+    /// <summary>
+    /// スポーンの関数
+    /// </summary>
+    /// <param name="spawnPoint"></param>
+    void Spawn(Transform spawnPoint)
+    {
         _player = PhotonNetwork.Instantiate(_playerPrefab.name, spawnPoint.position, spawnPoint.rotation);
     }
 }
