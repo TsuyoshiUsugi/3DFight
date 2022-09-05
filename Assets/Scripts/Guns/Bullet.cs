@@ -50,20 +50,31 @@ public class Bullet : MonoBehaviourPunCallbacks
         _bulletRb.AddForce(dir * bulletSpeed, ForceMode.Impulse);
     }
 
-    
-    /// <summary>
-    /// 衝突時のメソッド
-    /// Playerと当たった時にダメージを与える
-    /// </summary>
-    /// <param name="other"></param>
+  
+    private void Update()
+    {
+        if(this.gameObject.transform.position.x > 40 || this.gameObject.transform.position.x < -40)
+        {
+            Destroy(this.gameObject);
+        }
+
+        if (this.gameObject.transform.position.y > 22 || this.gameObject.transform.position.y < 0)
+        {
+            Destroy(this.gameObject);
+        }
+
+        if (this.gameObject.transform.position.x > 31 || this.gameObject.transform.position.x < -31)
+        {
+            Destroy(this.gameObject);
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.tag == "Player")
         {
             other.GetComponent<PlayerController>().Damage(_bulletDamage);
         }
-        Destroy(this.gameObject);
     }
 
- 
 }

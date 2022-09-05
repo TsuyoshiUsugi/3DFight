@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 using Photon.Pun;
 using Cinemachine;
@@ -134,11 +135,25 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         mouseInputY += Input.GetAxis("Mouse Y");
 
         //playerの見ている地点を読み取りfieldに格納
-        Ray ray = Camera.main.ViewportPointToRay(new Vector2(0.5f, 0.5f));
-        if(Physics.Raycast(ray, out RaycastHit  hit))
+        //Ray ray = Camera.main.ViewportPointToRay(new Vector2(0.5f, 0.5f));
+
+        int centerX = Screen.width / 2;
+        int centerY = Screen.height / 2;
+
+        Vector3 pos = new Vector3(centerX, centerY, 0.1f); // Zを少しだけ前に出す
+        Ray ray = Camera.main.ScreenPointToRay(pos);
+
+        if (Physics.Raycast(ray, out RaycastHit  hit))
         {
             _playerLook = hit.point;
+            
         }
+
+       
+
+
+
+
 
         JampVelocityLimit();
 
@@ -220,17 +235,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     /// <param name="collision"></param>
     private void OnCollisionEnter(Collision collision)
     {
-        if (!photonView.IsMine)
-        {
-            return;
-        }
-
-        if (collision.gameObject.tag == "Bullet")
-        {
-            Debug.Log("hitdamage");
-            _playerHp -= collision.gameObject.GetComponent<Bullet>().BulletDamage;
-        }
-
         _jumpCount = 0;
     }
 

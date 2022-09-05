@@ -514,6 +514,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     /// </summary>
     public void PlayGame()
     {
+        
         PhotonNetwork.LoadLevel(_levelToPlay);
     }
 }

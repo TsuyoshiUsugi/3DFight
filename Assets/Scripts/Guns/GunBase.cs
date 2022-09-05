@@ -49,6 +49,9 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     /// <summary>銃口のPrefab</summary>
     [SerializeField] GameObject _muzzle = default;
 
+    /// <summary>弾丸のスピード</summary>
+    [SerializeField] float bulletSpeed;
+
     [SerializeField] AudioSource audioSource;
 
     [SerializeField] Vector3 _playerLook;
@@ -85,10 +88,8 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     /// <summary>
     /// 射撃のメソッド
     /// </summary>
-    [PunRPC]
     public void Shot()
     {
-   
         if (_pullTrigger == true && _canShot == true)
         {
             //残弾あり
@@ -98,17 +99,9 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
                 _canShot = false;
 
                 //弾丸を生成して、飛ぶ方向を与える
-                
-                GameObject bullet = PhotonNetwork.Instantiate(_resourcePath, _muzzle.transform.position, _muzzle.transform.rotation) as GameObject;
 
-                Bullet instantiateBullet = bullet.GetComponent<Bullet>();
+                Fire();
 
-                instantiateBullet.Dir = _playerLook;
-
-                instantiateBullet.Shot();
-                
-
-                
                 //残弾減らす
                 _restBullets--;
                 //audioSource.PlayOneShot(_shotSound);
@@ -126,6 +119,15 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
                 _pullTrigger = false;
             }
         }
+    }
+
+    private void Fire()
+    {
+        GameObject bullet = PhotonNetwork.Instantiate(_resourcePath, _muzzle.transform.position, _muzzle.transform.rotation);
+
+        Vector3 dir = (_playerLook - transform.position).normalized;
+
+        bullet.GetComponent<Rigidbody>().AddForce(dir * bulletSpeed, ForceMode.Impulse);
     }
 
     /// <summary>

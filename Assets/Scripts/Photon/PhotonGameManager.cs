@@ -11,7 +11,10 @@ using Photon.Pun;
 public class PhotonGameManager : MonoBehaviourPunCallbacks
 {
     /// <summary>試合が終了したかのプロパティ</summary>
-    public bool GameEnd { get; set; }
+    /// 
+    [SerializeField] bool _gameEnd;
+
+    public bool GameEnd { get => _gameEnd; set => _gameEnd = value; }
 
     private void Start()
     {
@@ -25,6 +28,8 @@ public class PhotonGameManager : MonoBehaviourPunCallbacks
 
             NewPlayerGet(PhotonNetwork.NickName);
         }
+
+        
     }
 
     /// <summary>
@@ -43,6 +48,7 @@ public class PhotonGameManager : MonoBehaviourPunCallbacks
         if (GameEnd)
         {
             EndGame();
+
         }
     }
 
@@ -52,21 +58,24 @@ public class PhotonGameManager : MonoBehaviourPunCallbacks
     void EndGame()
     {
         //ネットワークオブジェクトの破壊
-        if(PhotonNetwork.IsMasterClient)
+        if (PhotonNetwork.IsMasterClient)
         {
             PhotonNetwork.DestroyAll();
         }
+
 
         //カーソルの表示
         Cursor.lockState = CursorLockMode.None;
 
         //終了後の処理
-        Invoke(((Action)ProcessingAfterCompletion).Method.Name, 5);
+        //Invoke(((Action)ProcessingAfterCompletion).Method.Name, 5);
+        photonView.RPC(nameof(ProcessingAfterCompletion), RpcTarget.All);
     }
 
     /// <summary>
     /// 終了後の処理関数
     /// </summary>
+    [PunRPC]
     void ProcessingAfterCompletion()
     {
         //シーンの同期を解除
