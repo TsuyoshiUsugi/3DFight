@@ -125,7 +125,11 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     {
         GameObject bullet = PhotonNetwork.Instantiate(_resourcePath, _muzzle.transform.position, _muzzle.transform.rotation);
 
-        Vector3 dir = (_playerLook - transform.position).normalized;
+        Vector3 heding = (_playerLook - _muzzle.transform.position);
+
+        var dis = heding.magnitude;
+
+        var dir = heding / dis;
 
         bullet.GetComponent<Rigidbody>().AddForce(dir * bulletSpeed, ForceMode.Impulse);
     }
