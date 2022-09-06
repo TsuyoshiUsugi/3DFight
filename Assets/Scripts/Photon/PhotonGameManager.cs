@@ -11,7 +11,6 @@ using Photon.Pun;
 public class PhotonGameManager : MonoBehaviourPunCallbacks
 {
     /// <summary>試合が終了したかのプロパティ</summary>
-    /// 
     [SerializeField] bool _gameEnd;
 
     public bool GameEnd { get => _gameEnd; set => _gameEnd = value; }

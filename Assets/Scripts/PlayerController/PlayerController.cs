@@ -106,7 +106,13 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         //Chinemachineカメラの参照を読みこむ
         _virtualCamera = GameObject.FindGameObjectWithTag("Camera").GetComponent<CinemachineFreeLook>();
 
+        //自身の子オブジェクトとなっている銃を取得
         _gun = this.GetComponentInChildren<GunBase>();
+
+        //ラウンド開始前の処理を行う
+        //_wait = true;
+
+
     }
 
 
@@ -128,7 +134,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         }
         //WASDのキーを読み取る
         _horizontal = Input.GetAxis("Horizontal");
-        _vertical = Input.GetAxis("Vertical");
+        _vertical = Input.GetAxisRaw("Vertical");
 
         //マウスの位置を読み取る
         mouseInputX = Input.GetAxis("Mouse X");
@@ -203,7 +209,14 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         //カメラの向いてる方にプレイヤーを動かす
         _rb.velocity = new Vector3(moveForward.x * _walkSpeed, _rb.velocity.y, moveForward.z * _walkSpeed);
 
-        animator.SetFloat("VSpeed", _vertical);
+        if ( _horizontal!= 0)
+        {
+            animator.SetFloat("HoriSpeed", _horizontal);
+        }
+        else
+        {
+            animator.SetFloat("VSpeed", _vertical);
+        }
     }
 
     /// <summary>

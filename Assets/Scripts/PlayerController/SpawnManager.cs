@@ -12,7 +12,7 @@ public class SpawnManager : MonoBehaviour
     /// <summary>スポーンしたプレイヤーオブジェクト</summary>
     GameObject _player;
 
-    private void Start()
+    private void Awake()
     {
         //スポーンポイントオブジェクトをすべて非表示
         _spawnPos.ForEach(pos => pos.gameObject.SetActive(false));
