@@ -80,6 +80,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     /// <summary>PhotonGameManagerのインスタンス</summary>
     [SerializeField] PhotonGameManager _photonGameManager;
 
+    [SerializeField] float _downForce;
+
     void IPunObservable.OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)
@@ -284,6 +286,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         {
             _gun.PullTrigger = true;
             _gun.Shot();
+
         }
     }
 
@@ -324,14 +327,15 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         _photonGameManager.GameEnd = true;
     }
 
-    /// <summary>
-    /// 上方向の力を制限するメソッド
-    /// </summary>
+    // <summary>
+    // 上方向の力を制限するメソッド
+    // </summary>
     void JampVelocityLimit()
     {
         if (_rb.velocity.y > _maxJumpSpeedLimit)
         {
-            _rb.velocity = new Vector3(_rb.velocity.x, _maxJumpSpeedLimit, _rb.velocity.z);
+            //_rb.AddForce(Vector3.zero * _downForce);
+             _rb.velocity = new Vector3(_rb.velocity.x, _maxJumpSpeedLimit, _rb.velocity.z);
         }
     }
 
