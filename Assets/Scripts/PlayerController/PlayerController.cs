@@ -4,9 +4,20 @@ using System;
 using UnityEngine;
 using Photon.Pun;
 using Cinemachine;
+using UniRx;
+using UnityEngine.UI;
+using TMPro;
+using DG.Tweening;
 
 /// <summary>
-/// プレイヤーの制御をするコンポーネント
+/// バトルシーンに置ける、プレイヤー関連の処理のコンポーネント
+/// 
+/// ＜処理一覧＞
+/// 
+/// プレイヤーの操作
+/// プレイヤーのanimationの操作
+/// 自身の情報のUI更新
+/// 
 /// </summary>
 public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 {
@@ -48,7 +59,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     float mouseInputY;
 
     /// <summary>PlayerのHP</summary>
-    [SerializeField] float _playerHp;
+    [SerializeField] ReactiveProperty< float> _playerHp;
 
     /// <summary>Playerのdamage</summary>
     [SerializeField] float _playerDamage;
@@ -82,6 +93,24 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 
     [SerializeField] float _downForce;
 
+
+    ////////////////////////////// UI関係 ////////////////////////////////////
+
+    [SerializeField] int _time;
+
+    [SerializeField] Image _hpImage;
+
+    [SerializeField] TextMeshProUGUI _hpText;
+
+    [SerializeField] int _displayAmmo;
+
+    [SerializeField] int _ammoText;
+
+    /// <summary>
+    /// お互いに自分のHPを送信する
+    /// </summary>
+    /// <param name="stream"></param>
+    /// <param name="info"></param>
     void IPunObservable.OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)
@@ -90,7 +119,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         }
         else
         {
-            _playerHp = (float)stream.ReceiveNext();
+            _playerHp = (ReactiveProperty<float>)stream.ReceiveNext();
         }
 
     }
@@ -114,7 +143,13 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         //ラウンド開始前の処理を行う
         //_wait = true;
 
+        //Hp変更時に体力値を変更
+        _hpText = GameObject.FindGameObjectWithTag("HpText").GetComponent<TextMeshProUGUI>();
+        _hpImage = GameObject.FindGameObjectWithTag("HpImage").GetComponent<Image>();
 
+        _playerHp.Subscribe(presentHp => _hpText.text = presentHp.ToString()).AddTo(gameObject);
+        
+        
     }
 
 
@@ -142,9 +177,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         mouseInputX = Input.GetAxis("Mouse X");
         mouseInputY += Input.GetAxis("Mouse Y");
 
-        //playerの見ている地点を読み取りfieldに格納
-        //Ray ray = Camera.main.ViewportPointToRay(new Vector2(0.5f, 0.5f));
-
         int centerX = Screen.width / 2;
         int centerY = Screen.height / 2;
 
@@ -156,12 +188,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             _playerLook = hit.point;
             
         }
-
-       
-
-
-
-
 
         JampVelocityLimit();
 
@@ -311,13 +337,20 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             return;
         }
 
-        _playerHp -= damage;
+        _playerHp.Value -= damage;
 
-        if(_playerHp <= 0)
+        DOTween.To(() => _hpImage.fillAmount,
+           x => _hpImage.fillAmount = x,
+           _hpImage.fillAmount -= damage / 100,
+           2f);
+
+        if (_playerHp.Value <= 0)
         {
             Die();
         }
     }
+
+
 
     /// <summary>
     /// 死亡時の関数

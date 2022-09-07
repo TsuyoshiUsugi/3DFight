@@ -28,6 +28,8 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     /// <summary>écíeêî</summary>
     [SerializeField] int _restBullets = default;
 
+    public int RestBullet { get => _restBullets; }
+
     /// <summary>éÀåÇä‘äu</summary>
     [SerializeField] float _shotInterval = default;
 
@@ -61,7 +63,7 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
 
     private void Update()
     {
-        photonView.RPC(nameof(PlayerLook), RpcTarget.All, _playerLook);
+        photonView.RPC(nameof(PlayerLook), RpcTarget.All);
     }
 
     protected virtual void PlayerLook()

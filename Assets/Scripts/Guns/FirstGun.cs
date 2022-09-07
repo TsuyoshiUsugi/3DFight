@@ -10,4 +10,10 @@ public class FirstGun : GunBase
     {
         base.FireBullet(playerLook);
     }
+
+    [PunRPC]
+    protected override void PlayerLook()
+    {
+        base.PlayerLook();
+    }
 }
