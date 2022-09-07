@@ -133,8 +133,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             return; 
         }
         //WASDのキーを読み取る
-        _horizontal = Input.GetAxis("Horizontal");
-        _vertical = Input.GetAxisRaw("Vertical");
+        _horizontal = Input.GetAxisRaw("Horizontal");
+        _vertical = Input.GetAxis("Vertical");
 
         //マウスの位置を読み取る
         mouseInputX = Input.GetAxis("Mouse X");
@@ -197,6 +197,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 
     /// <summary>
     /// プレイヤーの移動のメソッド
+    /// 横移動のアニメーションを優先して再生
     /// </summary>
     void Move()
     {
@@ -207,16 +208,24 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         Vector3 moveForward = cameraForward * _vertical + transform.right * _horizontal;
 
         //カメラの向いてる方にプレイヤーを動かす
-        _rb.velocity = new Vector3(moveForward.x * _walkSpeed, _rb.velocity.y, moveForward.z * _walkSpeed);
+        //_rb.velocity = new Vector3(moveForward.normalized.x * _walkSpeed, _rb.velocity.normalized.y, moveForward.normalized.z * _walkSpeed);
+        _rb.velocity = moveForward.normalized * _walkSpeed;
 
-        if ( _horizontal!= 0)
+        
+        if(_horizontal < 0)
         {
-            animator.SetFloat("HoriSpeed", _horizontal);
+            animator.SetFloat("HoriSpeed", _horizontal * -1);
+
         }
         else
         {
-            animator.SetFloat("VSpeed", _vertical);
+            animator.SetFloat("HoriSpeed", _horizontal);
         }
+      
+       
+        animator.SetFloat("VSpeed", _vertical);
+        
+        
     }
 
     /// <summary>
