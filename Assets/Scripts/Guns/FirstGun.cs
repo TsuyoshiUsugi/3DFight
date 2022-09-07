@@ -16,4 +16,5 @@ public class FirstGun : GunBase
     {
         base.PlayerLook();
     }
+
 }

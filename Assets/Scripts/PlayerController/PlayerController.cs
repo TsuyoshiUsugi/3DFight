@@ -59,7 +59,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     float mouseInputY;
 
     /// <summary>Player‚ÌHP</summary>
-    [SerializeField] ReactiveProperty< float> _playerHp;
+    [SerializeField] ReactiveProperty<float> _playerHp;
 
     /// <summary>Player‚Ìdamage</summary>
     [SerializeField] float _playerDamage;
