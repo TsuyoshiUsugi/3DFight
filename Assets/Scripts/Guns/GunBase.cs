@@ -4,8 +4,6 @@ using UnityEngine;
 using Photon.Pun;
 using UniRx;
 using TMPro;
-using UnityEngine.UI;
-using DG.Tweening;
 
 /// <summary>
 /// 銃の共通要素をもつ基底クラス
@@ -47,6 +45,9 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     /// <summary>撃つことが出来るか</summary>
     [SerializeField] bool _canShot = true;
 
+    /// <summary>リロード中か</summary>
+    bool _reloading = false;
+
     /// <summary>弾丸のPrefab</summary>
     [SerializeField] GameObject _bullet = default;
 
@@ -56,7 +57,7 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     /// <summary>弾丸のスピード</summary>
     [SerializeField] float bulletSpeed;
 
-    [SerializeField] AudioSource audioSource;
+    [SerializeField] AudioSource _audioSource;
 
     [SerializeField] Vector3 _playerLook;
 
@@ -79,7 +80,7 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
 
 
         _reloadText = GameObject.FindGameObjectWithTag("ReloadText").GetComponent<TextMeshProUGUI>();
-        _reloadText.enabled = false;
+        _reloadText.gameObject.SetActive(false);
 
 
         //残弾減少時にテキスト変更
@@ -186,6 +187,13 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     /// </summary>
     public void Reload()
     {
+        //リロード中か判定
+        if(_reloading || (_restBullets.Value == _bulletsCapacity))
+        {
+            return;
+        }
+
+        
         //リロードアニメーション（未実装）これはリロードインターバルと合わせる？
         StartCoroutine("ReloadInterval");
     }
@@ -196,14 +204,22 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     /// <returns></returns>
     protected virtual IEnumerator ReloadInterval()
     {
+        //リロード中判定
+        _reloading = true;
+
+
         _canShot = false;
-        _reloadText.enabled = true;
-        _reloadText.DOFade(0, 1f).SetEase(Ease.Linear).SetLoops(-1,LoopType.Yoyo);
+
+        _reloadText.gameObject.SetActive(true);
+        //_reloadText.DOFade(0, 1f).SetEase(Ease.Linear);
 
         yield return new WaitForSeconds(_reloadTime);
-        _reloadText.enabled = false;
+        _reloadText.gameObject.SetActive(false);
         _canShot = true;
         _restBullets.Value = _bulletsCapacity;
+
+        _reloading = false;
+        
     }
 
 }
