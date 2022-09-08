@@ -13,9 +13,7 @@ public class Bullet : MonoBehaviourPunCallbacks
 
     /// <summary>弾丸のダメージ</summary>
     [SerializeField] float _bulletDamage = 1;
-
     
-
     /// <summary>弾丸のとぶ方向</summary>
     Vector3 _dir;
 
@@ -39,17 +37,6 @@ public class Bullet : MonoBehaviourPunCallbacks
     {
 
     }
-
-    /// <summary>
-    /// gunBaseから参照されておりpublic
-    /// </summary>
-    public void Shot()
-    {
-        Vector3 dir = _dir = (_dir - transform.position).normalized;
-
-        _bulletRb.AddForce(dir * bulletSpeed, ForceMode.Impulse);
-    }
-
   
     private void Update()
     {

@@ -89,10 +89,10 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
 
     private void Update()
     {
-        photonView.RPC(nameof(PlayerLook), RpcTarget.All);
+        PlayerLook();
     }
 
-    protected virtual void PlayerLook()
+    void PlayerLook()
     {
         _playerLook = GetComponentInParent<PlayerController>().PlayerLook;
     }
@@ -132,11 +132,11 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
                 _canShot = false;
 
                 //íeä€Çê∂ê¨ÇµÇƒÅAîÚÇ‘ï˚å¸Çó^Ç¶ÇÈ
-                photonView.RPC(nameof(FireBullet), RpcTarget.All, _playerLook);
+                //photonView.RPC(nameof(FireBullet), RpcTarget.All, _playerLook);
+                FireBullet(_playerLook);
 
                 //écíeå∏ÇÁÇ∑
                 _restBullets.Value--;
-                
 
                 //éüÇ…åÇÇƒÇÈÇ‹Ç≈ä‘ÇãÛÇØÇÈ
                 StartCoroutine("ShotInterval");
@@ -157,19 +157,20 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     /// íeÇî≠éÀÇ∑ÇÈâºëzÉÅÉ\ÉbÉh
     /// </summary>
     /// <param name="playerLook"></param>
-    protected virtual void FireBullet(Vector3 playerLook)
+    void FireBullet(Vector3 playerLook)
     {
-        //GameObject bullet = PhotonNetwork.Instantiate(_resourcePath, _muzzle.transform.position, _muzzle.transform.rotation);
-        GameObject bullet = Instantiate(_bullet, _muzzle.transform.position, _muzzle.transform.rotation);
+        GameObject bullet = PhotonNetwork.Instantiate(_resourcePath, _muzzle.transform.position, _muzzle.transform.rotation);
+        //GameObject bullet = Instantiate(_bullet, _muzzle.transform.position, _muzzle.transform.rotation);
 
+        
+        Vector3 heading = (playerLook - _muzzle.transform.position).normalized;
 
-        Vector3 heding = (playerLook - _muzzle.transform.position);
+        /*
+        var dis = heading.magnitude;
+        var dir = heading / dis;
+        */
 
-        var dis = heding.magnitude;
-
-        var dir = heding / dis;
-
-        bullet.GetComponent<Rigidbody>().AddForce(dir * bulletSpeed, ForceMode.Impulse);
+        bullet.GetComponent<Rigidbody>().AddForce(heading * bulletSpeed, ForceMode.Impulse);
     }
 
     /// <summary>
