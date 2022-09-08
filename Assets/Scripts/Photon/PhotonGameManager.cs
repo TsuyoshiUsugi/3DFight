@@ -28,7 +28,6 @@ public class PhotonGameManager : MonoBehaviourPunCallbacks
             NewPlayerGet(PhotonNetwork.NickName);
         }
 
-        
     }
 
     /// <summary>

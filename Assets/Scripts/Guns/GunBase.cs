@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+using UniRx;
+using TMPro;
 
 /// <summary>
 /// 銃の共通要素をもつ基底クラス
@@ -23,10 +25,10 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     [SerializeField] AudioClip _noAmmoSound = default;
 
     /// <summary>最大装弾数</summary>
-    [SerializeField] int _bulletsCapacity = default;
+    [SerializeField] int _bulletsCapacity;
 
     /// <summary>残弾数</summary>
-    [SerializeField] int _restBullets = default;
+    [SerializeField] ReactiveProperty<int> _restBullets = default;
 
     /// <summary>射撃間隔</summary>
     [SerializeField] float _shotInterval = default;
@@ -43,6 +45,9 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     /// <summary>撃つことが出来るか</summary>
     [SerializeField] bool _canShot = true;
 
+    /// <summary>リロード中か</summary>
+    bool _reloading = false;
+
     /// <summary>弾丸のPrefab</summary>
     [SerializeField] GameObject _bullet = default;
 
@@ -52,14 +57,42 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     /// <summary>弾丸のスピード</summary>
     [SerializeField] float bulletSpeed;
 
-    [SerializeField] AudioSource audioSource;
+    [SerializeField] AudioSource _audioSource;
 
     [SerializeField] Vector3 _playerLook;
+
+    TextMeshProUGUI _bulletText;
+
+    TextMeshProUGUI _maxBulletText;
+
+    TextMeshProUGUI _reloadText;
 
     /// <summary>弾丸のprefabが入ったresourceのパス</summary>
     [SerializeField] string _resourcePath = "";
 
+    private void Start()
+    {
+        _bulletText = GameObject.FindGameObjectWithTag("BulletText").GetComponent<TextMeshProUGUI>();
+
+        _maxBulletText = GameObject.FindGameObjectWithTag("MaxBulletText").GetComponent<TextMeshProUGUI>();
+
+        _maxBulletText.text = _bulletsCapacity.ToString();
+
+
+        _reloadText = GameObject.FindGameObjectWithTag("ReloadText").GetComponent<TextMeshProUGUI>();
+        _reloadText.gameObject.SetActive(false);
+
+
+        //残弾減少時にテキスト変更
+        _restBullets.Subscribe(restBullet => _bulletText.text = restBullet.ToString()).AddTo(gameObject);
+    }
+
     private void Update()
+    {
+        photonView.RPC(nameof(PlayerLook), RpcTarget.All);
+    }
+
+    protected virtual void PlayerLook()
     {
         _playerLook = GetComponentInParent<PlayerController>().PlayerLook;
     }
@@ -93,18 +126,17 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
         if (_pullTrigger == true && _canShot == true)
         {
             //残弾あり
-            if (_restBullets > 0)
+            if (_restBullets.Value > 0)
             {
                 //連続で撃てなくさせる
                 _canShot = false;
 
                 //弾丸を生成して、飛ぶ方向を与える
-
-                Fire();
+                photonView.RPC(nameof(FireBullet), RpcTarget.All, _playerLook);
 
                 //残弾減らす
-                _restBullets--;
-                //audioSource.PlayOneShot(_shotSound);
+                _restBullets.Value--;
+                
 
                 //次に撃てるまで間を空ける
                 StartCoroutine("ShotInterval");
@@ -121,11 +153,17 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
         }
     }
 
-    private void Fire()
+    /// <summary>
+    /// 弾を発射する仮想メソッド
+    /// </summary>
+    /// <param name="playerLook"></param>
+    protected virtual void FireBullet(Vector3 playerLook)
     {
-        GameObject bullet = PhotonNetwork.Instantiate(_resourcePath, _muzzle.transform.position, _muzzle.transform.rotation);
+        //GameObject bullet = PhotonNetwork.Instantiate(_resourcePath, _muzzle.transform.position, _muzzle.transform.rotation);
+        GameObject bullet = Instantiate(_bullet, _muzzle.transform.position, _muzzle.transform.rotation);
 
-        Vector3 heding = (_playerLook - _muzzle.transform.position);
+
+        Vector3 heding = (playerLook - _muzzle.transform.position);
 
         var dis = heding.magnitude;
 
@@ -149,6 +187,12 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     /// </summary>
     public void Reload()
     {
+        //リロード中か判定
+        if(_reloading || (_restBullets.Value == _bulletsCapacity))
+        {
+            return;
+        }
+
         //リロードアニメーション（未実装）これはリロードインターバルと合わせる？
         StartCoroutine("ReloadInterval");
     }
@@ -157,10 +201,24 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     /// リロード時間用のコルーチン
     /// </summary>
     /// <returns></returns>
-    IEnumerator ReloadInterval()
+    protected virtual IEnumerator ReloadInterval()
     {
+        //リロード中判定
+        _reloading = true;
+
+
+        _canShot = false;
+
+        _reloadText.gameObject.SetActive(true);
+        //_reloadText.DOFade(0, 1f).SetEase(Ease.Linear);
+
         yield return new WaitForSeconds(_reloadTime);
-        _restBullets = _bulletsCapacity;
+        _reloadText.gameObject.SetActive(false);
+        _canShot = true;
+        _restBullets.Value = _bulletsCapacity;
+
+        _reloading = false;
+        
     }
 
 }

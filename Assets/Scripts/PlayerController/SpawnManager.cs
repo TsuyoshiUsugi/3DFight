@@ -12,6 +12,8 @@ public class SpawnManager : MonoBehaviour
     /// <summary>スポーンしたプレイヤーオブジェクト</summary>
     GameObject _player;
 
+    GameObject _uIManager;
+
     private void Awake()
     {
         //スポーンポイントオブジェクトをすべて非表示
@@ -46,6 +48,7 @@ public class SpawnManager : MonoBehaviour
         if (PhotonNetwork.IsMasterClient)
         {
             Spawn(_spawnPos[0]);
+            
         }
         else
         {

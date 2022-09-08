@@ -4,9 +4,20 @@ using System;
 using UnityEngine;
 using Photon.Pun;
 using Cinemachine;
+using UniRx;
+using UnityEngine.UI;
+using TMPro;
+using DG.Tweening;
 
 /// <summary>
-/// プレイヤーの制御をするコンポーネント
+/// バトルシーンに置ける、プレイヤー関連の処理のコンポーネント
+/// 
+/// ＜処理一覧＞
+/// 
+/// プレイヤーの操作
+/// プレイヤーのanimationの操作
+/// 自身の情報のUI更新
+/// 
 /// </summary>
 public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 {
@@ -48,7 +59,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     float mouseInputY;
 
     /// <summary>PlayerのHP</summary>
-    [SerializeField] float _playerHp;
+    [SerializeField] ReactiveProperty<float> _playerHp;
 
     /// <summary>Playerのdamage</summary>
     [SerializeField] float _playerDamage;
@@ -80,6 +91,26 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     /// <summary>PhotonGameManagerのインスタンス</summary>
     [SerializeField] PhotonGameManager _photonGameManager;
 
+    [SerializeField] float _downForce;
+
+
+    ////////////////////////////// UI関係 ////////////////////////////////////
+
+    [SerializeField] int _time;
+
+    [SerializeField] Image _hpImage;
+
+    [SerializeField] TextMeshProUGUI _hpText;
+
+    [SerializeField] int _displayAmmo;
+
+    [SerializeField] int _ammoText;
+
+    /// <summary>
+    /// お互いに自分のHPを送信する
+    /// </summary>
+    /// <param name="stream"></param>
+    /// <param name="info"></param>
     void IPunObservable.OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)
@@ -88,7 +119,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         }
         else
         {
-            _playerHp = (float)stream.ReceiveNext();
+            _playerHp = (ReactiveProperty<float>)stream.ReceiveNext();
         }
 
     }
@@ -112,7 +143,13 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         //ラウンド開始前の処理を行う
         //_wait = true;
 
+        //Hp変更時に体力値を変更
+        _hpText = GameObject.FindGameObjectWithTag("HpText").GetComponent<TextMeshProUGUI>();
+        _hpImage = GameObject.FindGameObjectWithTag("HpImage").GetComponent<Image>();
 
+        _playerHp.Subscribe(presentHp => _hpText.text = presentHp.ToString()).AddTo(gameObject);
+        
+        
     }
 
 
@@ -133,15 +170,12 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             return; 
         }
         //WASDのキーを読み取る
-        _horizontal = Input.GetAxis("Horizontal");
-        _vertical = Input.GetAxisRaw("Vertical");
+        _horizontal = Input.GetAxisRaw("Horizontal");
+        _vertical = Input.GetAxis("Vertical");
 
         //マウスの位置を読み取る
         mouseInputX = Input.GetAxis("Mouse X");
         mouseInputY += Input.GetAxis("Mouse Y");
-
-        //playerの見ている地点を読み取りfieldに格納
-        //Ray ray = Camera.main.ViewportPointToRay(new Vector2(0.5f, 0.5f));
 
         int centerX = Screen.width / 2;
         int centerY = Screen.height / 2;
@@ -154,12 +188,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             _playerLook = hit.point;
             
         }
-
-       
-
-
-
-
 
         JampVelocityLimit();
 
@@ -197,6 +225,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 
     /// <summary>
     /// プレイヤーの移動のメソッド
+    /// 横移動のアニメーションを優先して再生
     /// </summary>
     void Move()
     {
@@ -207,16 +236,24 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         Vector3 moveForward = cameraForward * _vertical + transform.right * _horizontal;
 
         //カメラの向いてる方にプレイヤーを動かす
-        _rb.velocity = new Vector3(moveForward.x * _walkSpeed, _rb.velocity.y, moveForward.z * _walkSpeed);
+        //_rb.velocity = new Vector3(moveForward.normalized.x * _walkSpeed, _rb.velocity.normalized.y, moveForward.normalized.z * _walkSpeed);
+        _rb.velocity = moveForward.normalized * _walkSpeed;
 
-        if ( _horizontal!= 0)
+        
+        if(_horizontal < 0)
         {
-            animator.SetFloat("HoriSpeed", _horizontal);
+            animator.SetFloat("HoriSpeed", _horizontal * -1);
+
         }
         else
         {
-            animator.SetFloat("VSpeed", _vertical);
+            animator.SetFloat("HoriSpeed", _horizontal);
         }
+      
+       
+        animator.SetFloat("VSpeed", _vertical);
+        
+        
     }
 
     /// <summary>
@@ -275,6 +312,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         {
             _gun.PullTrigger = true;
             _gun.Shot();
+
         }
     }
 
@@ -299,13 +337,20 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             return;
         }
 
-        _playerHp -= damage;
+        _playerHp.Value -= damage;
 
-        if(_playerHp <= 0)
+        DOTween.To(() => _hpImage.fillAmount,
+           x => _hpImage.fillAmount = x,
+           _hpImage.fillAmount -= damage / 100,
+           2f);
+
+        if (_playerHp.Value <= 0)
         {
             Die();
         }
     }
+
+
 
     /// <summary>
     /// 死亡時の関数
@@ -315,14 +360,15 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         _photonGameManager.GameEnd = true;
     }
 
-    /// <summary>
-    /// 上方向の力を制限するメソッド
-    /// </summary>
+    // <summary>
+    // 上方向の力を制限するメソッド
+    // </summary>
     void JampVelocityLimit()
     {
         if (_rb.velocity.y > _maxJumpSpeedLimit)
         {
-            _rb.velocity = new Vector3(_rb.velocity.x, _maxJumpSpeedLimit, _rb.velocity.z);
+            //_rb.AddForce(Vector3.zero * _downForce);
+             _rb.velocity = new Vector3(_rb.velocity.x, _maxJumpSpeedLimit, _rb.velocity.z);
         }
     }
 
