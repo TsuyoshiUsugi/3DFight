@@ -15,6 +15,14 @@ public class PhotonGameManager : MonoBehaviourPunCallbacks
 
     public bool GameEnd { get => _gameEnd; set => _gameEnd = value; }
 
+    [SerializeField] bool _masterDie;
+    public bool Master { get => _masterDie; set => _masterDie = value; }
+
+    [SerializeField] bool _connecterDie;
+    public bool Connecter { get => _connecterDie; set => _connecterDie = value; }
+
+    
+
     private void Start()
     {
         //ネットワークに繋がっていないときメニュー画面に戻る
@@ -27,6 +35,12 @@ public class PhotonGameManager : MonoBehaviourPunCallbacks
 
             NewPlayerGet(PhotonNetwork.NickName);
         }
+
+        var hasutable = new ExitGames.Client.Photon.Hashtable();
+        hasutable["GameEnd"] = _gameEnd;
+        hasutable["MasterDie"] = _masterDie;
+        hasutable["ConnecterDie"] = _connecterDie;
+        PhotonNetwork.LocalPlayer.SetCustomProperties(hasutable);
 
     }
 

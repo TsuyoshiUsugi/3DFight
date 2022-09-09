@@ -1,13 +1,9 @@
 using System;
-using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
 using Cinemachine;
-using DG.Tweening;
-
+using Cysharp.Threading.Tasks;
 
 /// <summary>
 /// バトルシーンの管理を行うコンポーネント
@@ -47,15 +43,14 @@ public class GameM : MonoBehaviour
 
     //時間処理(試合中)
     [SerializeField] bool _startCount;
+    public bool StartCount { get => _startCount; set => _startCount = value; }
     [SerializeField] Image[] _showNumber = new Image[4];
     [SerializeField] Sprite[] _numberSprite = new Sprite[9];
     [SerializeField] ReactiveProperty<float> _limitTime;
 
     //時間処理(試合前)
     [SerializeField] bool _startBattleCount;
-    [SerializeField] RectTransform[] _showStartBattleNumber;
-    [SerializeField] ReactiveProperty<int> _presenCountTime;
-
+    [SerializeField] GameObject _uIManager;
     //戦闘後
 
     // Start is called before the first frame update
@@ -66,11 +61,6 @@ public class GameM : MonoBehaviour
         SwicthPlayingObj(false);
 
         _limitTime.Subscribe(limitTime => ShowPresentTime(limitTime)).AddTo(this);
-
-        //値が変化したとき
-        _presenCountTime.Subscribe(time => StartCountdown(time));
-
-        
 
     }
 
@@ -84,23 +74,17 @@ public class GameM : MonoBehaviour
         {
             SwicthOpObj(false);
 
-            SwicthPlayingObj(true);
-
-            _showStartBattleNumber.ToList().ForEach(obj => obj.gameObject.SetActive(false));
-
-            _player.Wait = true;
-            //試合開始前の五秒のカウント
-            //その後プレイヤーを動かせるように
-            
-            Observable.Interval(TimeSpan.FromSeconds(1)).Subscribe(_ => _presenCountTime.Value--).AddTo(this);
-            
+            SwicthPlayingObj(true);   
         }
 
         if (_startCount && _limitTime.Value > 0f)
         {
+            _player.Wait = false;
             CountPlayTime();
         }
     }
+
+    
 
     /// <summary>
     /// Openingオブジェクトのオンオフ
@@ -125,7 +109,7 @@ public class GameM : MonoBehaviour
         _spawnManager.gameObject.SetActive(onOff);
         _playingUI.gameObject.SetActive(onOff);
         _playerCam.gameObject.SetActive(onOff);
-        
+        _uIManager.gameObject.SetActive(onOff);
     }
 
     /// <summary>
@@ -157,18 +141,9 @@ public class GameM : MonoBehaviour
 
     
 
-    /// <summary>
-    /// 試合開始までのカウントダウン
-    /// 一秒ごとに画像を表示
-    /// </summary>
-    void StartCountdown(int i)
-    {
-
-        _showStartBattleNumber[i].gameObject.SetActive(true);
-        _showStartBattleNumber[i].DOScale(Vector3.zero, 1.5f)
-            .OnComplete(() => _showStartBattleNumber[i].gameObject.SetActive(false));
-        
-    }
+    
+    
+    
 
     /// <summary>
     /// 時間経過を計る関数

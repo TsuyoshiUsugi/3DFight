@@ -8,6 +8,7 @@ using UniRx;
 using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
+using Photon.Realtime;
 
 /// <summary>
 /// バトルシーンに置ける、プレイヤー関連の処理のコンポーネント
@@ -19,7 +20,7 @@ using DG.Tweening;
 /// 自身の情報のUI更新
 /// 
 /// </summary>
-public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
+public class PlayerController : MonoBehaviourPunCallbacks
 {
     [Header("参照")]
     [SerializeField] Rigidbody _rb;
@@ -101,23 +102,9 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 
     [SerializeField] int _ammoText;
 
-    /// <summary>
-    /// お互いに自分のHPを送信する
-    /// </summary>
-    /// <param name="stream"></param>
-    /// <param name="info"></param>
-    void IPunObservable.OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-    {
-        if (stream.IsWriting)
-        {
-            stream.SendNext(_playerHp);
-        }
-        else
-        {
-            _playerHp = (ReactiveProperty<float>)stream.ReceiveNext();
-        }
+   
 
-    }
+    
 
     private void Start()
     {
@@ -126,6 +113,12 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             return;
         }
         gameObject.name = PhotonNetwork.NickName;
+
+        var hasutable = new ExitGames.Client.Photon.Hashtable
+        {
+            ["PlayerHp"] = _playerHp.Value
+        };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(hasutable);
 
         _photonGameManager = GameObject.FindGameObjectWithTag("PhotonManager").GetComponent<PhotonGameManager>();
         _gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameM>();
@@ -157,6 +150,12 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         {
             return;
         }
+
+        var hasutable = new ExitGames.Client.Photon.Hashtable
+        {
+            ["PlayerHp"] = _playerHp.Value
+        };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(hasutable);
 
         //カメラの位置をきめる
         _virtualCamera.LookAt = _eye.transform;
@@ -348,6 +347,16 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     /// </summary>
     void Die()
     {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            _photonGameManager.Master = true;
+
+        }
+        else
+        {
+            _photonGameManager.Connecter = true;
+        }
+
         _photonGameManager.GameEnd = true;
     }
 
@@ -369,4 +378,12 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         Cursor.lockState = CursorLockMode.None;
     }
 
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+    {
+        Debug.Log($"{targetPlayer.NickName}");
+
+        foreach(var prop in changedProps) {
+            Debug.Log($"{prop.Key}: {prop.Value}");
+        }
+    }
 }
