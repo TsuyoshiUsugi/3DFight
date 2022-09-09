@@ -151,11 +151,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
         }
 
-        var hasutable = new ExitGames.Client.Photon.Hashtable
-        {
-            ["PlayerHp"] = _playerHp.Value
-        };
-        PhotonNetwork.LocalPlayer.SetCustomProperties(hasutable);
+        
 
         //カメラの位置をきめる
         _virtualCamera.LookAt = _eye.transform;
@@ -237,7 +233,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if(_horizontal < 0)
         {
             animator.SetFloat("HoriSpeed", _horizontal * -1);
-
         }
         else
         {
@@ -331,6 +326,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         _playerHp.Value -= damage;
 
+        var hasutable = new ExitGames.Client.Photon.Hashtable
+        {
+            ["PlayerHp"] = _playerHp.Value
+        };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(hasutable);
+
         DOTween.To(() => _hpImage.fillAmount,
            x => _hpImage.fillAmount = x,
            _hpImage.fillAmount -= damage / 100,
@@ -339,6 +340,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (_playerHp.Value <= 0)
         {
             Die();
+
         }
     }
 
@@ -347,15 +349,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     void Die()
     {
-        if (PhotonNetwork.IsMasterClient)
+        var hasutable = new ExitGames.Client.Photon.Hashtable
         {
-            _photonGameManager.Master = true;
-
-        }
-        else
-        {
-            _photonGameManager.Connecter = true;
-        }
+             ["DiedPlayer"] = PhotonNetwork.NickName
+        };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(hasutable);
 
         _photonGameManager.GameEnd = true;
     }
@@ -378,8 +376,18 @@ public class PlayerController : MonoBehaviourPunCallbacks
         Cursor.lockState = CursorLockMode.None;
     }
 
+    /// <summary>
+    /// ダメージを食らったプレイヤーのHPと名前をログに出力
+    /// </summary>
+    /// <param name="targetPlayer"></param>
+    /// <param name="changedProps"></param>
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
     {
+        if (!photonView.IsMine)
+        {
+            return;
+        }
+
         Debug.Log($"{targetPlayer.NickName}");
 
         foreach(var prop in changedProps) {

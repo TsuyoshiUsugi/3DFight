@@ -48,13 +48,11 @@ public class SpawnManager : MonoBehaviour
         if (PhotonNetwork.IsMasterClient)
         {
             Spawn(_spawnPos[0]);
-            
         }
         else
         {
             Spawn(_spawnPos[1]);
         }
-
     }
 
     /// <summary>

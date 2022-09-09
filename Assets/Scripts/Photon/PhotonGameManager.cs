@@ -4,6 +4,7 @@ using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Photon.Pun;
+using Photon.Realtime;
 
 /// <summary>
 /// バトルシーンにおけるPhoton関連のマネージャーコンポーネント
@@ -15,13 +16,9 @@ public class PhotonGameManager : MonoBehaviourPunCallbacks
 
     public bool GameEnd { get => _gameEnd; set => _gameEnd = value; }
 
-    [SerializeField] bool _masterDie;
-    public bool Master { get => _masterDie; set => _masterDie = value; }
+    [SerializeField] string _loser;
 
-    [SerializeField] bool _connecterDie;
-    public bool Connecter { get => _connecterDie; set => _connecterDie = value; }
 
-    
 
     private void Start()
     {
@@ -35,12 +32,6 @@ public class PhotonGameManager : MonoBehaviourPunCallbacks
 
             NewPlayerGet(PhotonNetwork.NickName);
         }
-
-        var hasutable = new ExitGames.Client.Photon.Hashtable();
-        hasutable["GameEnd"] = _gameEnd;
-        hasutable["MasterDie"] = _masterDie;
-        hasutable["ConnecterDie"] = _connecterDie;
-        PhotonNetwork.LocalPlayer.SetCustomProperties(hasutable);
 
     }
 
@@ -59,9 +50,11 @@ public class PhotonGameManager : MonoBehaviourPunCallbacks
     {
         if (GameEnd)
         {
+
             EndGame();
 
         }
+
     }
 
     /// <summary>
@@ -69,6 +62,7 @@ public class PhotonGameManager : MonoBehaviourPunCallbacks
     /// </summary>
     void EndGame()
     {
+
         //ネットワークオブジェクトの破壊
         if (PhotonNetwork.IsMasterClient)
         {
@@ -102,7 +96,35 @@ public class PhotonGameManager : MonoBehaviourPunCallbacks
     /// </summary>
     public override void OnLeftRoom()
     {
-        SceneManager.LoadScene(1);
+        Debug.Log(_loser);
+        Debug.Log(PhotonNetwork.NickName);
+
+        if (_loser == PhotonNetwork.NickName)
+        {
+            //_loser = null;
+            SceneManager.LoadScene(6);
+        }
+        else
+        {
+            //_loser = null;
+            SceneManager.LoadScene(7);
+        }
+
+        //SceneManager.LoadScene(1);
+    }
+
+    /// <summary>
+    /// 負けた方の名前を受け取る為のカスタムプロパティのコールバック関数
+    /// </summary>
+    /// <param name="targetPlayer"></param>
+    /// <param name="changedProps"></param>
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+    {
+
+        foreach (var prop in changedProps)
+        {
+            _loser = (string)prop.Value;
+        }
     }
 }
 

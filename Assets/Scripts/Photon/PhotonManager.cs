@@ -26,7 +26,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     /// <summary>ボタンの親オブジェクト</summary>
     [SerializeField] GameObject _buttons;
 
-    
     [SerializeField] GameObject _createRoomPanel;
 
     /// <summary>ルーム名の入力テキスト</summary>
