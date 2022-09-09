@@ -25,7 +25,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     [SerializeField] Rigidbody _rb;
     [SerializeField] Animator animator;
 
-    /// <summary>目線のオブジェクト</summary>
+    /// <summary>カメラ軸のオブジェクト</summary>
     [SerializeField] GameObject _eye;
 
     /// <summary>歩く速さ</summary>
@@ -63,23 +63,16 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 
     /// <summary>Playerのdamage</summary>
     [SerializeField] float _playerDamage;
+    public float PlayerDamage { get => _playerDamage; set => _playerDamage = value; }
 
     /// <summary>Playerの見ている地点</summary>
     [SerializeField] Vector3 _playerLook;
+    public Vector3 PlayerLook { get => _playerLook; set => _playerLook = value; }
 
     /// <summary>操作可能か判定する</summary>
     [SerializeField] bool _wait = true;
-
-    /// <summary>
-    /// _playerLookのプロパティ
-    /// </summary>
-    public Vector3 PlayerLook { get => _playerLook; set => _playerLook = value; }
-
-    /// <summary>
-    /// ダメージのプロパティ
-    /// </summary>
-    public float PlayerDamage { get => _playerDamage; set => _playerDamage = value; }
-
+    public bool Wait { get => _wait; set => _wait = value; }
+   
     /// <summary>SpawnManagerの参照</summary>
     [SerializeField] SpawnManager _spawnManager;
 
@@ -90,6 +83,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 
     /// <summary>PhotonGameManagerのインスタンス</summary>
     [SerializeField] PhotonGameManager _photonGameManager;
+
+    [SerializeField] GameM _gameManager;
 
     [SerializeField] float _downForce;
 
@@ -133,6 +128,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         gameObject.name = PhotonNetwork.NickName;
 
         _photonGameManager = GameObject.FindGameObjectWithTag("PhotonManager").GetComponent<PhotonGameManager>();
+        _gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameM>();
+        _gameManager.Player = this;
 
         //Chinemachineカメラの参照を読みこむ
         _virtualCamera = GameObject.FindGameObjectWithTag("Camera").GetComponent<CinemachineFreeLook>();
@@ -236,9 +233,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         Vector3 moveForward = cameraForward * _vertical + transform.right * _horizontal;
 
         //カメラの向いてる方にプレイヤーを動かす
-        //_rb.velocity = new Vector3(moveForward.normalized.x * _walkSpeed, _rb.velocity.normalized.y, moveForward.normalized.z * _walkSpeed);
-        _rb.velocity = moveForward.normalized * _walkSpeed;
-
+        _rb.velocity = new Vector3(moveForward.normalized.x * _walkSpeed, _rb.velocity.y, moveForward.normalized.z * _walkSpeed);
         
         if(_horizontal < 0)
         {
@@ -249,11 +244,9 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         {
             animator.SetFloat("HoriSpeed", _horizontal);
         }
-      
-       
+        
         animator.SetFloat("VSpeed", _vertical);
-        
-        
+
     }
 
     /// <summary>
@@ -350,8 +343,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
-
-
     /// <summary>
     /// 死亡時の関数
     /// </summary>
@@ -365,10 +356,9 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     // </summary>
     void JampVelocityLimit()
     {
-        if (_rb.velocity.y > _maxJumpSpeedLimit)
+        if (_rb.velocity.y > _maxJumpSpeedLimit && _rb.velocity.y > 0)
         {
-            //_rb.AddForce(Vector3.zero * _downForce);
-             _rb.velocity = new Vector3(_rb.velocity.x, _maxJumpSpeedLimit, _rb.velocity.z);
+            _rb.velocity = new Vector3(_rb.velocity.x, _maxJumpSpeedLimit, _rb.velocity.z);
         }
     }
 
@@ -379,5 +369,4 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         Cursor.lockState = CursorLockMode.None;
     }
 
-   
 }

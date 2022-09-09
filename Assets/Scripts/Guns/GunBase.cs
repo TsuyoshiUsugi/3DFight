@@ -72,6 +72,11 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
 
     private void Start()
     {
+        if (!photonView.IsMine)
+        {
+            return;
+        }
+
         _bulletText = GameObject.FindGameObjectWithTag("BulletText").GetComponent<TextMeshProUGUI>();
 
         _maxBulletText = GameObject.FindGameObjectWithTag("MaxBulletText").GetComponent<TextMeshProUGUI>();
@@ -89,6 +94,11 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
 
     private void Update()
     {
+        if(!photonView.IsMine)
+        {
+            return;
+        }
+
         PlayerLook();
     }
 
@@ -154,7 +164,7 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     }
 
     /// <summary>
-    /// 弾を発射する仮想メソッド
+    /// 弾を発射するメソッド
     /// </summary>
     /// <param name="playerLook"></param>
     void FireBullet(Vector3 playerLook)
