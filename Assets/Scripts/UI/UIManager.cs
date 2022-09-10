@@ -9,6 +9,7 @@ using DG.Tweening;
 /// 
 /// 機能
 /// 試合開始前のカウントダウンを行う
+/// 感度設定パネルの表示非表示を行う
 /// 
 /// </summary>
 public class UIManager : MonoBehaviourPunCallbacks
@@ -18,6 +19,14 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] RectTransform[] _showStartBattleNumber;
     [SerializeField] int _presenCountTime;
     [SerializeField] bool _start;
+
+    //感度設定パネル
+    [SerializeField] GameObject _settingPanel;
+
+    private void Start()
+    {
+        
+    }
 
     private void Update()
     {

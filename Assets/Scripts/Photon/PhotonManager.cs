@@ -77,7 +77,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     [SerializeField] InputField _nameInput;
 
     /// <summary>名前を入力したか判定</summary>
-    bool _setName;
+    [SerializeField] static bool _setName;
 
     /// <summary>スタートボタン</summary>
     [SerializeField] GameObject _startButton;
@@ -167,8 +167,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
         //辞書の初期化
         _roomList.Clear();
-
-        PhotonNetwork.NickName = Random.Range(0, 1000).ToString();
 
         //名前が入力済みか確認してUI更新
         ConfirmationName();
@@ -518,7 +516,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     /// </summary>
     public void PlayGame()
     {
-        
         PhotonNetwork.LoadLevel(_levelToPlay);
     }
 }

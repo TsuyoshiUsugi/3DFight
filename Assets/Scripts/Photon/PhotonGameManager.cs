@@ -25,11 +25,15 @@ public class PhotonGameManager : MonoBehaviourPunCallbacks
         //ネットワークに繋がっていないときメニュー画面に戻る
         if (!PhotonNetwork.IsConnected)
         {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+
             SceneManager.LoadScene("MenuScene");
         }
         else
         {
-
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
             NewPlayerGet(PhotonNetwork.NickName);
         }
 

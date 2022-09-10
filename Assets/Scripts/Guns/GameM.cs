@@ -51,7 +51,11 @@ public class GameM : MonoBehaviour
     //時間処理(試合前)
     [SerializeField] bool _startBattleCount;
     [SerializeField] GameObject _uIManager;
+
     //戦闘後
+
+    //感度設定パネル
+    [SerializeField] GameObject _settingPanel;
 
     // Start is called before the first frame update
     void Start()
@@ -60,18 +64,20 @@ public class GameM : MonoBehaviour
 
         SwicthPlayingObj(false);
 
-        _limitTime.Subscribe(limitTime => ShowPresentTime(limitTime)).AddTo(this);
+        SwicthOtherObj(false);
 
+        _limitTime.Subscribe(limitTime => ShowPresentTime(limitTime)).AddTo(this);
     }
 
     // Update is called once per frame
     void Update()
     {
-        CursorSet();
 
         //Timelineのシグナルを受信
         if (_endOP)
         {
+            CursorSet();
+
             SwicthOpObj(false);
 
             SwicthPlayingObj(true);   
@@ -122,28 +128,51 @@ public class GameM : MonoBehaviour
     }
 
     /// <summary>
-    /// マウスカーソルを中央に固定し、見えなくさせる
-    /// Escをおしたら見えるようにする
+    /// otherオブジェクトのオンオフ
+    /// </summary>
+    /// <param name="onOff"></param>
+    void SwicthOtherObj(bool onOff)
+    {
+        _settingPanel.gameObject.SetActive(onOff);
+    }
+
+    /// <summary>
+    /// 試合前
+    /// カーソル見えなくさせる
+    /// 
+    /// 試合中
+    /// カーソルはESCを押したときのみ見える
     /// </summary>
     void CursorSet()
     {
-        if (Input.GetKeyDown(KeyCode.F))
+
+        //試合中
+        if (_endOP)
         {
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
-        }
-        else if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
+
+            //カーソル見えない時
+            if (Input.GetKeyDown(KeyCode.Escape) && !Cursor.visible)
+            {
+                Debug.Log("見せたい");
+                Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.None;
+                _settingPanel.gameObject.SetActive(true);
+                _player.Wait = true;
+            }
+            //カーソル見える時
+            else if (Input.GetKeyDown(KeyCode.Escape) && Cursor.visible)
+            {
+                Debug.Log("消したい");
+
+                Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Locked;
+                _settingPanel.gameObject.SetActive(false);
+                _player.Wait = true;
+
+
+            }
         }
     }
-
-    
-
-    
-    
-    
 
     /// <summary>
     /// 時間経過を計る関数
@@ -180,6 +209,11 @@ public class GameM : MonoBehaviour
         _showNumber[2].sprite = _numberSprite[eachPlace[1]];
         _showNumber[3].sprite = _numberSprite[eachPlace[0]];
      
+    }
+
+    void Settings()
+    {
+
     }
 }
 
