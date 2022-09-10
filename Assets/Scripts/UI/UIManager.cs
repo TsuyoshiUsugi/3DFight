@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 using Photon.Pun;
 using System.Linq;
 using DG.Tweening;
@@ -22,7 +21,7 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     private void Update()
     {
-
+        //カウントが始まったらStartCountdownは行わない
         if (_start)
         {
             return;
@@ -48,6 +47,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
 
         _gameManager.GetComponent<GameM>().StartCount = true;
-        
+
+        this.gameObject.SetActive(false);
     }
 }

@@ -74,7 +74,6 @@ public class PhotonGameManager : MonoBehaviourPunCallbacks
         Cursor.lockState = CursorLockMode.None;
 
         //終了後の処理
-        //Invoke(((Action)ProcessingAfterCompletion).Method.Name, 5);
         photonView.RPC(nameof(ProcessingAfterCompletion), RpcTarget.All);
     }
 
@@ -92,21 +91,19 @@ public class PhotonGameManager : MonoBehaviourPunCallbacks
     }
 
     /// <summary>
-    /// ルームを抜けた時menuに戻る
+    /// ルームを抜け、それぞれの結果シーンに移る
     /// </summary>
     public override void OnLeftRoom()
     {
-        Debug.Log(_loser);
-        Debug.Log(PhotonNetwork.NickName);
 
         if (_loser == PhotonNetwork.NickName)
         {
-            //_loser = null;
+            _loser = null;
             SceneManager.LoadScene(6);
         }
         else
         {
-            //_loser = null;
+            _loser = null;
             SceneManager.LoadScene(7);
         }
 

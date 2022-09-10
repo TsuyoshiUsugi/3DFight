@@ -13,7 +13,7 @@ using Photon.Realtime;
 /// </summary>
 public class PhotonManager : MonoBehaviourPunCallbacks
 {
-    [SerializeField] static PhotonManager _instance;
+    static PhotonManager _instance;
 
     public static PhotonManager Instance { get => _instance; set => _instance = value; }
 
@@ -106,6 +106,10 @@ public class PhotonManager : MonoBehaviourPunCallbacks
             //ネットワークに接続
             PhotonNetwork.ConnectUsingSettings();
         }
+        else
+        {
+            OnConnectedToMaster();
+        }
 
     }
 
@@ -169,7 +173,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         //名前が入力済みか確認してUI更新
         ConfirmationName();
 
-
     }
 
     /// <summary>
@@ -191,8 +194,10 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     {
         if (!string.IsNullOrEmpty(enterRoomName.text))
         {
-            RoomOptions options = new RoomOptions();
-            options.MaxPlayers = 2;
+            RoomOptions options = new RoomOptions
+            {
+                MaxPlayers = 2
+            };
 
             //ルーム作成
             PhotonNetwork.CreateRoom(enterRoomName.text, options);

@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Photon.Realtime;
+using Photon.Pun;
 
 /// <summary>
 /// シーン遷移する為の仮のスクリプト
@@ -24,7 +26,21 @@ public class MoveScene : MonoBehaviour
     string _result = "Result";
     string _setting = "Settings";
 
-    
+    private void Start()
+    {
+        if (!PhotonNetwork.IsConnected)
+        {
+            Debug.Log("接続してません");
+
+        }
+        else
+        {
+            Debug.Log("接続済み");
+
+        }
+    }
+
+
     public void MoveToMenu()
     {
         SceneManager.LoadScene(_menu);
