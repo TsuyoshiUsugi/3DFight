@@ -96,6 +96,11 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         //UIをすべて閉じる関数を呼ぶ
         CloseMenuUI();
 
+        //
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
+
         //パネルとテキストを更新
         _loadingPanel.SetActive(true);
         _loadingText.text = "ネットワークに接続中…";

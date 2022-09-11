@@ -175,11 +175,6 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
         
         Vector3 heading = (playerLook - _muzzle.transform.position).normalized;
 
-        /*
-        var dis = heading.magnitude;
-        var dir = heading / dis;
-        */
-
         bullet.GetComponent<Rigidbody>().AddForce(heading * bulletSpeed, ForceMode.Impulse);
     }
 

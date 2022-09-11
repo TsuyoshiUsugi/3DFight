@@ -38,7 +38,7 @@ public class GameM : MonoBehaviour
     [SerializeField] GameObject _spawnManager;
     [SerializeField] GameObject _playingUI;
     [SerializeField] CinemachineFreeLook _playerCam;
-    PlayerController _player;
+    [SerializeField] PlayerController _player;
     public PlayerController Player { get => _player; set => _player = value; }
 
     //時間処理(試合中)
@@ -56,15 +56,21 @@ public class GameM : MonoBehaviour
 
     //感度設定パネル
     [SerializeField] GameObject _settingPanel;
+    [SerializeField] bool _nowSetting;
 
     // Start is called before the first frame update
     void Start()
     {
+        _nowSetting = false;
+
         SwicthOpObj(true);
 
         SwicthPlayingObj(false);
 
         SwicthOtherObj(false);
+
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
 
         _limitTime.Subscribe(limitTime => ShowPresentTime(limitTime)).AddTo(this);
     }
@@ -76,18 +82,29 @@ public class GameM : MonoBehaviour
         //Timelineのシグナルを受信
         if (_endOP)
         {
+
             CursorSet();
 
             SwicthOpObj(false);
 
-            SwicthPlayingObj(true);   
+            SwicthPlayingObj(true);  
+
+            if (_startCount && _limitTime.Value > 0f)
+            {
+               
+                if (_nowSetting)
+                {
+                    _player.Wait = true;
+                }
+                else
+                {
+                    _player.Wait = false;
+                }
+
+                CountPlayTime();
+            }
         }
 
-        if (_startCount && _limitTime.Value > 0f)
-        {
-            _player.Wait = false;
-            CountPlayTime();
-        }
     }
 
     
@@ -145,33 +162,26 @@ public class GameM : MonoBehaviour
     /// </summary>
     void CursorSet()
     {
-
-        //試合中
-        if (_endOP)
+   
+        //カーソル見えない時
+        if (Input.GetKeyDown(KeyCode.Escape) && !_nowSetting)
         {
-
-            //カーソル見えない時
-            if (Input.GetKeyDown(KeyCode.Escape) && !Cursor.visible)
-            {
-                Debug.Log("見せたい");
-                Cursor.visible = true;
-                Cursor.lockState = CursorLockMode.None;
-                _settingPanel.gameObject.SetActive(true);
-                _player.Wait = true;
-            }
-            //カーソル見える時
-            else if (Input.GetKeyDown(KeyCode.Escape) && Cursor.visible)
-            {
-                Debug.Log("消したい");
-
-                Cursor.visible = false;
-                Cursor.lockState = CursorLockMode.Locked;
-                _settingPanel.gameObject.SetActive(false);
-                _player.Wait = true;
-
-
-            }
+            _nowSetting = true;
+            Debug.Log("見せたい");
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+            _uIManager.GetComponent<UIManager>().Setting = true;
         }
+        //カーソル見える時
+        else if (Input.GetKeyDown(KeyCode.Escape) && _nowSetting)
+        {
+            _nowSetting = false;
+            Debug.Log("消したい");
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+            _uIManager.GetComponent<UIManager>().Setting = false;
+        }
+        
     }
 
     /// <summary>

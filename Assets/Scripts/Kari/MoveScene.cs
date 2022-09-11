@@ -36,7 +36,6 @@ public class MoveScene : MonoBehaviour
         else
         {
             Debug.Log("Ú‘±Ï‚İ");
-
         }
     }
 

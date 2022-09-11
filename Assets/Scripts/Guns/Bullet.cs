@@ -60,6 +60,7 @@ public class Bullet : MonoBehaviourPunCallbacks
     {
         if (other.tag == "Player")
         {
+            Debug.Log("hit");
             other.GetComponent<PlayerController>().Damage(_bulletDamage);
         }
     }

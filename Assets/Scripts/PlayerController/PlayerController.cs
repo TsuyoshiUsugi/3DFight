@@ -102,9 +102,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     [SerializeField] int _ammoText;
 
+    [SerializeField] GameObject _settingPanel;
    
-
-    
+    public GameObject SettingPanel { get => _settingPanel; set => _settingPanel = value; }
 
     private void Start()
     {
@@ -120,6 +120,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         };
         PhotonNetwork.LocalPlayer.SetCustomProperties(hasutable);
 
+
         _photonGameManager = GameObject.FindGameObjectWithTag("PhotonManager").GetComponent<PhotonGameManager>();
         _gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameM>();
         _gameManager.Player = this;
@@ -129,9 +130,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         //自身の子オブジェクトとなっている銃を取得
         _gun = this.GetComponentInChildren<GunBase>();
-
-        //ラウンド開始前の処理を行う
-        //_wait = true;
 
         //Hp変更時に体力値を変更
         _hpText = GameObject.FindGameObjectWithTag("HpText").GetComponent<TextMeshProUGUI>();
@@ -151,35 +149,21 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
         }
 
-        
-
         //カメラの位置をきめる
         _virtualCamera.LookAt = _eye.transform;
         _virtualCamera.Follow = _eye.transform;
 
+        
+
         if (_wait)
         {
+            
             return; 
         }
-        //WASDのキーを読み取る
-        _horizontal = Input.GetAxisRaw("Horizontal");
-        _vertical = Input.GetAxis("Vertical");
 
-        //マウスの位置を読み取る
-        mouseInputX = Input.GetAxis("Mouse X");
-        mouseInputY += Input.GetAxis("Mouse Y");
+        ReadInput();
 
-        int centerX = Screen.width / 2;
-        int centerY = Screen.height / 2;
-
-        Vector3 pos = new Vector3(centerX, centerY, 0.1f); // Zを少しだけ前に出す
-        Ray ray = Camera.main.ScreenPointToRay(pos);
-
-        if (Physics.Raycast(ray, out RaycastHit  hit))
-        {
-            _playerLook = hit.point;
-            
-        }
+        FocusPoint();
 
         JampVelocityLimit();
 
@@ -198,6 +182,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
         }
 
+        if (_wait)
+        {
+            return;
+        }
+
         Move();
 
         PlayerRotate();
@@ -210,9 +199,51 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
         }
 
+        if (_wait)
+        {
+            
+            animator.SetFloat("HoriSpeed", 0);
+            animator.SetFloat("VSpeed", 0);
+            animator.SetBool("Aim", false);
+            return;
+        }
 
         Aim();
         
+    }
+
+    /// <summary>
+    /// プレイヤーの操作を処理する
+    /// </summary>
+    void ReadInput()
+    {
+        
+
+        //WASDのキーを読み取る
+        _horizontal = Input.GetAxisRaw("Horizontal");
+        _vertical = Input.GetAxis("Vertical");
+
+        //マウスの位置を読み取る
+        mouseInputX = Input.GetAxis("Mouse X");
+        mouseInputY += Input.GetAxis("Mouse Y");
+    }
+
+    /// <summary>
+    /// プレイヤーの照準地点の位置を格納する
+    /// </summary>
+    void FocusPoint()
+    {
+
+        int centerX = Screen.width / 2;
+        int centerY = Screen.height / 2;
+
+        Vector3 pos = new Vector3(centerX, centerY, 0.1f); // Zを少しだけ前に出す
+        Ray ray = Camera.main.ScreenPointToRay(pos);
+
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            _playerLook = hit.point;
+        }
     }
 
     /// <summary>
@@ -349,18 +380,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     void Die()
     {
-        var hasutable = new ExitGames.Client.Photon.Hashtable
-        {
-             ["DiedPlayer"] = PhotonNetwork.NickName
-        };
-        PhotonNetwork.LocalPlayer.SetCustomProperties(hasutable);
-
         _photonGameManager.GameEnd = true;
     }
 
-    // <summary>
-    // 上方向の力を制限するメソッド
-    // </summary>
+    /// <summary>
+    /// 上方向の力を制限するメソッド
+    /// </summary>
     void JampVelocityLimit()
     {
         if (_rb.velocity.y > _maxJumpSpeedLimit && _rb.velocity.y > 0)
@@ -394,4 +419,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             Debug.Log($"{prop.Key}: {prop.Value}");
         }
     }
+
+
 }

@@ -20,7 +20,9 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] int _presenCountTime;
     [SerializeField] bool _start;
 
-    //感度設定パネル
+    [SerializeField] bool _setting;
+    public bool Setting { get => _setting; set => _setting = value; }
+
     [SerializeField] GameObject _settingPanel;
 
     private void Start()
@@ -30,12 +32,29 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     private void Update()
     {
+        SettingInput();
+
         //カウントが始まったらStartCountdownは行わない
         if (_start)
         {
             return;
         }
         StartCoroutine(nameof(StartCountdown));
+    }
+
+    /// <summary>
+    /// ESCを押されたとき設定画面を表示する
+    /// </summary>
+    void SettingInput()
+    {
+        if (_setting)
+        {
+            _settingPanel.SetActive(true);
+        }
+        else if (!Setting)
+        {
+            _settingPanel.SetActive(false);
+        }
     }
 
     // <summary>
