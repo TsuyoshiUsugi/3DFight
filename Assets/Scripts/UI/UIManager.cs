@@ -18,11 +18,7 @@ public class UIManager : MonoBehaviourPunCallbacks
 {
     //プレイヤーネーム表示（試合前）
     [SerializeField] TextMeshProUGUI _player1;
-    [SerializeField] float _moveTime1;
-    [SerializeField] float _moveTime2;
-    [SerializeField] float _moveTime3;
     [SerializeField] TextMeshProUGUI _player2;
-    [SerializeField] float _moveTime4;
 
     //時間処理(試合前)
     [SerializeField] GameObject _gameManager;
@@ -94,17 +90,12 @@ public class UIManager : MonoBehaviourPunCallbacks
     }
 
     /// <summary>
-    /// 試合シーン遷移後、ムービーに合わせて一人目と二人目の名前を表示して消す
+    /// 試合シーン遷移後、表示汁テキストに名前を入れる
     /// </summary>
     void ShowPlayerName()
     {
-        //DOTween.Sequence()
-        //    .Append(_player1.rectTransform.DOAnchorPos(new Vector3(178, 38, 0), _moveTime1).SetEase(Ease.OutQuart))
-        //    .Append(_player1.rectTransform.DOAnchorPos(new Vector3(200, 38, 0), _moveTime3).SetEase(Ease.InQuart))
-        //    .Append(_player1.rectTransform.DOAnchorPos(new Vector3(-56, 667, 0), _moveTime4).SetEase(Ease.OutQuart));
-
-        _player1.text = $"PLAYER1: {PhotonNetwork.MasterClient.NickName}";
-        _player2.text = $"PLAYER2: {PhotonNetwork.PlayerList[1].NickName}";
+        _player1.text = $"{PhotonNetwork.MasterClient.NickName}";
+        _player2.text = $"{PhotonNetwork.PlayerList[1].NickName}";
 
     }
 }
