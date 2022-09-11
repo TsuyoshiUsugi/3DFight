@@ -3,6 +3,7 @@ using UnityEngine;
 using Photon.Pun;
 using System.Linq;
 using DG.Tweening;
+using UnityEngine.UI;
 
 /// <summary>
 /// ゲームシーンでUIを管理するマネージャー
@@ -20,14 +21,17 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] int _presenCountTime;
     [SerializeField] bool _start;
 
+    //設定関係
     [SerializeField] bool _setting;
     public bool Setting { get => _setting; set => _setting = value; }
-
     [SerializeField] GameObject _settingPanel;
+    [SerializeField] Slider _xCamSpeedSlider;
+    [SerializeField] Slider _yCamSpeedSlider;
 
     private void Start()
     {
-        
+        PlayerPrefs.SetFloat("xCamSpeed", 2);
+        PlayerPrefs.SetFloat("yCamSpeed", 2);
     }
 
     private void Update()
@@ -50,6 +54,8 @@ public class UIManager : MonoBehaviourPunCallbacks
         if (_setting)
         {
             _settingPanel.SetActive(true);
+            PlayerPrefs.SetFloat("xCamSpeed", _xCamSpeedSlider.value);
+            PlayerPrefs.SetFloat("yCamSpeed", _yCamSpeedSlider.value);
         }
         else if (!Setting)
         {

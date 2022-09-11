@@ -32,8 +32,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// <summary>歩く速さ</summary>
     [SerializeField] float _walkSpeed;
 
-    /// <summary>カメラのスピード</summary>
-    [SerializeField] float _cameraSpeed;
+    /// <summary>カメラの横軸のスピード</summary>
+    [SerializeField] float _xCameraSpeed;
+    public float XCamSpeed { get => _xCameraSpeed; set => _xCameraSpeed = value; }
+
+    /// <summary>カメラの縦軸のスピード</summary>
+    [SerializeField] float _yCameraSpeed;
+    public float YCamSpeed { get => _yCameraSpeed; set => _yCameraSpeed = value; }
 
     /// <summary>ジャンプ力</summary>
     [SerializeField] float _jumpForce;
@@ -61,6 +66,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     /// <summary>PlayerのHP</summary>
     [SerializeField] ReactiveProperty<float> _playerHp;
+
+    //前フレームの位置
+    Vector3 latestPos;
 
     /// <summary>Playerのdamage</summary>
     [SerializeField] float _playerDamage;
@@ -114,6 +122,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
         gameObject.name = PhotonNetwork.NickName;
 
+
         var hasutable = new ExitGames.Client.Photon.Hashtable
         {
             ["PlayerHp"] = _playerHp.Value
@@ -136,8 +145,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _hpImage = GameObject.FindGameObjectWithTag("HpImage").GetComponent<Image>();
 
         _playerHp.Subscribe(presentHp => _hpText.text = presentHp.ToString()).AddTo(gameObject);
-        
-        
+
+        //カメラの位置をきめる
+        _virtualCamera.LookAt = _eye.transform;
+        _virtualCamera.Follow = _eye.transform;
     }
 
 
@@ -149,11 +160,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
         }
 
-        //カメラの位置をきめる
-        _virtualCamera.LookAt = _eye.transform;
-        _virtualCamera.Follow = _eye.transform;
-
-        
+        _virtualCamera.m_YAxis.m_InputAxisValue = _yCameraSpeed;
 
         if (_wait)
         {
@@ -280,8 +287,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
     void PlayerRotate()
     {
         transform.rotation = Quaternion.Euler(transform.eulerAngles.x,
-            transform.eulerAngles.y + mouseInputX * _cameraSpeed,
+            transform.eulerAngles.y + mouseInputX * _xCameraSpeed,
             transform.eulerAngles.z);
+
     }
 
     /// <summary>

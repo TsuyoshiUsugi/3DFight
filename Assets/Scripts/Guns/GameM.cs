@@ -58,9 +58,13 @@ public class GameM : MonoBehaviour
     [SerializeField] GameObject _settingPanel;
     [SerializeField] bool _nowSetting;
 
+
     // Start is called before the first frame update
     void Start()
     {
+        PlayerPrefs.SetFloat("xCamSpeed", 2);
+        PlayerPrefs.SetFloat("yCamSpeed", 2);
+
         _nowSetting = false;
 
         SwicthOpObj(true);
@@ -78,6 +82,7 @@ public class GameM : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+       
 
         //Timelineのシグナルを受信
         if (_endOP)
@@ -87,7 +92,9 @@ public class GameM : MonoBehaviour
 
             SwicthOpObj(false);
 
-            SwicthPlayingObj(true);  
+            SwicthPlayingObj(true);
+
+            CamSetting();
 
             if (_startCount && _limitTime.Value > 0f)
             {
@@ -221,9 +228,15 @@ public class GameM : MonoBehaviour
      
     }
 
-    void Settings()
+    /// <summary>
+    /// カメラの設定をするメソッド
+    /// プレイヤーの追跡と感度を設定する
+    /// </summary>
+    void CamSetting()
     {
-
+        
+        _player.XCamSpeed = PlayerPrefs.GetFloat("xCamSpeed");
+        _player.YCamSpeed = PlayerPrefs.GetFloat("yCamSpeed");
     }
 }
 
