@@ -4,6 +4,7 @@ using Photon.Pun;
 using System.Linq;
 using DG.Tweening;
 using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
 /// ゲームシーンでUIを管理するマネージャー
@@ -15,6 +16,14 @@ using UnityEngine.UI;
 /// </summary>
 public class UIManager : MonoBehaviourPunCallbacks
 {
+    //プレイヤーネーム表示（試合前）
+    [SerializeField] TextMeshProUGUI _player1;
+    [SerializeField] float _moveTime1;
+    [SerializeField] float _moveTime2;
+    [SerializeField] float _moveTime3;
+    [SerializeField] TextMeshProUGUI _player2;
+    [SerializeField] float _moveTime4;
+
     //時間処理(試合前)
     [SerializeField] GameObject _gameManager;
     [SerializeField] RectTransform[] _showStartBattleNumber;
@@ -30,8 +39,7 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        PlayerPrefs.SetFloat("xCamSpeed", 2);
-        PlayerPrefs.SetFloat("yCamSpeed", 2);
+        ShowPlayerName();
     }
 
     private void Update()
@@ -83,5 +91,20 @@ public class UIManager : MonoBehaviourPunCallbacks
         _gameManager.GetComponent<GameM>().StartCount = true;
 
         this.gameObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// 試合シーン遷移後、ムービーに合わせて一人目と二人目の名前を表示して消す
+    /// </summary>
+    void ShowPlayerName()
+    {
+        //DOTween.Sequence()
+        //    .Append(_player1.rectTransform.DOAnchorPos(new Vector3(178, 38, 0), _moveTime1).SetEase(Ease.OutQuart))
+        //    .Append(_player1.rectTransform.DOAnchorPos(new Vector3(200, 38, 0), _moveTime3).SetEase(Ease.InQuart))
+        //    .Append(_player1.rectTransform.DOAnchorPos(new Vector3(-56, 667, 0), _moveTime4).SetEase(Ease.OutQuart));
+
+        _player1.text = $"PLAYER1: {PhotonNetwork.MasterClient.NickName}";
+        _player2.text = $"PLAYER2: {PhotonNetwork.PlayerList[1].NickName}";
+
     }
 }

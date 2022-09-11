@@ -441,6 +441,8 @@ public class PhotonManager : MonoBehaviourPunCallbacks
             {
                 _placeHolderText.text = PlayerPrefs.GetString("playerName");
                 _nameInput.text = PlayerPrefs.GetString("playerName");
+
+                
             }
         }
         else
