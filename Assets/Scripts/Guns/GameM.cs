@@ -94,7 +94,7 @@ public class GameM : MonoBehaviour
 
             SwicthPlayingObj(true);
 
-            CamSetting();
+           
 
             if (_startCount && _limitTime.Value > 0f)
             {
@@ -110,6 +110,8 @@ public class GameM : MonoBehaviour
 
                 CountPlayTime();
             }
+
+            CamSetting();
         }
 
     }
