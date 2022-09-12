@@ -646,18 +646,24 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         //位置の初期化
         _percentImages.transform.localPosition = new Vector3(-466f, -60, 0);
 
+        var alpha = _percentImages.GetComponent<Image>();
+
+        DOTween.ToAlpha(
+            () => alpha.color,
+            x => alpha.color = x,
+            255,
+            1f);
 
         //Percent表示
         //上にずらしながら段々表示
         var percentImage = _percentImages.GetComponent<Image>();
 
-        DOTween.Sequence()
-            .Append(_percentImages.transform.DOLocalMove(new Vector3(-466f, 0, 0), 1f).OnComplete(ShowStatsText));
+        _percentImages.transform.DOLocalMove(new Vector3(-466f, 0, 0), 1f).SetEase(Ease.OutQuad).OnComplete(ShowStatsText);
 
         //円グラフを埋める
         float winPer = _winTimes / (_winTimes + _loseTimes);
         percentImage.fillAmount = 0;
-        percentImage.DOFillAmount(winPer, 1f).SetEase(Ease.Linear);
+        percentImage.DOFillAmount(winPer, 0.5f).SetEase(Ease.OutQuad);
     }
 
     /// <summary>
@@ -670,7 +676,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         //上にずらしながら段々表示
         _winPerDate.transform.localPosition = _start;
         _winPerDate.gameObject.SetActive(true);
-        _winPerDate.transform.DOLocalMove(_end, 1f).OnComplete(ShowRoundData);
+        _winPerDate.transform.DOLocalMove(_end, 0.5f).SetEase(Ease.OutQuad).OnComplete(ShowRoundData);
     }
 
     /// <summary>
@@ -678,13 +684,16 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     /// </summary>
     void ShowRoundData()
     {
+       
         //RoundData表示
         //上にずらしながら段々表示
         //各ラウンドデータを少しずつ表示
         //ラウンドデータのフレーム自体を移動
         _roundDataTable.transform.localPosition = new Vector3(403, 271, 0);
         _roundDataTable.gameObject.SetActive(true);
-        _roundDataTable.transform.DOLocalMove(new Vector3(403, 331, 0), 1f);
+       
+
+        _roundDataTable.transform.DOLocalMove(new Vector3(403, 331, 0), 0.5f).SetEase(Ease.OutQuad);
     }
 
 }
