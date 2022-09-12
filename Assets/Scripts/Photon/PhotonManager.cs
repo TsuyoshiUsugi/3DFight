@@ -85,6 +85,16 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     /// <summary>遷移シーン名</summary>
     [SerializeField] string _levelToPlay;
 
+    ////////////////////// 戦績UI ////////////////////////
+
+    [SerializeField] GameObject _battleStatsPanel;
+
+    [SerializeField] GameObject _backImages;
+
+    [SerializeField] GameObject _roundDate;
+
+    [SerializeField] GameObject _percentImages;
+
     private void Awake()
     {
         //static変数に格納
@@ -96,7 +106,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         //UIをすべて閉じる関数を呼ぶ
         CloseMenuUI();
 
-        //
+        //マウスのロックが解除される
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
@@ -136,6 +146,8 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         _roomListPanel.SetActive(false);
 
         _nameInputPanel.SetActive(false);
+
+        _battleStatsPanel.SetActive(false);
     }
 
     /// <summary>
@@ -524,5 +536,22 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public void PlayGame()
     {
         PhotonNetwork.LoadLevel(_levelToPlay);
+    }
+
+    /// <summary>
+    /// 戦績UIを表示する
+    /// ボタンから設定する
+    /// </summary>
+    public void ShowStats()
+    {
+        //BackImage表示
+        _backImages.SetActive(true);
+        //グラフ表示
+        _roundDate.SetActive(true);
+
+        //ラウンドデータ表示
+        _percentImages.SetActive(true);
+
+        //グラフ下テキスト表示
     }
 }
