@@ -3,6 +3,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
+using Cysharp.Threading.Tasks;
+using TMPro;
+using DG.Tweening;
+using System.Collections;
 
 /// <summary>
 /// Photonに関する主要な処理を行うクラス
@@ -85,20 +89,52 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     /// <summary>遷移シーン名</summary>
     [SerializeField] string _levelToPlay;
 
+
     ////////////////////// 戦績UI ////////////////////////
+    [SerializeField] RectTransform _roundDataTable;
+
+    [SerializeField] static List<string> _resultData = new List<string>();
+    [SerializeField] static List<string> _myNameData = new List<string>();
+    [SerializeField] static List<string> _enemyNameData = new List<string>();
 
     [SerializeField] GameObject _battleStatsPanel;
 
-    [SerializeField] GameObject _backImages;
+    [SerializeField] RectTransform _backImages;
 
-    [SerializeField] GameObject _roundDate;
+    [SerializeField] RectTransform _winPerDate;
 
-    [SerializeField] GameObject _percentImages;
+    [SerializeField] RectTransform _percentImages;
+
+    [SerializeField] RectTransform _winBar;
+
+    [SerializeField] RectTransform _loseBar;
+
+    [SerializeField] float _winTimes;
+    [SerializeField] float _loseTimes;
+
+    [SerializeField] Vector3 _start;
+    [SerializeField] Vector3 _end;
+
+    [SerializeField] int _waitTime;
 
     private void Awake()
     {
         //static変数に格納
         _instance = this;
+
+        _resultData.Add("Win");
+        _myNameData.Add("TSUYOS");
+        _enemyNameData.Add("Misaki");
+
+        _resultData.Add("Win");
+        _myNameData.Add("TSUYOS");
+        _enemyNameData.Add("Misaki");
+
+        _resultData.Add("Win");
+        _myNameData.Add("TSUYOS");
+        _enemyNameData.Add("Misaki");
+        StatsDataInit();
+
     }
 
     private void Start()
@@ -116,7 +152,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         _loadingText.text = "ネットワークに接続中…";
 
         //ネットワークにつながっているか判定
-        if(!PhotonNetwork.IsConnected)
+        if (!PhotonNetwork.IsConnected)
         {
             //ネットワークに接続
             PhotonNetwork.ConnectUsingSettings();
@@ -192,9 +228,9 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
     /// <summary>
     /// ルームを作るボタン用の関数作成
-　　/// ボタンで関数を使用する都合上publicになってしまっている。要検討
+    /// ボタンで関数を使用する都合上publicになってしまっている。要検討
     /// </summary>
-    public　void OpenCreateRoomPanel()
+    public void OpenCreateRoomPanel()
     {
         CloseMenuUI();
 
@@ -223,7 +259,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
             _loadingText.text = "ルームを作成中...";
             _loadingPanel.SetActive(true);
         }
-         
+
     }
 
     /// <summary>
@@ -328,7 +364,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
         //ルームボタン表示関数
         RoomListDisplay(_roomList);
- 
+
     }
 
     /// <summary>
@@ -444,7 +480,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     /// </summary>
     void ConfirmationName()
     {
-        if(!_setName)
+        if (!_setName)
         {
             CloseMenuUI();
             _nameInputPanel.SetActive(true);
@@ -454,7 +490,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
                 _placeHolderText.text = PlayerPrefs.GetString("playerName");
                 _nameInput.text = PlayerPrefs.GetString("playerName");
 
-                
+
             }
         }
         else
@@ -469,7 +505,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public void SetName()
     {
         //入力フィールドに文字が入力されているかどうか
-        if(!string.IsNullOrEmpty(_nameInput.text))
+        if (!string.IsNullOrEmpty(_nameInput.text))
         {
             //ユーザー名登録
             PhotonNetwork.NickName = _nameInput.text;
@@ -541,17 +577,114 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     /// <summary>
     /// 戦績UIを表示する
     /// ボタンから設定する
+    /// Escで元に戻る
     /// </summary>
-    public void ShowStats()
+    public async void ShowStats()
     {
-        //BackImage表示
-        _backImages.SetActive(true);
-        //グラフ表示
-        _roundDate.SetActive(true);
+        _battleStatsPanel.SetActive(true);
 
-        //ラウンドデータ表示
-        _percentImages.SetActive(true);
+        _roundDataTable.gameObject.SetActive(false);
 
-        //グラフ下テキスト表示
+        _winPerDate.gameObject.SetActive(false);
+
+        //連鎖して戦績UI全て表示
+        ShowPercent();
+
+        await UniTask.WaitUntil(() => Input.GetKeyDown(KeyCode.Escape));
+
+        _battleStatsPanel.SetActive(false);
     }
+
+    /// <summary>
+    /// 戦績データの初期化処理
+    /// </summary>
+    void StatsDataInit()
+    {
+        _battleStatsPanel.SetActive(true);
+
+        //BackImage表示
+        _backImages.gameObject.SetActive(true);
+        
+        //グラフ表示
+        _percentImages.gameObject.SetActive(true);
+        //ラウンドデータ表示
+        _roundDataTable.gameObject.SetActive(true);
+
+        ////各データをbarに入れる
+        for (int i = 0; i < _resultData.Count; i++)
+        {
+            if (_resultData[i] == "Win")
+            {
+                GameObject winBar = Instantiate(_winBar.gameObject);
+                var names = winBar.GetComponentsInChildren<TextMeshProUGUI>();
+                names[1].text = _myNameData[i];
+                names[3].text = _enemyNameData[i];
+
+                winBar.transform.SetParent(_roundDataTable.transform);
+                winBar.transform.localScale = Vector3.one;
+            }
+            else
+            {
+                GameObject loseBar = Instantiate(_loseBar.gameObject);
+                var names = loseBar.GetComponentsInChildren<TextMeshProUGUI>();
+                names[1].text = _myNameData[i];
+                names[3].text = _enemyNameData[i];
+                loseBar.transform.SetParent(_roundDataTable.transform);
+            }
+
+        }
+
+        _battleStatsPanel.SetActive(true);
+    }
+
+
+    /// <summary>
+    /// パーセントグラフUIのトゥイーン
+    /// </summary>
+    void ShowPercent()
+    {
+        //位置の初期化
+        _percentImages.transform.localPosition = new Vector3(-466f, -60, 0);
+
+
+        //Percent表示
+        //上にずらしながら段々表示
+        var percentImage = _percentImages.GetComponent<Image>();
+
+        DOTween.Sequence()
+            .Append(_percentImages.transform.DOLocalMove(new Vector3(-466f, 0, 0), 1f).OnComplete(ShowStatsText));
+
+        //円グラフを埋める
+        float winPer = _winTimes / (_winTimes + _loseTimes);
+        percentImage.fillAmount = 0;
+        percentImage.DOFillAmount(winPer, 1f).SetEase(Ease.Linear);
+    }
+
+    /// <summary>
+    /// 勝率などのテキストのトゥイーン
+    /// </summary>
+    void ShowStatsText()
+    {
+        
+        //stats表示
+        //上にずらしながら段々表示
+        _winPerDate.transform.localPosition = _start;
+        _winPerDate.gameObject.SetActive(true);
+        _winPerDate.transform.DOLocalMove(_end, 1f).OnComplete(ShowRoundData);
+    }
+
+    /// <summary>
+    /// ラウンド結果UIのトゥイーン
+    /// </summary>
+    void ShowRoundData()
+    {
+        //RoundData表示
+        //上にずらしながら段々表示
+        //各ラウンドデータを少しずつ表示
+        //ラウンドデータのフレーム自体を移動
+        _roundDataTable.transform.localPosition = new Vector3(403, 271, 0);
+        _roundDataTable.gameObject.SetActive(true);
+        _roundDataTable.transform.DOLocalMove(new Vector3(403, 331, 0), 1f);
+    }
+
 }

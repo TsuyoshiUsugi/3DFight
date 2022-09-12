@@ -62,8 +62,6 @@ public class GameM : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //PlayerPrefs.SetFloat("xCamSpeed", 2);
-        //PlayerPrefs.SetFloat("yCamSpeed", 2);
 
         _nowSetting = false;
 
