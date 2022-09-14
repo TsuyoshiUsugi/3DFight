@@ -6,7 +6,6 @@ using Photon.Realtime;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using DG.Tweening;
-using System.Collections;
 
 /// <summary>
 /// Photonに関する主要な処理を行うクラス
@@ -15,7 +14,7 @@ using System.Collections;
 /// ロビーやルームに接続したときの処理
 ///
 /// </summary>
-public class PhotonManager : MonoBehaviourPunCallbacks
+public class PhotonManager : SaveData
 {
     static PhotonManager _instance;
 
@@ -117,28 +116,28 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
     [SerializeField] int _waitTime;
 
+
+
     private void Awake()
     {
         //static変数に格納
         _instance = this;
+        //SaveRoundData("Win", "Dummy", "Dummy");
+        ReadDate();
 
-        _resultData.Add("Win");
-        _myNameData.Add("TSUYOS");
-        _enemyNameData.Add("Misaki");
+        _resultData = _resultList;
+        _myNameData = _myNameList;
+        _enemyNameData = _enemyNameList;
 
-        _resultData.Add("Win");
-        _myNameData.Add("TSUYOS");
-        _enemyNameData.Add("Misaki");
-
-        _resultData.Add("Win");
-        _myNameData.Add("TSUYOS");
-        _enemyNameData.Add("Misaki");
         StatsDataInit();
 
     }
 
     private void Start()
     {
+        //Tweenのキャパを増やす
+        DOTween.SetTweensCapacity(tweenersCapacity: 400, sequencesCapacity: 200);
+
         //UIをすべて閉じる関数を呼ぶ
         CloseMenuUI();
 
@@ -489,8 +488,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
             {
                 _placeHolderText.text = PlayerPrefs.GetString("playerName");
                 _nameInput.text = PlayerPrefs.GetString("playerName");
-
-
             }
         }
         else
@@ -611,6 +608,11 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         _roundDataTable.gameObject.SetActive(true);
 
         ////各データをbarに入れる
+        if (_resultData.Count == 0)
+        {
+
+        }
+
         for (int i = 0; i < _resultData.Count; i++)
         {
             if (_resultData[i] == "Win")
@@ -630,11 +632,13 @@ public class PhotonManager : MonoBehaviourPunCallbacks
                 names[1].text = _myNameData[i];
                 names[3].text = _enemyNameData[i];
                 loseBar.transform.SetParent(_roundDataTable.transform);
+                loseBar.transform.localScale = Vector3.one;
+
             }
 
         }
 
-        _battleStatsPanel.SetActive(true);
+        _battleStatsPanel.SetActive(false);
     }
 
 
@@ -652,7 +656,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
             () => alpha.color,
             x => alpha.color = x,
             255,
-            1f);
+            1f).OnUpdate(() => _percentImages.transform.DOLocalMove(new Vector3(-466f, 0, 0), 1f).SetEase(Ease.OutQuad).OnComplete(ShowStatsText)).Kill(true);
 
         //Percent表示
         //上にずらしながら段々表示

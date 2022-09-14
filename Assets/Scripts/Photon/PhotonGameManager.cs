@@ -1,26 +1,32 @@
-using System.Collections;
 using System.Collections.Generic;
-using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Photon.Pun;
 using Photon.Realtime;
-using ExitGames.Client.Photon;
+using Newtonsoft.Json;
 
 /// <summary>
 /// バトルシーンにおけるPhoton関連のマネージャーコンポーネント
 /// </summary>
-public class PhotonGameManager : MonoBehaviourPunCallbacks
+public class PhotonGameManager : SaveData
 {
     /// <summary>試合が終了したかのプロパティ</summary>
     [SerializeField] bool _gameEnd;
     public bool GameEnd { get => _gameEnd; set => _gameEnd = value; }
 
-    [SerializeField] string _myName;
-    [SerializeField] string _loser;
+    [SerializeField] string _myNameID;
+    [SerializeField] string _loserID;
+    [SerializeField] string _enemyName;
+
+    //List<string> _resultList = new List<string>();
+    //List<string> _myNameList = new List<string>();
+    //List<string> _enemyNameList = new List<string>();
 
     private void Start()
     {
+
+        ReadDate();
+
 
         //ネットワークに繋がっていないときメニュー画面に戻る
         if (!PhotonNetwork.IsConnected)
@@ -32,13 +38,18 @@ public class PhotonGameManager : MonoBehaviourPunCallbacks
         }
         else
         {
-            _myName = PhotonNetwork.LocalPlayer.UserId;
+            _myNameID = PhotonNetwork.LocalPlayer.UserId;
+
+            if (PhotonNetwork.IsMasterClient)
+            {
+                _enemyName = PhotonNetwork.PlayerList[1].NickName;
+            }
+            else
+            {
+                _enemyName = PhotonNetwork.PlayerList[0].NickName;
+            }
         }
-
     }
-
-
-    
 
     private void Update()
     {
@@ -46,7 +57,7 @@ public class PhotonGameManager : MonoBehaviourPunCallbacks
         {
 
             EndGame();
-
+            GameEnd = false;
         }
 
     }
@@ -58,11 +69,13 @@ public class PhotonGameManager : MonoBehaviourPunCallbacks
     void EndGame()
     {
         //PlayerDie();
-        _loser = PhotonNetwork.LocalPlayer.UserId;
+        _loserID = PhotonNetwork.LocalPlayer.UserId;
 
         //終了後の処理
         photonView.RPC(nameof(ProcessingAfterCompletion), RpcTarget.All);
     }
+
+    
 
     /// <summary>
     /// 終了後の処理関数
@@ -90,20 +103,20 @@ public class PhotonGameManager : MonoBehaviourPunCallbacks
     /// </summary>
     public override void OnLeftRoom()
     {
-        //_loser = _loserInfo.name;
 
-        if (_myName == _loser)
+        if (_myNameID == _loserID)
         {
-            _loser = null;
+            SaveRoundData("Lose", PhotonNetwork.NickName, _enemyName);
+            _loserID = null;
             SceneManager.LoadScene(6);
         }
         else
         {
-            _loser = null;
+            SaveRoundData("Win", PhotonNetwork.NickName, _enemyName);
+
+            _loserID = null;
             SceneManager.LoadScene(7);
         }
-
-        //SceneManager.LoadScene(1);
     }
 
     /// <summary>
@@ -113,25 +126,46 @@ public class PhotonGameManager : MonoBehaviourPunCallbacks
     /// <param name="changedProps"></param>
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
     {
-        
-
         foreach (var prop in changedProps)
         {
-            _loser = (string)prop.Value;
+            _loserID = (string)prop.Value;
         }
     }
-
     
+    ///// <summary>
+    ///// 勝敗を保存するメソッド
+    ///// リストのデータ数が9を超えたら古いものから削除
+    ///// </summary>
+    //void SaveData(string result, string myName, string enemyName)
+    //{
+    //    _resultList.Add(result);
+    //    _myNameList.Add(myName);
+    //    _enemyNameList.Add(enemyName);
+
+    //    if (_resultList.Count > 9)
+    //    {
+    //        _resultList.RemoveAt(0);
+    //        _myNameList.RemoveAt(0);
+    //        _enemyNameList.RemoveAt(0);
+    //    }
+
+    //    string stringResultData = JsonConvert.SerializeObject(_resultList);
+    //    string stringMyNameData = JsonConvert.SerializeObject(_myNameList);
+    //    string stringEnemyNameData = JsonConvert.SerializeObject(_enemyNameList);
+
+    //    PlayerPrefs.SetString("Result", stringResultData);
+    //    PlayerPrefs.SetString("MyName", stringMyNameData);
+    //    PlayerPrefs.SetString("EnemyName", stringEnemyNameData);
+    //}
+
+    ///// <summary>
+    ///// 勝敗を読みこむメソッド
+    ///// </summary>
+    //void ReadDate()
+    //{
+    //    _resultList = JsonConvert.DeserializeObject<List<string>>(PlayerPrefs.GetString("Result"));
+    //    _myNameList = JsonConvert.DeserializeObject<List<string>>(PlayerPrefs.GetString("MyName"));
+    //    _enemyNameList = JsonConvert.DeserializeObject<List<string>>(PlayerPrefs.GetString("EnemyName"));
+    //}
 }
 
-[Serializable]
-public class LoserInfo//プレイヤーの生死情報を管理するクラス
-{
-    public string name;//名前
-
-    //情報を格納
-    public LoserInfo(string _name)
-    {
-        name = _name;
-    }
-}

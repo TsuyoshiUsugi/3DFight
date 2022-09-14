@@ -35,7 +35,11 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        ShowPlayerName();
+        if (PhotonNetwork.IsConnected)
+        {
+
+            ShowPlayerName();
+        }
     }
 
     private void Update()
