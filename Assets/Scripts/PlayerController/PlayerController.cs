@@ -77,12 +77,19 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// <summary>操作可能か判定する</summary>
     [SerializeField] bool _wait = true;
     public bool Wait { get => _wait; set => _wait = value; }
+
+    /// <summary>撃つことが出来るか</summary>
+    [SerializeField] bool _canShoot;
    
     /// <summary>SpawnManagerの参照</summary>
     [SerializeField] SpawnManager _spawnManager;
 
     /// <summary>Chinemachineカメラの参照</summary>
     [SerializeField] CinemachineFreeLook _virtualCamera;
+
+    [SerializeField] float _zoomFov; 
+    [SerializeField] float _originFov; 
+    [SerializeField] float _fovDuration; 
 
     [SerializeField] GunBase _gun;
 
@@ -134,7 +141,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         //Chinemachineカメラの参照を読みこむ
         _virtualCamera = GameObject.FindGameObjectWithTag("Camera").GetComponent<CinemachineFreeLook>();
-
+       
         //自身の子オブジェクトとなっている銃を取得
         _gun = this.GetComponentInChildren<GunBase>();
 
@@ -147,6 +154,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         //カメラの位置をきめる
         _virtualCamera.LookAt = _eye.transform;
         _virtualCamera.Follow = _eye.transform;
+        _originFov = _virtualCamera.m_Lens.FieldOfView;
     }
 
 
@@ -321,13 +329,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         if (Input.GetButton("Aim"))
         {
+            _virtualCamera.m_Lens.FieldOfView = Mathf.Lerp(_originFov, _zoomFov, _fovDuration);
             _aiming = true;
             animator.SetBool("Aim", true);
+            
         }
         else
         {
             animator.SetBool("Aim", false);
             _aiming = false;
+            _virtualCamera.m_Lens.FieldOfView = Mathf.Lerp(_zoomFov, _originFov, _fovDuration);
+
         }
     }
 
@@ -342,20 +354,28 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             if (!_aiming)
             {
-                animator.SetBool("Aiming", true);
+                
+                
+
+                HipFire();
+                //
+            }
+            else
+            {
+                _gun.PullTrigger = true;
+                _gun.Shot();
             }
 
-            _gun.PullTrigger = true;
-            _gun.Shot();
-
-            HipFire();
 
         }
     }
 
     async void HipFire()
     {
-        await UniTask.Delay(299);
+        animator.SetBool("Aiming", true);
+        await UniTask.Delay(500);
+        _gun.PullTrigger = true;
+        _gun.Shot();
         animator.SetBool("Aiming", false);
     }
 

@@ -53,6 +53,7 @@ public class GameM : MonoBehaviour
     [SerializeField] GameObject _uIManager;
 
     //戦闘後
+    [SerializeField] GameObject _photonGameManager;
 
     //感度設定パネル
     [SerializeField] GameObject _settingPanel;
@@ -207,10 +208,14 @@ public class GameM : MonoBehaviour
     void ShowPresentTime(float time)
     {
         //0秒以下ならリターン
-        if (time < 0) return;
+        if (time < 0)
+        {
+            _photonGameManager.GetComponent<PhotonGameManager>().GameEnd = true;
+            return;
+        }
 
-        //現在時間を100倍してそれぞれの桁を抽出
-        int fourNumber = (int)MathF.Floor(time * 100);
+            //現在時間を100倍してそれぞれの桁を抽出
+            int fourNumber = (int)MathF.Floor(time * 100);
 
         int[] eachPlace = new int[4];
         

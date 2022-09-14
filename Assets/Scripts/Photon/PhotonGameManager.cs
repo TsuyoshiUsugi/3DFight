@@ -64,7 +64,6 @@ public class PhotonGameManager : SaveData
     /// </summary>
     void EndGame()
     {
-        //PlayerDie();
         _loserID = PhotonNetwork.LocalPlayer.UserId;
 
         //I—¹Œã‚Ìˆ—
@@ -80,7 +79,6 @@ public class PhotonGameManager : SaveData
     [PunRPC]
     void ProcessingAfterCompletion()
     {
-        //“|‚³‚ê‚½•û‚Ì‚İ‚ª‚±‚ê‚ğs‚¤
         if(PhotonNetwork.IsMasterClient)
         {
             PhotonNetwork.DestroyAll();
