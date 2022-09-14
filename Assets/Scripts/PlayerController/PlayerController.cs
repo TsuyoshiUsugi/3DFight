@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using System;
 using UnityEngine;
 using Photon.Pun;
 using Cinemachine;
@@ -9,6 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
 using Photon.Realtime;
+using Cysharp.Threading.Tasks;
 
 /// <summary>
 /// バトルシーンに置ける、プレイヤー関連の処理のコンポーネント
@@ -25,6 +23,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [Header("参照")]
     [SerializeField] Rigidbody _rb;
     [SerializeField] Animator animator;
+    [SerializeField] GameObject _armature;
 
     /// <summary>カメラ軸のオブジェクト</summary>
     [SerializeField] GameObject _eye;
@@ -67,9 +66,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// <summary>PlayerのHP</summary>
     [SerializeField] ReactiveProperty<float> _playerHp;
 
-    //前フレームの位置
-    Vector3 latestPos;
-
     /// <summary>Playerのdamage</summary>
     [SerializeField] float _playerDamage;
     public float PlayerDamage { get => _playerDamage; set => _playerDamage = value; }
@@ -89,6 +85,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] CinemachineFreeLook _virtualCamera;
 
     [SerializeField] GunBase _gun;
+
+    [SerializeField] bool _aiming;
 
     /// <summary>PhotonGameManagerのインスタンス</summary>
     [SerializeField] PhotonGameManager _photonGameManager;
@@ -180,6 +178,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         Reload();
 
+        //_armature.transform.position = Vector3.zero;
     }
 
     private void FixedUpdate()
@@ -277,6 +276,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             animator.SetFloat("HoriSpeed", _horizontal);
         }
         
+
         animator.SetFloat("VSpeed", _vertical);
 
     }
@@ -320,12 +320,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
     void Aim()
     {
         if (Input.GetButton("Aim"))
-        {    
+        {
+            _aiming = true;
             animator.SetBool("Aim", true);
         }
         else
         {
             animator.SetBool("Aim", false);
+            _aiming = false;
         }
     }
 
@@ -334,12 +336,27 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     void Shot()
     {
+        
+
         if (Input.GetButtonDown("Shot"))
         {
+            if (!_aiming)
+            {
+                animator.SetBool("Aiming", true);
+            }
+
             _gun.PullTrigger = true;
             _gun.Shot();
 
+            HipFire();
+
         }
+    }
+
+    async void HipFire()
+    {
+        await UniTask.Delay(299);
+        animator.SetBool("Aiming", false);
     }
 
     /// <summary>
