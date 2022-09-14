@@ -122,7 +122,7 @@ public class PhotonManager : SaveData
     {
         //static•Ï”‚ÉŠi”[
         _instance = this;
-        //SaveRoundData("Win", "Dummy", "Dummy");
+       // SaveRoundData("Win", "Dummy", "Dummy");
         ReadDate();
 
         _resultData = _resultList;
@@ -608,13 +608,9 @@ public class PhotonManager : SaveData
         _roundDataTable.gameObject.SetActive(true);
 
         ////Šeƒf[ƒ^‚ðbar‚É“ü‚ê‚é
-        if (_resultData.Count == 0)
+        for (int i = _resultData.Count - 1; i >= 0 ; i--)
         {
-
-        }
-
-        for (int i = 0; i < _resultData.Count; i++)
-        {
+            Debug.Log(i);
             if (_resultData[i] == "Win")
             {
                 GameObject winBar = Instantiate(_winBar.gameObject);

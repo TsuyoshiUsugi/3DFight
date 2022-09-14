@@ -18,10 +18,6 @@ public class PhotonGameManager : SaveData
     [SerializeField] string _loserID;
     [SerializeField] string _enemyName;
 
-    //List<string> _resultList = new List<string>();
-    //List<string> _myNameList = new List<string>();
-    //List<string> _enemyNameList = new List<string>();
-
     private void Start()
     {
 
@@ -107,13 +103,15 @@ public class PhotonGameManager : SaveData
         if (_myNameID == _loserID)
         {
             SaveRoundData("Lose", PhotonNetwork.NickName, _enemyName);
+            Debug.Log("pl");
+
             _loserID = null;
             SceneManager.LoadScene(6);
         }
         else
         {
             SaveRoundData("Win", PhotonNetwork.NickName, _enemyName);
-
+            Debug.Log("pl");
             _loserID = null;
             SceneManager.LoadScene(7);
         }
@@ -131,41 +129,6 @@ public class PhotonGameManager : SaveData
             _loserID = (string)prop.Value;
         }
     }
-    
-    ///// <summary>
-    ///// 勝敗を保存するメソッド
-    ///// リストのデータ数が9を超えたら古いものから削除
-    ///// </summary>
-    //void SaveData(string result, string myName, string enemyName)
-    //{
-    //    _resultList.Add(result);
-    //    _myNameList.Add(myName);
-    //    _enemyNameList.Add(enemyName);
 
-    //    if (_resultList.Count > 9)
-    //    {
-    //        _resultList.RemoveAt(0);
-    //        _myNameList.RemoveAt(0);
-    //        _enemyNameList.RemoveAt(0);
-    //    }
-
-    //    string stringResultData = JsonConvert.SerializeObject(_resultList);
-    //    string stringMyNameData = JsonConvert.SerializeObject(_myNameList);
-    //    string stringEnemyNameData = JsonConvert.SerializeObject(_enemyNameList);
-
-    //    PlayerPrefs.SetString("Result", stringResultData);
-    //    PlayerPrefs.SetString("MyName", stringMyNameData);
-    //    PlayerPrefs.SetString("EnemyName", stringEnemyNameData);
-    //}
-
-    ///// <summary>
-    ///// 勝敗を読みこむメソッド
-    ///// </summary>
-    //void ReadDate()
-    //{
-    //    _resultList = JsonConvert.DeserializeObject<List<string>>(PlayerPrefs.GetString("Result"));
-    //    _myNameList = JsonConvert.DeserializeObject<List<string>>(PlayerPrefs.GetString("MyName"));
-    //    _enemyNameList = JsonConvert.DeserializeObject<List<string>>(PlayerPrefs.GetString("EnemyName"));
-    //}
 }
 
