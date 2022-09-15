@@ -63,9 +63,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// <summary>マウスの左右の入力値を入れる変数</summary>
     float mouseInputX;
 
-    /// <summary>マウスの上下の入力値を入れる変数</summary>
-    float mouseInputY;
-
     /// <summary>PlayerのHP</summary>
     [SerializeField] ReactiveProperty<float> _playerHp;
 
@@ -248,7 +245,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         //マウスの位置を読み取る
         mouseInputX = Input.GetAxis("Mouse X");
-        mouseInputY += Input.GetAxis("Mouse Y");
     }
 
     /// <summary>
@@ -386,8 +382,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 _gun.PullTrigger = true;
                 _gun.Shot();
             }
-
-
         }
     }
 

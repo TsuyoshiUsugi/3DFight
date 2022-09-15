@@ -150,7 +150,15 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
                 _canShot = false;
 
                 //’eŠÛ‚ğ¶¬‚µ‚ÄA”ò‚Ô•ûŒü‚ğ—^‚¦‚é
-                photonView.RPC(nameof(FireBullet), RpcTarget.All, _playerLook, _muzzle.transform.position);
+                if(PhotonNetwork.IsConnected)
+                {
+                    photonView.RPC(nameof(FireBullet), RpcTarget.All, _playerLook, _muzzle.transform.position);
+                }
+                else
+                {
+                    FireBullet(_playerLook, _muzzle.transform.position);
+                }
+
                 _restBullets.Value--;
 
                 //Ÿ‚ÉŒ‚‚Ä‚é‚Ü‚ÅŠÔ‚ğ‹ó‚¯‚é

@@ -144,15 +144,6 @@ public class GameM : MonoBehaviour
     }
 
     /// <summary>
-    /// Endingオブジェクトのオンオフ
-    /// </summary>
-    /// <param name="onOff"></param>
-    void SwicthEndingObj(bool onOff)
-    {
-
-    }
-
-    /// <summary>
     /// otherオブジェクトのオンオフ
     /// </summary>
     /// <param name="onOff"></param>

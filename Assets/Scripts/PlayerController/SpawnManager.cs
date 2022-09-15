@@ -27,8 +27,6 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
-
-
     /// <summary>
     /// リスポーン地点をランダム取得する関数
     /// </summary>
