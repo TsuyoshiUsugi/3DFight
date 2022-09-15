@@ -7,6 +7,7 @@ using TMPro;
 using DG.Tweening;
 using Photon.Realtime;
 using Cysharp.Threading.Tasks;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// バトルシーンに置ける、プレイヤー関連の処理のコンポーネント
@@ -128,12 +129,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             return;
         }
-        gameObject.name = PhotonNetwork.NickName;
 
-
-        _photonGameManager = GameObject.FindGameObjectWithTag("PhotonManager").GetComponent<PhotonGameManager>();
-        _gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameM>();
-        _gameManager.Player = this;
+        if(SceneManager.GetActiveScene().name == "BattleMode")
+        {
+            gameObject.name = PhotonNetwork.NickName;
+            _photonGameManager = GameObject.FindGameObjectWithTag("PhotonManager").GetComponent<PhotonGameManager>();
+            _gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameM>();
+            _gameManager.Player = this;
+        }
 
         //Chinemachineカメラの参照を読みこむ
         _virtualCamera = GameObject.FindGameObjectWithTag("Camera").GetComponent<CinemachineFreeLook>();
@@ -141,10 +144,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
         //自身の子オブジェクトとなっている銃を取得
         _gun = this.GetComponentInChildren<GunBase>();
 
-        //Hp変更時に体力値を変更
         _hpText = GameObject.FindGameObjectWithTag("HpText").GetComponent<TextMeshProUGUI>();
         _hpImage = GameObject.FindGameObjectWithTag("HpImage").GetComponent<Image>();
 
+        //Hp変更時に体力値を変更
         _playerHp.Subscribe(presentHp => _hpText.text = presentHp.ToString()).AddTo(gameObject);
 
         //カメラの位置をきめる
@@ -156,19 +159,22 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     void Update()
     {
-
-        if (!photonView.IsMine)
+        if (SceneManager.GetActiveScene().name == "BattleMode")
         {
-            return;
-        }
+        
+            if (!photonView.IsMine)
+            {
+                return;
+            }
 
-        _virtualCamera.m_YAxis.m_InputAxisValue = _yCameraSpeed;
 
-        if (_wait)
-        {
+            if (_wait)
+            {
             
-            return; 
+                return; 
+            }
         }
+        _virtualCamera.m_YAxis.m_InputAxisValue = _yCameraSpeed;
 
         ReadInput();
 
@@ -186,15 +192,19 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void FixedUpdate()
     {
-        if (!photonView.IsMine)
+        if (SceneManager.GetActiveScene().name == "BattleMode")
         {
-            return;
+            if (!photonView.IsMine)
+            {
+                return;
+            }
+
+            if (_wait)
+            {
+                return;
+            }
         }
 
-        if (_wait)
-        {
-            return;
-        }
 
         Move();
 
@@ -203,10 +213,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void LateUpdate()
     {
-        if (!photonView.IsMine)
+        if (SceneManager.GetActiveScene().name == "BattleMode")
         {
-            return;
+            if (!photonView.IsMine)
+            {
+                return;
+            }
         }
+
 
         if (_wait)
         {
@@ -356,17 +370,16 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     void Shot()
     {
-        
+        if(_gun.Reloading)
+        {
+            return;
+        }
 
         if (Input.GetButtonDown("Shot"))
         {
             if (!_aiming)
             {
-                
-                
-
                 HipFire();
-                //
             }
             else
             {
@@ -378,6 +391,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
+    /// <summary>
+    /// エイムしないで撃った時のメソッド
+    /// </summary>
     async void HipFire()
     {
         animator.SetBool("Aiming", true);
@@ -392,9 +408,20 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     void Reload()
     {
+        if (_gun.RestBullet.Value == _gun.BulletCap)
+        {
+            return;
+        }
+
+        if(!_gun.Reloading)
+        {
+            animator.SetBool("Reload", false);
+        }
+
         if (Input.GetButtonDown("Reload"))
         {
             GetComponentInChildren<FirstGun>().Reload();
+            animator.SetBool("Reload", true);
         }
     }
 

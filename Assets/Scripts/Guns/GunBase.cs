@@ -27,8 +27,12 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     /// <summary>Å‘å‘•’e”</summary>
     [SerializeField] int _bulletsCapacity;
 
+    public int BulletCap { get => _bulletsCapacity; }
+
     /// <summary>c’e”</summary>
     [SerializeField] ReactiveProperty<int> _restBullets = default;
+
+    public ReactiveProperty<int> RestBullet { get => _restBullets; }
 
     /// <summary>ËŒ‚ŠÔŠu</summary>
     [SerializeField] float _shotInterval = default;
@@ -47,6 +51,8 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
 
     /// <summary>ƒŠƒ[ƒh’†‚©</summary>
     bool _reloading = false;
+
+    public bool Reloading {get => _reloading; }
 
     /// <summary>’eŠÛ‚ÌPrefab</summary>
     [SerializeField] GameObject _bullet = default;
@@ -145,9 +151,6 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
 
                 //’eŠÛ‚ğ¶¬‚µ‚ÄA”ò‚Ô•ûŒü‚ğ—^‚¦‚é
                 photonView.RPC(nameof(FireBullet), RpcTarget.All, _playerLook, _muzzle.transform.position);
-                //FireBullet(_playerLook);
-
-                //c’eŒ¸‚ç‚·
                 _restBullets.Value--;
 
                 //Ÿ‚ÉŒ‚‚Ä‚é‚Ü‚ÅŠÔ‚ğ‹ó‚¯‚é
@@ -217,7 +220,6 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
         _canShot = false;
 
         _reloadText.gameObject.SetActive(true);
-        //_reloadText.DOFade(0, 1f).SetEase(Ease.Linear);
 
         yield return new WaitForSeconds(_reloadTime);
         _reloadText.gameObject.SetActive(false);

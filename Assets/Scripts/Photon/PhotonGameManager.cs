@@ -1,9 +1,6 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Photon.Pun;
-using Photon.Realtime;
-using Newtonsoft.Json;
 
 /// <summary>
 /// バトルシーンにおけるPhoton関連のマネージャーコンポーネント
@@ -101,7 +98,6 @@ public class PhotonGameManager : SaveData
         if(PhotonNetwork.IsMasterClient)
         {
             PhotonNetwork.DestroyAll();
-
         }
 
         //シーンの同期を解除
@@ -122,36 +118,18 @@ public class PhotonGameManager : SaveData
             return;
         }
 
-
         if (_myNameID == _loserID)
         {
             SaveRoundData("Lose", PhotonNetwork.NickName, _enemyName);
-            Debug.Log("pl");
-
             _loserID = null;
             SceneManager.LoadScene(6);
         }
         else
         {
             SaveRoundData("Win", PhotonNetwork.NickName, _enemyName);
-            Debug.Log("pl");
             _loserID = null;
             SceneManager.LoadScene(7);
         }
     }
-
-    /// <summary>
-    /// 負けた方の名前を受け取る為のカスタムプロパティのコールバック関数
-    /// </summary>
-    /// <param name="targetPlayer"></param>
-    /// <param name="changedProps"></param>
-    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
-    {
-        foreach (var prop in changedProps)
-        {
-            _loserID = (string)prop.Value;
-        }
-    }
-
 }
 
