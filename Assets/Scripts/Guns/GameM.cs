@@ -210,7 +210,7 @@ public class GameM : MonoBehaviour
         //0•bˆÈ‰º‚È‚çƒŠƒ^[ƒ“
         if (time < 0)
         {
-            _photonGameManager.GetComponent<PhotonGameManager>().GameEnd = true;
+            _photonGameManager.GetComponent<PhotonGameManager>().TimeOut = true;
             return;
         }
 

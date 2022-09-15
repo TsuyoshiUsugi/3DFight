@@ -29,7 +29,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] GameObject _eye;
 
     /// <summary>歩く速さ</summary>
+    [SerializeField] float _presentWalkSpeed;
     [SerializeField] float _walkSpeed;
+
 
     /// <summary>カメラの横軸のスピード</summary>
     [SerializeField] float _xCameraSpeed;
@@ -94,6 +96,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] GunBase _gun;
 
     [SerializeField] bool _aiming;
+    [SerializeField] float _walkSpeedWhileAiming;
 
     /// <summary>PhotonGameManagerのインスタンス</summary>
     [SerializeField] PhotonGameManager _photonGameManager;
@@ -126,13 +129,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
         }
         gameObject.name = PhotonNetwork.NickName;
-
-
-        var hasutable = new ExitGames.Client.Photon.Hashtable
-        {
-            ["PlayerHp"] = _playerHp.Value
-        };
-        PhotonNetwork.LocalPlayer.SetCustomProperties(hasutable);
 
 
         _photonGameManager = GameObject.FindGameObjectWithTag("PhotonManager").GetComponent<PhotonGameManager>();
@@ -186,7 +182,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         Reload();
 
-        //_armature.transform.position = Vector3.zero;
     }
 
     private void FixedUpdate()
@@ -247,6 +242,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     void FocusPoint()
     {
+        if(!photonView.IsMine)
+        {
+            return;
+        }
 
         int centerX = Screen.width / 2;
         int centerY = Screen.height / 2;
@@ -273,7 +272,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         Vector3 moveForward = cameraForward * _vertical + transform.right * _horizontal;
 
         //カメラの向いてる方にプレイヤーを動かす
-        _rb.velocity = new Vector3(moveForward.normalized.x * _walkSpeed, _rb.velocity.y, moveForward.normalized.z * _walkSpeed);
+        _rb.velocity = new Vector3(moveForward.normalized.x * _presentWalkSpeed, _rb.velocity.y, moveForward.normalized.z * _presentWalkSpeed);
         
         if(_horizontal < 0)
         {
@@ -327,6 +326,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     void Aim()
     {
+        if(_aiming)
+        {
+            _presentWalkSpeed = _walkSpeedWhileAiming;
+        }
+        else
+        {
+            _presentWalkSpeed = _walkSpeed;
+        }
+
         if (Input.GetButton("Aim"))
         {
             _virtualCamera.m_Lens.FieldOfView = Mathf.Lerp(_originFov, _zoomFov, _fovDuration);
@@ -401,12 +409,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
 
         _playerHp.Value -= damage;
-
-        var hasutable = new ExitGames.Client.Photon.Hashtable
-        {
-            ["PlayerHp"] = _playerHp.Value
-        };
-        PhotonNetwork.LocalPlayer.SetCustomProperties(hasutable);
 
         DOTween.To(() => _hpImage.fillAmount,
            x => _hpImage.fillAmount = x,

@@ -13,6 +13,8 @@ public class PhotonGameManager : SaveData
     /// <summary>試合が終了したかのプロパティ</summary>
     [SerializeField] bool _gameEnd;
     public bool GameEnd { get => _gameEnd; set => _gameEnd = value; }
+    [SerializeField] bool _timeOut;
+    public bool TimeOut { set => _timeOut = value; }
 
     [SerializeField] string _myNameID;
     [SerializeField] string _loserID;
@@ -49,13 +51,30 @@ public class PhotonGameManager : SaveData
 
     private void Update()
     {
-        if (GameEnd)
+        if(_timeOut)
+        {
+            photonView.RPC(nameof(TimeOver), RpcTarget.All);
+            photonView.RPC(nameof(ProcessingAfterCompletion), RpcTarget.All);
+            return;
+        }
+
+        if(GameEnd)
         {
 
             EndGame();
             GameEnd = false;
         }
 
+    }
+
+    /// <summary>
+    /// どちらかが制限時間オーバーしたときに行われる
+    /// </summary>
+    /// <param name="end"></param>
+    [PunRPC]
+    void TimeOver()
+    {
+        _timeOut = true;
     }
 
     /// <summary>
@@ -97,6 +116,12 @@ public class PhotonGameManager : SaveData
     /// </summary>
     public override void OnLeftRoom()
     {
+        if(_timeOut)
+        {
+            SceneManager.LoadScene(6);
+            return;
+        }
+
 
         if (_myNameID == _loserID)
         {

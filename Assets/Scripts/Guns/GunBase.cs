@@ -67,9 +67,6 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
 
     TextMeshProUGUI _reloadText;
 
-    /// <summary>íeä€ÇÃprefabÇ™ì¸Ç¡ÇΩresourceÇÃÉpÉX</summary>
-    [SerializeField] string _resourcePath = "";
-
     private void Start()
     {
         if (!photonView.IsMine)
@@ -133,6 +130,11 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     /// </summary>
     public void Shot()
     {
+        if(!photonView.IsMine)
+        {
+            return;
+        }
+
         if (_pullTrigger == true && _canShot == true)
         {
             //écíeÇ†ÇË
@@ -142,8 +144,8 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
                 _canShot = false;
 
                 //íeä€Çê∂ê¨ÇµÇƒÅAîÚÇ‘ï˚å¸Çó^Ç¶ÇÈ
-                //photonView.RPC(nameof(FireBullet), RpcTarget.All, _playerLook);
-                FireBullet(_playerLook);
+                photonView.RPC(nameof(FireBullet), RpcTarget.All, _playerLook, _muzzle.transform.position);
+                //FireBullet(_playerLook);
 
                 //écíeå∏ÇÁÇ∑
                 _restBullets.Value--;
@@ -156,7 +158,6 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
             else
             {
                 _canShot = false;
-               // audioSource.PlayOneShot(_noAmmoSound);
                 StartCoroutine("ShotInterval");
                 _pullTrigger = false;
             }
@@ -167,13 +168,13 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     /// íeÇî≠éÀÇ∑ÇÈÉÅÉ\ÉbÉh
     /// </summary>
     /// <param name="playerLook"></param>
-    void FireBullet(Vector3 playerLook)
+    [PunRPC]
+    protected virtual void FireBullet(Vector3 playerLook, Vector3 muzzle)
     {
-        GameObject bullet = PhotonNetwork.Instantiate(_resourcePath, _muzzle.transform.position, _muzzle.transform.rotation);
-        //GameObject bullet = Instantiate(_bullet, _muzzle.transform.position, _muzzle.transform.rotation);
+        GameObject bullet = Instantiate(_bullet, muzzle, _bullet.transform.rotation);
 
         
-        Vector3 heading = (playerLook - _muzzle.transform.position).normalized;
+        Vector3 heading = (playerLook - muzzle).normalized;
 
         bullet.GetComponent<Rigidbody>().AddForce(heading * bulletSpeed, ForceMode.Impulse);
     }
