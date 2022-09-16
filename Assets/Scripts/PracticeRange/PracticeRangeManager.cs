@@ -12,7 +12,12 @@ public class PracticeRangeManager : MonoBehaviour
     [SerializeField] GameObject _playingUI;
     [SerializeField] GameObject _settingPanel;
     [SerializeField] GameObject _fadeInImage;
+    [SerializeField] GameObject _equipmentPanel;
     [SerializeField] bool _nowSetting;
+    [SerializeField] bool _showSetting;
+    [SerializeField] bool _showEuipmentSetting;
+    [SerializeField] GameObject _settingButton;
+    [SerializeField] GameObject _equipmentButton;
 
     [Header("設定パネル")]
     [SerializeField] Slider _xCamSpeedSlider;
@@ -43,8 +48,11 @@ public class PracticeRangeManager : MonoBehaviour
         _settingPanel.SetActive(true);
         _xCamSpeedSlider.value = PlayerPrefs.GetFloat("xCamSpeed");
         _yCamSpeedSlider.value = PlayerPrefs.GetFloat("yCamSpeed");
-
         _settingPanel.SetActive(false);
+
+        _equipmentPanel.SetActive(false);
+        _settingButton.SetActive(false);
+        _equipmentButton.SetActive(false);
         _fadeInImage.SetActive(true);
     }
 
@@ -55,7 +63,7 @@ public class PracticeRangeManager : MonoBehaviour
     }
 
     /// <summary>
-    /// シーン内でESCキーによるカーソルの表示非表示を行う
+    /// シーン内でESCキーによるカーソルの表示非表示と装備画面の表示を行う
     /// </summary>
     void CursorSet()
     {
@@ -66,7 +74,10 @@ public class PracticeRangeManager : MonoBehaviour
             _nowSetting = true;
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
-            SettingInput();
+
+            _settingButton.SetActive(true);
+            _equipmentButton.SetActive(true);
+            SettingEquipment();
         }
         //カーソル見える時
         else if (Input.GetKeyDown(KeyCode.Escape) && _nowSetting)
@@ -74,7 +85,11 @@ public class PracticeRangeManager : MonoBehaviour
             _nowSetting = false;
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
-            SettingInput();
+
+            _settingButton.SetActive(false);
+            _equipmentButton.SetActive(false);
+            _settingPanel.SetActive(false);
+            _equipmentPanel.SetActive(false);
 
         }
     }
@@ -84,6 +99,7 @@ public class PracticeRangeManager : MonoBehaviour
     /// </summary>
     void SettingInput()
     {
+
         if (_nowSetting)
         {
             _settingPanel.SetActive(true);
@@ -105,5 +121,42 @@ public class PracticeRangeManager : MonoBehaviour
     {
         _player.XCamSpeed = PlayerPrefs.GetFloat("xCamSpeed");
         _player.YCamSpeed = PlayerPrefs.GetFloat("yCamSpeed");
+    }
+
+    /// <summary>
+    /// 装備を設定する
+    /// </summary>
+    void SettingEquipment()
+    {
+        if (_nowSetting)
+        {
+            _equipmentPanel.SetActive(true);
+
+        }
+        else if (!_nowSetting)
+        {
+
+            _equipmentPanel.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// ボタンから操作する
+    /// 押されると感度設定画面が開かれる
+    /// </summary>
+    public void ShowSettingPanel()
+    {
+        _equipmentPanel.SetActive(false);
+        _settingPanel.SetActive(true);
+    }
+
+    /// <summary>
+    /// ボタンから操作する
+    /// 押されると装備設定画面が開かれる
+    /// </summary>
+    public void ShowEquipmentPanel()
+    {
+        _equipmentPanel.SetActive(true);
+        _settingPanel.SetActive(false);
     }
 }

@@ -17,6 +17,8 @@ public class Bullet : MonoBehaviourPunCallbacks
     /// <summary>íeä€ÇÃÇ∆Ç‘ï˚å¸</summary>
     Vector3 _dir;
 
+    [SerializeField] float rayDistance;
+
     public Vector3 Dir { get => _dir; set => _dir = value; }
 
     [SerializeField] Rigidbody _bulletRb;
@@ -54,14 +56,39 @@ public class Bullet : MonoBehaviourPunCallbacks
         {
             Destroy(this.gameObject);
         }
+
+        Hit();
+
     }
 
-    private void OnTriggerEnter(Collider other)
+    //private void OnTriggerEnter(Collider other)
+    //{
+    //    if (other.tag == "Player")
+    //    {
+    //        Debug.Log("hit");
+    //        other.GetComponent<PlayerController>().Damage(_bulletDamage);
+    //    }
+
+    //    Destroy(this);
+    //}
+
+    [ContextMenu(nameof(Hit))]
+    void Hit()
     {
-        if (other.tag == "Player")
+        Vector3 rayPosition = transform.position + new Vector3(0.0f, 0.0f, 0.0f);
+        Ray ray = new Ray(rayPosition, _dir);
+        Debug.DrawRay(rayPosition, _dir * rayDistance, Color.red);
+
+        //ìGÇ…è’ìÀÇµÇΩÇ∆Ç´ÇÃèàóù
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit, rayDistance))
         {
-            Debug.Log("hit");
-            other.GetComponent<PlayerController>().Damage(_bulletDamage);
+            if (hit.collider.tag == "Player")
+            {
+                Debug.Log("Hit");
+                hit.collider.GetComponent<PlayerController>().Damage(_bulletDamage);
+                Destroy(this.gameObject);
+            }
         }
     }
 
