@@ -5,7 +5,6 @@ using UniRx;
 using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
-using Photon.Realtime;
 using Cysharp.Threading.Tasks;
 using UnityEngine.SceneManagement;
 
@@ -117,6 +116,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] int _ammoText;
 
     [SerializeField] GameObject _settingPanel;
+
+    [SerializeField] bool _hit;
+    public bool Hit { get => _hit; }
    
     public GameObject SettingPanel { get => _settingPanel; set => _settingPanel = value; }
 
@@ -430,6 +432,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
 
         _playerHp.Value -= damage;
+        photonView.RPC("ShowHitMarker", RpcTarget.Others);
 
         DOTween.To(() => _hpImage.fillAmount,
            x => _hpImage.fillAmount = x,
@@ -470,22 +473,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
     }
 
     /// <summary>
-    /// ダメージを食らったプレイヤーのHPと名前をログに出力
+    /// ヒットマークを表示させる
     /// </summary>
-    /// <param name="targetPlayer"></param>
-    /// <param name="changedProps"></param>
-    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+    [PunRPC]
+    async void ShowHitMarker()
     {
-        if (!photonView.IsMine)
-        {
-            return;
-        }
-
-        Debug.Log($"{targetPlayer.NickName}");
-
-        foreach(var prop in changedProps) {
-            Debug.Log($"{prop.Key}: {prop.Value}");
-        }
+        _hit = true;
+        await UniTask.Delay(10);
+        _hit = false;
     }
 
 

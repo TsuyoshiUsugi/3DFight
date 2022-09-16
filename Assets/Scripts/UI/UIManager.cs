@@ -33,6 +33,9 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] Slider _xCamSpeedSlider;
     [SerializeField] Slider _yCamSpeedSlider;
 
+    //ééçáíÜ
+    [SerializeField] GameObject _hitMarker;
+
     private void Start()
     {
         if (PhotonNetwork.IsConnected)
@@ -40,6 +43,8 @@ public class UIManager : MonoBehaviourPunCallbacks
 
             ShowPlayerName();
         }
+
+        _hitMarker.SetActive(false);
     }
 
     private void Update()

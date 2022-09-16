@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using UniRx;
 using Cinemachine;
 using Cysharp.Threading.Tasks;
+using Photon.Pun;
 
 /// <summary>
 /// バトルシーンの管理を行うコンポーネント
@@ -24,7 +25,7 @@ using Cysharp.Threading.Tasks;
 /// 
 /// 
 /// </summary>
-public class GameM : MonoBehaviour
+public class GameM : MonoBehaviourPunCallbacks
 {
 
     //戦闘前
@@ -40,6 +41,9 @@ public class GameM : MonoBehaviour
     [SerializeField] CinemachineFreeLook _playerCam;
     [SerializeField] PlayerController _player;
     public PlayerController Player { get => _player; set => _player = value; }
+    [SerializeField] PlayerController _enemy;
+    public PlayerController Enemy {set => _enemy = value;}
+    [SerializeField] GameObject _hitMarker;
 
     //時間処理(試合中)
     [SerializeField] bool _startCount;
@@ -93,7 +97,7 @@ public class GameM : MonoBehaviour
 
             SwicthPlayingObj(true);
 
-           
+            GetEnemyInstance();
 
             if (_startCount && _limitTime.Value > 0f)
             {
@@ -108,9 +112,12 @@ public class GameM : MonoBehaviour
                 }
 
                 CountPlayTime();
+
+                Hit();
             }
 
             CamSetting();
+
         }
 
     }
@@ -233,6 +240,38 @@ public class GameM : MonoBehaviour
         
         _player.XCamSpeed = PlayerPrefs.GetFloat("xCamSpeed");
         _player.YCamSpeed = PlayerPrefs.GetFloat("yCamSpeed");
+    }
+
+    /// <summary>
+    /// 相手に当てた時ヒットマーカーを表示
+    /// </summary>
+    void Hit()
+    {
+        if (_enemy.Hit == true)
+        {
+            _hitMarker.SetActive(true);
+
+        }
+        else
+        {
+            _hitMarker.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// 試合開始前に敵プレイヤーのインスタンスを獲得
+    /// </summary>
+    void GetEnemyInstance()
+    {
+        var players = GameObject.FindGameObjectsWithTag("Player");
+
+        foreach (var player in players)
+        {
+            if(player.gameObject.GetPhotonView().IsMine == false)
+            {
+                _enemy = player.GetComponent<PlayerController>();
+            }
+        }
     }
 }
 
