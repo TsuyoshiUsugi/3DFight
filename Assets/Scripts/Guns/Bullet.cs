@@ -1,12 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using Photon.Pun;
 
 /// <summary>
 /// 弾丸のコンポーネント
 /// </summary>
-public class Bullet : MonoBehaviourPunCallbacks
+public class Bullet : MonoBehaviour
 {
     /// <summary>弾丸のスピード</summary>
     [SerializeField] float bulletSpeed;
@@ -60,17 +57,6 @@ public class Bullet : MonoBehaviourPunCallbacks
         Hit();
 
     }
-
-    //private void OnTriggerEnter(Collider other)
-    //{
-    //    if (other.tag == "Player")
-    //    {
-    //        Debug.Log("hit");
-    //        other.GetComponent<PlayerController>().Damage(_bulletDamage);
-    //    }
-
-    //    Destroy(this);
-    //}
 
     [ContextMenu(nameof(Hit))]
     void Hit()
