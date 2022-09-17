@@ -24,14 +24,20 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] Rigidbody _rb;
     [SerializeField] Animator animator;
     [SerializeField] GameObject _armature;
-
-    /// <summary>カメラ軸のオブジェクト</summary>
     [SerializeField] GameObject _eye;
+    [SerializeField] SpawnManager _spawnManager;
+    [SerializeField] CinemachineFreeLook _virtualCamera;
+    [SerializeField] PhotonGameManager _photonGameManager;
+    [SerializeField] GameM _gameManager;
+    [SerializeField] GunBase _gun;
 
-    /// <summary>歩く速さ</summary>
-    [SerializeField] float _presentWalkSpeed;
-    [SerializeField] float _walkSpeed;
-
+    [Header("入力関連")]
+    float _horizontal;
+    float _vertical;
+    float mouseInputX;
+    [SerializeField] float _zoomFov; 
+    [SerializeField] float _originFov; 
+    [SerializeField] float _fovDuration; 
 
     /// <summary>カメラの横軸のスピード</summary>
     [SerializeField] float _xCameraSpeed;
@@ -41,82 +47,36 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] float _yCameraSpeed;
     public float YCamSpeed { get => _yCameraSpeed; set => _yCameraSpeed = value; }
 
-    /// <summary>ジャンプ力</summary>
-    [SerializeField] float _jumpForce;
-
-    /// <summary>ジャンプ回数</summary>
-    [SerializeField] float _jumpCount;
-
-    /// <summary>ジャンプ回数の制限</summary>
-    [SerializeField] float _jumpCountLimit;
-
-    /// <summary>ジャンプしたときに飛びすぎない為の制限</summary>
-    [SerializeField] float _maxJumpSpeedLimit;
-
-    /// <summary>前進入力の入力値を入れる変数</summary>
-    float _horizontal;
-
-    /// <summary>左右入力の入力値を入れる変数</summary>
-    float _vertical;
-
-    /// <summary>マウスの左右の入力値を入れる変数</summary>
-    float mouseInputX;
-
-    /// <summary>PlayerのHP</summary>
+    [Header("Playerステータス")]
     [SerializeField] ReactiveProperty<float> _playerHp;
-
-    /// <summary>Playerのdamage</summary>
+    [SerializeField] bool _aiming;
+    [SerializeField] float _walkSpeedWhileAiming;
+    [SerializeField] float _presentWalkSpeed;
+    [SerializeField] float _walkSpeed;
+    [SerializeField] float _jumpForce;
+    [SerializeField] float _jumpCount;
+    [SerializeField] float _jumpCountLimit;
+    [SerializeField] float _maxJumpSpeedLimit;
+    [SerializeField] float _downForce;
+    [SerializeField] bool _canShoot;
     [SerializeField] float _playerDamage;
     public float PlayerDamage { get => _playerDamage; set => _playerDamage = value; }
-
-    /// <summary>Playerの見ている地点</summary>
-    [SerializeField] Vector3 _playerLook;
-    public Vector3 PlayerLook { get => _playerLook; set => _playerLook = value; }
 
     /// <summary>操作可能か判定する</summary>
     [SerializeField] bool _wait = true;
     public bool Wait { get => _wait; set => _wait = value; }
 
-    /// <summary>撃つことが出来るか</summary>
-    [SerializeField] bool _canShoot;
-   
-    /// <summary>SpawnManagerの参照</summary>
-    [SerializeField] SpawnManager _spawnManager;
+    /// <summary>Playerの見ている地点</summary>
+    [SerializeField] Vector3 _playerLook;
+    public Vector3 PlayerLook { get => _playerLook; set => _playerLook = value; }
 
-    /// <summary>Chinemachineカメラの参照</summary>
-    [SerializeField] CinemachineFreeLook _virtualCamera;
-
-    [SerializeField] float _zoomFov; 
-    [SerializeField] float _originFov; 
-    [SerializeField] float _fovDuration; 
-
-    [SerializeField] GunBase _gun;
-
-    [SerializeField] bool _aiming;
-    [SerializeField] float _walkSpeedWhileAiming;
-
-    /// <summary>PhotonGameManagerのインスタンス</summary>
-    [SerializeField] PhotonGameManager _photonGameManager;
-
-    [SerializeField] GameM _gameManager;
-
-    [SerializeField] float _downForce;
-
-
-    ////////////////////////////// UI関係 ////////////////////////////////////
-
+    [Header("UI関係")]
     [SerializeField] int _time;
-
     [SerializeField] Image _hpImage;
-
     [SerializeField] TextMeshProUGUI _hpText;
-
     [SerializeField] int _displayAmmo;
-
     [SerializeField] int _ammoText;
-
     [SerializeField] GameObject _settingPanel;
-
     [SerializeField] bool _hit;
     public bool Hit { get => _hit; }
    
@@ -203,7 +163,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 return;
             }
         }
-
 
         Move();
 
