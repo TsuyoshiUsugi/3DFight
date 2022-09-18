@@ -2,9 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UniRx;
 
 /// <summary>
-/// Practice1Range用のコンポーネント
+/// PracticeRange用のコンポーネント
 /// </summary>
 public class PracticeRangeManager : MonoBehaviour
 {
@@ -25,6 +26,16 @@ public class PracticeRangeManager : MonoBehaviour
 
     [Header("Player関連")]
     [SerializeField] PlayerController _player;
+    [SerializeField] ReactiveProperty<int> _playerMainWeponNumber;
+    public int MainWeponNumber { set => _playerMainWeponNumber.Value = value; }
+    [SerializeField] ReactiveProperty<int> _playerSubWeponNumber;
+    public int SubWeponNumber { set => _playerSubWeponNumber.Value = value; }
+    [SerializeField] ReactiveProperty<int> _playerAbilityNumber;
+    public int PlayerAbilityNumber { set => _playerAbilityNumber.Value = value; }
+
+    [Header("メイン、サブ武器のオブジェクトリスト")]
+    [SerializeField] List<GameObject> _mainWeponList;
+    [SerializeField] List<GameObject> _subWeponList;
 
     // Start is called before the first frame update
     void Start()
@@ -103,7 +114,6 @@ public class PracticeRangeManager : MonoBehaviour
         if (_nowSetting)
         {
             _settingPanel.SetActive(true);
-
         }
         else if (!_nowSetting)
         {
@@ -158,5 +168,10 @@ public class PracticeRangeManager : MonoBehaviour
     {
         _equipmentPanel.SetActive(true);
         _settingPanel.SetActive(false);
+    }
+
+    void SetMainWepon()
+    {
+        _player.MainWepon = _mainWeponList[];
     }
 }

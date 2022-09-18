@@ -1,7 +1,10 @@
 using UnityEngine;
+using System;
+using System.Collections;
 using Photon.Pun;
 using Cinemachine;
 using UniRx;
+using UniRx.Triggers;
 using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
@@ -31,6 +34,22 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] GameM _gameManager;
     [SerializeField] GunBase _gun;
 
+    [Header("装備")]
+    [SerializeField] GameObject _mainWepon;
+    public GameObject MainWepon { get => _mainWepon; set => _mainWepon = value; }
+    [SerializeField] GameObject _subWepon;
+    public GameObject SubWepon { get => _subWepon; set => _subWepon = value; }
+    [SerializeField] AbilityList _ability;
+    [SerializeField] int _abilityCoolTime;
+    enum AbilityList
+    {
+        sideStep = 0,
+        autoHeal = 1,
+        dubleTime = 2,
+        armorPlus = 3,
+        spotter = 4,
+    }
+
     [Header("入力関連")]
     float _horizontal;
     float _vertical;
@@ -38,12 +57,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] float _zoomFov; 
     [SerializeField] float _originFov; 
     [SerializeField] float _fovDuration; 
-
-    /// <summary>カメラの横軸のスピード</summary>
     [SerializeField] float _xCameraSpeed;
     public float XCamSpeed { get => _xCameraSpeed; set => _xCameraSpeed = value; }
-
-    /// <summary>カメラの縦軸のスピード</summary>
     [SerializeField] float _yCameraSpeed;
     public float YCamSpeed { get => _yCameraSpeed; set => _yCameraSpeed = value; }
 
@@ -89,32 +104,31 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
         }
 
-        if(SceneManager.GetActiveScene().name == "BattleMode")
-        {
-            gameObject.name = PhotonNetwork.NickName;
-            _photonGameManager = GameObject.FindGameObjectWithTag("PhotonManager").GetComponent<PhotonGameManager>();
-            _gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameM>();
-            _gameManager.Player = this;
-        }
+        BattleModeSetup();
 
         //Chinemachineカメラの参照を読みこむ
         _virtualCamera = GameObject.FindGameObjectWithTag("Camera").GetComponent<CinemachineFreeLook>();
-       
+
         //自身の子オブジェクトとなっている銃を取得
         _gun = this.GetComponentInChildren<GunBase>();
 
         _hpText = GameObject.FindGameObjectWithTag("HpText").GetComponent<TextMeshProUGUI>();
         _hpImage = GameObject.FindGameObjectWithTag("HpImage").GetComponent<Image>();
 
-        //Hp変更時に体力値を変更
-        _playerHp.Subscribe(presentHp => _hpText.text = presentHp.ToString()).AddTo(gameObject);
-
         //カメラの位置をきめる
         _virtualCamera.LookAt = _eye.transform;
         _virtualCamera.Follow = _eye.transform;
         _originFov = _virtualCamera.m_Lens.FieldOfView;
-    }
 
+        //非同期処理の登録
+        _playerHp.Subscribe(presentHp => _hpText.text = presentHp.ToString()).AddTo(gameObject);
+        this.UpdateAsObservable()
+            .Where(_ => Input.GetButtonDown("Ability") && photonView.IsMine)
+            .ThrottleFirst(TimeSpan.FromSeconds(_abilityCoolTime))
+            .Subscribe(_ => Ability());
+
+        
+    }
 
     void Update()
     {
@@ -181,8 +195,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
 
         if (_wait)
-        {
-            
+        {         
             animator.SetFloat("HoriSpeed", 0);
             animator.SetFloat("VSpeed", 0);
             animator.SetBool("Aim", false);
@@ -191,6 +204,31 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         Aim();
         
+    }
+
+    /// <summary>
+    /// 操作しているのが自分か確認する
+    /// </summary>
+    void IsMineCheck()
+    {
+        if (!photonView.IsMine)
+        {
+            return;
+        }
+    }
+
+    /// <summary>
+    /// 対戦時に行う参照取得処理
+    /// </summary>
+    void BattleModeSetup()
+    {
+        if (SceneManager.GetActiveScene().name == "BattleMode")
+        {
+            gameObject.name = PhotonNetwork.NickName;
+            _photonGameManager = GameObject.FindGameObjectWithTag("PhotonManager").GetComponent<PhotonGameManager>();
+            _gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameM>();
+            _gameManager.Player = this;
+        }
     }
 
     /// <summary>
@@ -442,5 +480,18 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _hit = false;
     }
 
+    /// <summary>
+    /// アビリティのメソッド
+    /// </summary>
+    void Ability()
+    {
+        
 
+        switch(_ability)
+        {
+            case AbilityList.sideStep:
+                break;
+                    
+        }
+    }
 }

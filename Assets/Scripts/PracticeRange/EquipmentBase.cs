@@ -26,10 +26,10 @@ public class EquipmentBase : MonoBehaviour, IPointerClickHandler
     public string ShowText { get => _showText; set => _showText = value; }
 
     [Header("参照")]
-    [SerializeField] GameObject _selectedText;
     [SerializeField] Sprite _showImage;
     [SerializeField] Image _showImageTab;
     [SerializeField] Text _showTextTab;
+    [SerializeField] PracticeRangeManager _practiceManager;
 
     /// <summary>
     /// このアイテムの種類
@@ -41,18 +41,12 @@ public class EquipmentBase : MonoBehaviour, IPointerClickHandler
         Ability,
     }
 
-    void Start()
-    {
-        _selectedText.SetActive(false);
-    }
-
     /// <summary>
     /// 選択欄の画像がクリックされたときに行われる処理
     /// </summary>
     /// <param name="eventData"></param>
     public void OnPointerClick(PointerEventData eventData)
     {
-
         Seleccted();
     }
 
@@ -65,16 +59,26 @@ public class EquipmentBase : MonoBehaviour, IPointerClickHandler
         if(_selected)
         {
             _selected = false;
-            _selectedText.gameObject.SetActive(false);
-            
         }
         //非選択時
         else
         {
             _selected = true;
-            _selectedText.gameObject.SetActive(true);
             _showImageTab.sprite = _showImage;
             _showTextTab.text = _showText;
+            switch (_itemType)
+            {
+                case ItemType.mainWepon:
+                    _practiceManager.MainWeponNumber = _itemNumber;
+                    break;
+                case ItemType.subWepon:
+                    _practiceManager.MainWeponNumber = _itemNumber;
+                    break;
+                case ItemType.Ability:
+                    _practiceManager.MainWeponNumber = _itemNumber;
+                    break;
+            }
+            
         }
     }
 }
