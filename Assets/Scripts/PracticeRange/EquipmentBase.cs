@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// 装備のタブに表示されるアイテムやスキルの選択をや表示のベースとなるクラス
+/// 装備のタブに表示されるアイテムやスキルの選択や表示のベースとなるクラス
 /// 
 /// 機能
 /// ・下の選択バーからこのクラスを継承したオブジェクトを選択できる
@@ -18,21 +18,32 @@ using UnityEngine.UI;
 /// </summary>
 public class EquipmentBase : MonoBehaviour, IPointerClickHandler
 {
-    [SerializeField] Sprite _showImage;
-    [SerializeField] Text _showText;
-    [SerializeField] Text _selectedText;
+    [Header("このアイテムのステータス")]
+    [SerializeField] ItemType _itemType;
+    [SerializeField] int _itemNumber;
     [SerializeField] bool _selected;
-    [SerializeField] ItemType itemType;
+    [SerializeField, TextArea(1, 3)] string _showText;
+    public string ShowText { get => _showText; set => _showText = value; }
 
     [Header("参照")]
+    [SerializeField] GameObject _selectedText;
+    [SerializeField] Sprite _showImage;
     [SerializeField] Image _showImageTab;
     [SerializeField] Text _showTextTab;
 
+    /// <summary>
+    /// このアイテムの種類
+    /// </summary>
     enum ItemType
     {
         mainWepon,
         subWepon,
         Ability,
+    }
+
+    void Start()
+    {
+        _selectedText.SetActive(false);
     }
 
     /// <summary>
@@ -50,17 +61,20 @@ public class EquipmentBase : MonoBehaviour, IPointerClickHandler
     /// </summary>
     private void Seleccted()
     {
+        //既選択時
         if(_selected)
         {
             _selected = false;
-            _selectedText.gameObject.SetActive(true);
-            _showImageTab.sprite = _showImage;
-            _showTextTab = _showText;
+            _selectedText.gameObject.SetActive(false);
+            
         }
+        //非選択時
         else
         {
             _selected = true;
-            _selectedText.gameObject.SetActive(false);
+            _selectedText.gameObject.SetActive(true);
+            _showImageTab.sprite = _showImage;
+            _showTextTab.text = _showText;
         }
     }
 }
