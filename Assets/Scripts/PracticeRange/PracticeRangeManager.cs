@@ -45,6 +45,10 @@ public class PracticeRangeManager : MonoBehaviour
         UISetup();
 
         _player.Wait = false;
+
+        _playerMainWeponNumber.Subscribe(_ => SetMainWepon()).AddTo(gameObject);
+        _playerSubWeponNumber.Subscribe(_ => SetMainWepon()).AddTo(gameObject);
+        _playerAbilityNumber.Subscribe(_ => SetAbility()).AddTo(gameObject);
     }
 
     /// <summary>
@@ -170,8 +174,27 @@ public class PracticeRangeManager : MonoBehaviour
         _settingPanel.SetActive(false);
     }
 
+    /// <summary>
+    /// メインウェポンを設定する
+    /// </summary>
     void SetMainWepon()
     {
-        _player.MainWepon = _mainWeponList[];
+        _player.MainWepon = _mainWeponList[_playerMainWeponNumber.Value];
+    }
+
+    /// <summary>
+    /// サブウェポンを設定する
+    /// </summary>
+    void SetSubWepon()
+    {
+        _player.SubWepon = _mainWeponList[_playerMainWeponNumber.Value];
+    }
+
+    /// <summary>
+    /// メインウェポンを設定する
+    /// </summary>
+    void SetAbility()
+    {
+        _player.SetAbility = (PlayerController.AbilityList)_playerAbilityNumber.Value;
     }
 }

@@ -33,6 +33,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] PhotonGameManager _photonGameManager;
     [SerializeField] GameM _gameManager;
     [SerializeField] GunBase _gun;
+    [SerializeField] GameObject _hand;
 
     [Header("装備")]
     [SerializeField] GameObject _mainWepon;
@@ -40,14 +41,16 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] GameObject _subWepon;
     public GameObject SubWepon { get => _subWepon; set => _subWepon = value; }
     [SerializeField] AbilityList _ability;
+    public AbilityList SetAbility { get => _ability; set => _ability = value; }
     [SerializeField] int _abilityCoolTime;
-    enum AbilityList
+
+    public enum AbilityList : int
     {
         sideStep = 0,
-        autoHeal = 1,
-        dubleTime = 2,
-        armorPlus = 3,
-        spotter = 4,
+        autoHeal,
+        dubleTime,
+        armorPlus,
+        spotter,
     }
 
     [Header("入力関連")]
@@ -110,7 +113,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _virtualCamera = GameObject.FindGameObjectWithTag("Camera").GetComponent<CinemachineFreeLook>();
 
         //自身の子オブジェクトとなっている銃を取得
-        _gun = this.GetComponentInChildren<GunBase>();
+        var gun = Instantiate(_mainWepon);
+        gun.transform.parent = _hand.transform;
+        _gun = gun.GetComponentInChildren<GunBase>();
+        gun.transform.localPosition = _gun.TransForm;
+        gun.transform.eulerAngles = _gun.Rotation;
+        gun.transform.localScale = _gun.Scale;
 
         _hpText = GameObject.FindGameObjectWithTag("HpText").GetComponent<TextMeshProUGUI>();
         _hpImage = GameObject.FindGameObjectWithTag("HpImage").GetComponent<Image>();
@@ -147,6 +155,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 return; 
             }
         }
+
+        //自身の子オブジェクトとなっている銃を取得
+        _gun = _mainWepon.GetComponentInChildren<GunBase>();
+
+
+
         _virtualCamera.m_YAxis.m_InputAxisValue = _yCameraSpeed;
 
         ReadInput();
@@ -485,11 +499,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     void Ability()
     {
-        
-
         switch(_ability)
         {
             case AbilityList.sideStep:
+                _rb.AddForce(Vector3.forward * 3, ForceMode.Impulse);
                 break;
                     
         }

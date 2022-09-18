@@ -73,8 +73,18 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
 
     TextMeshProUGUI _reloadText;
 
+    [SerializeField] Vector3 _originTransform;
+    public Vector3 TransForm { get => _originTransform; }
+    [SerializeField] Vector3 _originRotation;
+    public Vector3 Rotation { get => _originTransform; }
+
+    [SerializeField] Vector3 _originScale;
+    public Vector3 Scale { get => _originTransform; }
+
     private void Start()
     {
+        
+
         if (!photonView.IsMine)
         {
             return;
