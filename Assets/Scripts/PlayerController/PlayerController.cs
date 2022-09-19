@@ -102,9 +102,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        if (!photonView.IsMine)
+        if (SceneManager.GetActiveScene().name == "BattleMode")
         {
-            return;
+            if (!photonView.IsMine)
+            {
+                return;
+            }
         }
 
         BattleModeSetup();
@@ -113,12 +116,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _virtualCamera = GameObject.FindGameObjectWithTag("Camera").GetComponent<CinemachineFreeLook>();
 
         //自身の子オブジェクトとなっている銃を取得
-        var gun = Instantiate(_mainWepon);
-        gun.transform.parent = _hand.transform;
-        _gun = gun.GetComponentInChildren<GunBase>();
-        gun.transform.localPosition = _gun.TransForm;
-        gun.transform.eulerAngles = _gun.Rotation;
-        gun.transform.localScale = _gun.Scale;
+        SetMainWepon();
 
         _hpText = GameObject.FindGameObjectWithTag("HpText").GetComponent<TextMeshProUGUI>();
         _hpImage = GameObject.FindGameObjectWithTag("HpImage").GetComponent<Image>();
@@ -135,7 +133,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
             .ThrottleFirst(TimeSpan.FromSeconds(_abilityCoolTime))
             .Subscribe(_ => Ability());
 
-        
+
+    }
+
+    /// <summary>
+    /// 現在のメイン武器の情報を参照に入れる
+    /// </summary>
+    private void SetMainWepon()
+    {
+        _gun = _hand.GetComponentInChildren<GunBase>();
     }
 
     void Update()
@@ -156,10 +162,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             }
         }
 
-        //自身の子オブジェクトとなっている銃を取得
-        _gun = _mainWepon.GetComponentInChildren<GunBase>();
-
-
+        SetMainWepon();
 
         _virtualCamera.m_YAxis.m_InputAxisValue = _yCameraSpeed;
 
@@ -346,6 +349,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     /// <summary>
     /// 射撃体勢のメソッド
+    /// エイム中は歩くスピードが落ちる
     /// </summary>
     void Aim()
     {

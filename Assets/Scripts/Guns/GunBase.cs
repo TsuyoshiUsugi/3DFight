@@ -4,6 +4,7 @@ using UnityEngine;
 using Photon.Pun;
 using UniRx;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// èeÇÃã§í óvëfÇÇ‡Ç¬äÓíÍÉNÉâÉX
@@ -73,21 +74,16 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
 
     TextMeshProUGUI _reloadText;
 
-    [SerializeField] Vector3 _originTransform;
-    public Vector3 TransForm { get => _originTransform; }
-    [SerializeField] Vector3 _originRotation;
-    public Vector3 Rotation { get => _originTransform; }
-
-    [SerializeField] Vector3 _originScale;
-    public Vector3 Scale { get => _originTransform; }
-
     private void Start()
     {
-        
 
-        if (!photonView.IsMine)
+
+        if(SceneManager.GetActiveScene().name == "BattleMode")
         {
-            return;
+            if (!photonView.IsMine)
+            {
+                return;
+            }
         }
 
         _bulletText = GameObject.FindGameObjectWithTag("BulletText").GetComponent<TextMeshProUGUI>();
@@ -107,9 +103,12 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
 
     private void Update()
     {
-        if(!photonView.IsMine)
+        if(SceneManager.GetActiveScene().name == "BattleMode")
         {
-            return;
+            if (!photonView.IsMine)
+            {
+                return;
+            }
         }
 
         PlayerLook();
@@ -146,21 +145,25 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     /// </summary>
     public void Shot()
     {
-        if(!photonView.IsMine)
+        
+        if (SceneManager.GetActiveScene().name == "BattleMode")
         {
-            return;
+            if (!photonView.IsMine)
+            {
+                return;
+            }
         }
 
         if (_pullTrigger == true && _canShot == true)
         {
+         Debug.Log("aaa");
             //écíeÇ†ÇË
             if (_restBullets.Value > 0)
             {
                 //òAë±Ç≈åÇÇƒÇ»Ç≠Ç≥ÇπÇÈ
                 _canShot = false;
-
                 //íeä€Çê∂ê¨ÇµÇƒÅAîÚÇ‘ï˚å¸Çó^Ç¶ÇÈ
-                if(PhotonNetwork.IsConnected)
+                if(SceneManager.GetActiveScene().name == "BattleMode")
                 {
                     photonView.RPC(nameof(FireBullet), RpcTarget.All, _playerLook, _muzzle.transform.position);
                 }
