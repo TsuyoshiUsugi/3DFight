@@ -33,7 +33,7 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     /// <summary>残弾数</summary>
     [SerializeField] ReactiveProperty<int> _restBullets = default;
 
-    public ReactiveProperty<int> RestBullet { get => _restBullets; }
+    public ReactiveProperty<int> RestBullet { get => _restBullets; set => _restBullets = value; }
 
     /// <summary>射撃間隔</summary>
     [SerializeField] float _shotInterval = default;
@@ -69,14 +69,17 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     [SerializeField] Vector3 _playerLook;
 
     TextMeshProUGUI _bulletText;
+    public TextMeshProUGUI BulletText { get => _bulletText; set => _bulletText = value; }
 
     TextMeshProUGUI _maxBulletText;
+    public TextMeshProUGUI MaxBulletText { get => _maxBulletText; set => _maxBulletText = value; }
 
-    TextMeshProUGUI _reloadText;
+    GameObject _reloadText;
+
+    [SerializeField] PlayerController _player;
 
     private void Start()
     {
-
 
         if(SceneManager.GetActiveScene().name == "BattleMode")
         {
@@ -85,17 +88,17 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
                 return;
             }
         }
+        _restBullets.Value = _bulletsCapacity;
 
         _bulletText = GameObject.FindGameObjectWithTag("BulletText").GetComponent<TextMeshProUGUI>();
-
+        _bulletText.text = _restBullets.Value.ToString();
         _maxBulletText = GameObject.FindGameObjectWithTag("MaxBulletText").GetComponent<TextMeshProUGUI>();
-
         _maxBulletText.text = _bulletsCapacity.ToString();
+        _reloadText = _player.ReloadText;
+        _reloadText.SetActive(false);
 
-
-        _reloadText = GameObject.FindGameObjectWithTag("ReloadText").GetComponent<TextMeshProUGUI>();
-        _reloadText.gameObject.SetActive(false);
-
+        _canShot = true;
+        _pullTrigger = false;
 
         //残弾減少時にテキスト変更
         _restBullets.Subscribe(restBullet => _bulletText.text = restBullet.ToString()).AddTo(gameObject);
@@ -156,7 +159,6 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
 
         if (_pullTrigger == true && _canShot == true)
         {
-         Debug.Log("aaa");
             //残弾あり
             if (_restBullets.Value > 0)
             {
@@ -237,7 +239,6 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     {
         //リロード中判定
         _reloading = true;
-
 
         _canShot = false;
 

@@ -29,7 +29,8 @@ public class EquipmentBase : MonoBehaviour, IPointerClickHandler
     [SerializeField] Sprite _showImage;
     [SerializeField] Image _showImageTab;
     [SerializeField] Text _showTextTab;
-    [SerializeField] PracticeRangeManager _practiceManager;
+    [SerializeField] PlayerController _player;
+
 
     /// <summary>
     /// このアイテムの種類
@@ -39,6 +40,11 @@ public class EquipmentBase : MonoBehaviour, IPointerClickHandler
         mainWepon,
         subWepon,
         Ability,
+    }
+
+    void Start()
+    {
+        _player = FindObjectOfType<PlayerController>();
     }
 
     /// <summary>
@@ -51,34 +57,25 @@ public class EquipmentBase : MonoBehaviour, IPointerClickHandler
     }
 
     /// <summary>
-    /// 選択時と非選択時の処理を行う
+    /// 選択時の処理を行う
     /// </summary>
     private void Seleccted()
     {
-        //既選択時
-        if(_selected)
+        
+        _showImageTab.sprite = _showImage;
+        _showTextTab.text = _showText;
+        switch (_itemType)
         {
-            _selected = false;
+            case ItemType.mainWepon:
+                _player.MainWeponNumber = _itemNumber;
+                break;
+            case ItemType.subWepon:
+                _player.MainWeponNumber = _itemNumber;
+                break;
+            case ItemType.Ability:
+                _player.MainWeponNumber = _itemNumber;
+                break;
         }
-        //非選択時
-        else
-        {
-            _selected = true;
-            _showImageTab.sprite = _showImage;
-            _showTextTab.text = _showText;
-            switch (_itemType)
-            {
-                case ItemType.mainWepon:
-                    _practiceManager.MainWeponNumber = _itemNumber;
-                    break;
-                case ItemType.subWepon:
-                    _practiceManager.MainWeponNumber = _itemNumber;
-                    break;
-                case ItemType.Ability:
-                    _practiceManager.MainWeponNumber = _itemNumber;
-                    break;
-            }
-            
-        }
+
     }
 }

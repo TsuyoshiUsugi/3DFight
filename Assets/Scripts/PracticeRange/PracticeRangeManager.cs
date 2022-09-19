@@ -26,12 +26,7 @@ public class PracticeRangeManager : MonoBehaviour
 
     [Header("Player関連")]
     [SerializeField] PlayerController _player;
-    [SerializeField] ReactiveProperty<int> _playerMainWeponNumber;
-    public int MainWeponNumber { set => _playerMainWeponNumber.Value = value; }
-    [SerializeField] ReactiveProperty<int> _playerSubWeponNumber;
-    public int SubWeponNumber { set => _playerSubWeponNumber.Value = value; }
-    [SerializeField] ReactiveProperty<int> _playerAbilityNumber;
-    public int PlayerAbilityNumber { set => _playerAbilityNumber.Value = value; }
+    
 
     [Header("メイン、サブ武器のオブジェクトリスト")]
     [SerializeField] List<GameObject> _mainWeponList;
@@ -45,10 +40,6 @@ public class PracticeRangeManager : MonoBehaviour
         UISetup();
 
         _player.Wait = false;
-
-        _playerMainWeponNumber.Subscribe(_ => SetMainWepon()).AddTo(gameObject);
-        _playerSubWeponNumber.Subscribe(_ => SetMainWepon()).AddTo(gameObject);
-        _playerAbilityNumber.Subscribe(_ => SetAbility()).AddTo(gameObject);
     }
 
     /// <summary>
@@ -89,6 +80,7 @@ public class PracticeRangeManager : MonoBehaviour
             _nowSetting = true;
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
+            _player.Wait = true;
 
             _settingButton.SetActive(true);
             _equipmentButton.SetActive(true);
@@ -100,7 +92,7 @@ public class PracticeRangeManager : MonoBehaviour
             _nowSetting = false;
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
-
+            _player.Wait = false;
             _settingButton.SetActive(false);
             _equipmentButton.SetActive(false);
             _settingPanel.SetActive(false);
@@ -174,27 +166,5 @@ public class PracticeRangeManager : MonoBehaviour
         _settingPanel.SetActive(false);
     }
 
-    /// <summary>
-    /// メインウェポンを設定する
-    /// </summary>
-    void SetMainWepon()
-    {
-        _player.MainWepon = _mainWeponList[_playerMainWeponNumber.Value];
-    }
-
-    /// <summary>
-    /// サブウェポンを設定する
-    /// </summary>
-    void SetSubWepon()
-    {
-        _player.SubWepon = _mainWeponList[_playerMainWeponNumber.Value];
-    }
-
-    /// <summary>
-    /// メインウェポンを設定する
-    /// </summary>
-    void SetAbility()
-    {
-        _player.SetAbility = (PlayerController.AbilityList)_playerAbilityNumber.Value;
-    }
+    
 }

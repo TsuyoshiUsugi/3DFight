@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Photon.Pun;
 using Cinemachine;
 using UniRx;
@@ -32,23 +33,35 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] CinemachineFreeLook _virtualCamera;
     [SerializeField] PhotonGameManager _photonGameManager;
     [SerializeField] GameM _gameManager;
-    [SerializeField] GunBase _gun;
     [SerializeField] GameObject _hand;
 
     [Header("装備")]
-    [SerializeField] GameObject _mainWepon;
-    public GameObject MainWepon { get => _mainWepon; set => _mainWepon = value; }
+    [Header("メイン")]
+    [SerializeField] GunBase _presentMainWepon;
+    [SerializeField] ReactiveProperty<int> _playerMainWeponNumber;
+    public int MainWeponNumber { set => _playerMainWeponNumber.Value = value; }
+    [SerializeField] List<GameObject> _mainWeponList;
+
+    [Header("サブ")]
     [SerializeField] GameObject _subWepon;
     public GameObject SubWepon { get => _subWepon; set => _subWepon = value; }
+    [SerializeField] ReactiveProperty<int> _playerSubWeponNumber;
+    public int SubWeponNumber { set => _playerSubWeponNumber.Value = value; }
+
+    [Header("アビリティ")]
     [SerializeField] AbilityList _ability;
     public AbilityList SetAbility { get => _ability; set => _ability = value; }
     [SerializeField] int _abilityCoolTime;
+    [SerializeField] ReactiveProperty<int> _playerAbilityNumber;
+    public int PlayerAbilityNumber { set => _playerAbilityNumber.Value = value; }
 
+    /// <summary>
+    /// アビリティ一覧
+    /// </summary>
     public enum AbilityList : int
     {
         sideStep = 0,
         autoHeal,
-        dubleTime,
         armorPlus,
         spotter,
     }
@@ -95,10 +108,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] int _displayAmmo;
     [SerializeField] int _ammoText;
     [SerializeField] GameObject _settingPanel;
+    [SerializeField] GameObject _reloadText;
+    public GameObject ReloadText { get => _reloadText; }
     [SerializeField] bool _hit;
     public bool Hit { get => _hit; }
    
     public GameObject SettingPanel { get => _settingPanel; set => _settingPanel = value; }
+
+    
 
     private void Start()
     {
@@ -115,9 +132,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
         //Chinemachineカメラの参照を読みこむ
         _virtualCamera = GameObject.FindGameObjectWithTag("Camera").GetComponent<CinemachineFreeLook>();
 
+        _playerMainWeponNumber.Subscribe(weponNumcber => SetMainWepon(weponNumcber)).AddTo(this);
         //自身の子オブジェクトとなっている銃を取得
-        SetMainWepon();
 
+        
         _hpText = GameObject.FindGameObjectWithTag("HpText").GetComponent<TextMeshProUGUI>();
         _hpImage = GameObject.FindGameObjectWithTag("HpImage").GetComponent<Image>();
 
@@ -136,13 +154,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     }
 
-    /// <summary>
-    /// 現在のメイン武器の情報を参照に入れる
-    /// </summary>
-    private void SetMainWepon()
-    {
-        _gun = _hand.GetComponentInChildren<GunBase>();
-    }
+    
 
     void Update()
     {
@@ -155,14 +167,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
             }
 
 
-            if (_wait)
-            {
-            
-                return; 
-            }
         }
 
-        SetMainWepon();
+        if (_wait)
+        {
+        
+            return; 
+        }
 
         _virtualCamera.m_YAxis.m_InputAxisValue = _yCameraSpeed;
 
@@ -189,10 +200,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 return;
             }
 
-            if (_wait)
-            {
-                return;
-            }
+        }
+
+        if (_wait)
+        {
+            return;
         }
 
         Move();
@@ -221,6 +233,19 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         Aim();
         
+    }
+
+    /// <summary>
+    /// 現在のWeponNumberの武器をアクティブにし、そのスクリプトの参照を渡す
+    /// </summary>
+    private void SetMainWepon(int weponNum)
+    {
+        _presentMainWepon.gameObject.SetActive(false);
+        _mainWeponList[weponNum].SetActive(true);
+        _presentMainWepon = _mainWeponList[weponNum].GetComponent<GunBase>();
+        _presentMainWepon.RestBullet.Value = _presentMainWepon.BulletCap;
+        _presentMainWepon.BulletText.text = _presentMainWepon.RestBullet.Value.ToString();
+        _presentMainWepon.MaxBulletText.text = _presentMainWepon.BulletCap.ToString();
     }
 
     /// <summary>
@@ -383,7 +408,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     void Shot()
     {
-        if(_gun.Reloading)
+        if(_presentMainWepon.Reloading)
         {
             return;
         }
@@ -396,8 +421,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
             }
             else
             {
-                _gun.PullTrigger = true;
-                _gun.Shot();
+                _presentMainWepon.PullTrigger = true;
+                _presentMainWepon.Shot();
             }
         }
     }
@@ -409,8 +434,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         animator.SetBool("Aiming", true);
         await UniTask.Delay(500);
-        _gun.PullTrigger = true;
-        _gun.Shot();
+        _presentMainWepon.PullTrigger = true;
+        _presentMainWepon.Shot();
         animator.SetBool("Aiming", false);
     }
 
@@ -419,12 +444,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     void Reload()
     {
-        if (_gun.RestBullet.Value == _gun.BulletCap)
+        if (_presentMainWepon.RestBullet.Value == _presentMainWepon.BulletCap)
         {
             return;
         }
 
-        if(!_gun.Reloading)
+        if(!_presentMainWepon.Reloading)
         {
             animator.SetBool("Reload", false);
         }
@@ -511,4 +536,20 @@ public class PlayerController : MonoBehaviourPunCallbacks
                     
         }
     }
+
+    ///// <summary>
+    ///// サブウェポンを設定する
+    ///// </summary>
+    //void SetSubWepon()
+    //{
+    //    _player.SubWepon = _mainWeponList[_playerMainWeponNumber.Value];
+    //}
+
+    ///// <summary>
+    ///// メインウェポンを設定する
+    ///// </summary>
+    //void SetAbility()
+    //{
+    //    _player.SetAbility = (PlayerController.AbilityList)_playerAbilityNumber.Value;
+    //}
 }
