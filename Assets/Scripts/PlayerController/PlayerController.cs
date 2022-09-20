@@ -409,7 +409,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             _aiming = false;
             _virtualCamera.m_Lens.FieldOfView = Mathf.Lerp(_zoomFov, _originFov, _fovDuration);
             animator.SetBool("Aim", false);
-
+            
         }
     }
 
@@ -459,16 +459,27 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
         }
 
-        if(!_presentMainWepon.Reloading)
-        {
-            animator.SetBool("Reload", false);
-        }
+        //if(!_presentMainWepon.Reloading)
+        //{
+        //    animator.SetBool("Reload", false);
+        //}
 
         if (Input.GetButtonDown("Reload"))
         {
-            GetComponentInChildren<FirstGun>().Reload();
-            animator.SetBool("Reload", true);
+            _presentMainWepon.Reload();
+            StartCoroutine(nameof(Reloading));                   
         }
+    }
+
+    /// <summary>
+    /// リロード用のコルーチン
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator Reloading()
+    {
+        animator.SetBool("Reload", true);
+        yield return new WaitForSeconds(1);
+        animator.SetBool("Reload", false);
     }
 
     /// <summary>
@@ -542,8 +553,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             case AbilityList.sideStep:
                 _rb.AddForce(Vector3.forward * 3, ForceMode.Impulse);
-                break;
-                    
+                break;         
         }
     }
 }
