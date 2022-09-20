@@ -27,6 +27,7 @@ public class EquipmentBase : MonoBehaviour, IPointerClickHandler
 
     [Header("ŽQÆ")]
     [SerializeField] Sprite _showImage;
+    public Sprite ShowImage { get => _showImage; }
     [SerializeField] Image _showImageTab;
     [SerializeField] Text _showTextTab;
     [SerializeField] PlayerController _player;
@@ -70,10 +71,10 @@ public class EquipmentBase : MonoBehaviour, IPointerClickHandler
                 _player.MainWeponNumber = _itemNumber;
                 break;
             case ItemType.subWepon:
-                _player.MainWeponNumber = _itemNumber;
+                _player.SubWeponNumber = _itemNumber;
                 break;
             case ItemType.Ability:
-                _player.MainWeponNumber = _itemNumber;
+                _player.PlayerAbilityNumber = _itemNumber;
                 break;
         }
 

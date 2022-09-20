@@ -198,7 +198,7 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     [PunRPC]
     protected virtual void FireBullet(Vector3 playerLook, Vector3 muzzle)
     {
-        GameObject bullet = Instantiate(_bullet, muzzle, _bullet.transform.rotation);
+        GameObject bullet = Instantiate(_bullet, muzzle, _muzzle.transform.rotation);
 
         
         Vector3 heading = (playerLook - muzzle).normalized;

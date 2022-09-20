@@ -440,14 +440,36 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// <summary>
     /// エイムしないで撃った時のメソッド
     /// </summary>
-    async void HipFire()
+    void HipFire()
     {
+        if(_playerMainWeponNumber.Value == 1)
+        {
+            _presentMainWepon.transform.localEulerAngles = new Vector3(7.95424366f, 80.7865524f, 257.894958f);
+        }
         animator.SetBool("Aiming", true);
-        await UniTask.Delay(500);
         _presentMainWepon.PullTrigger = true;
         _presentMainWepon.Shot();
-        animator.SetBool("Aiming", false);
+        StopAllCoroutines();
+        StartCoroutine(KeepHipFire());
+        
     }
+
+    /// <summary>
+    /// 腰撃ち態勢を維持するメソッド
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator KeepHipFire()
+    {
+
+        yield return new WaitForSeconds(3);
+        animator.SetBool("Aiming", false);
+        if(_playerMainWeponNumber.Value == 1)
+        {
+            _presentMainWepon.transform.localEulerAngles = new Vector3(17.9899387f, 80.6679688f, 271.117798f);
+        }
+        
+    }
+
 
     /// <summary>
     /// 銃のリロードのメソッド
@@ -458,11 +480,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             return;
         }
-
-        //if(!_presentMainWepon.Reloading)
-        //{
-        //    animator.SetBool("Reload", false);
-        //}
 
         if (Input.GetButtonDown("Reload"))
         {
@@ -503,7 +520,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (_playerHp.Value <= 0)
         {
             Die();
-
         }
     }
 
@@ -552,7 +568,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         switch(_ability)
         {
             case AbilityList.sideStep:
-                _rb.AddForce(Vector3.forward * 3, ForceMode.Impulse);
+                Vector3 cameraForward = Vector3.Scale(transform.forward, new Vector3(1, 0, 1)).normalized;
+                _rb.AddForce(cameraForward * 500, ForceMode.Impulse);
                 break;         
         }
     }
