@@ -11,6 +11,7 @@ using TMPro;
 using DG.Tweening;
 using Cysharp.Threading.Tasks;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 /// <summary>
 /// バトルシーンに置ける、プレイヤー関連の処理のコンポーネント
@@ -69,7 +70,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [Header("入力関連")]
     float _horizontal;
     float _vertical;
-    float mouseInputX;
+    float _mouseInputX;
     [SerializeField] float _zoomFov; 
     [SerializeField] float _originFov; 
     [SerializeField] float _fovDuration; 
@@ -109,10 +110,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] int _ammoText;
     [SerializeField] GameObject _settingPanel;
     [SerializeField] GameObject _reloadText;
-    public GameObject ReloadText { get => _reloadText; }
+    public GameObject ReloadText { get => _reloadText; set => _reloadText = value; }
     [SerializeField] bool _hit;
     public bool Hit { get => _hit; }
-   
+    [SerializeField] TextMeshProUGUI _bulletText;
+    public TextMeshProUGUI BulletText { set => _bulletText = value; }
+    [SerializeField] TextMeshProUGUI _maxBulletText;
+    public TextMeshProUGUI MaxBullteText { set => _maxBulletText = value; }
+
+
     public GameObject SettingPanel { get => _settingPanel; set => _settingPanel = value; }
 
     
@@ -125,6 +131,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
             {
                 return;
             }
+
+            _bulletText = GameObject.FindGameObjectWithTag("BulletText").GetComponent<TextMeshProUGUI>();
+            _maxBulletText = GameObject.FindGameObjectWithTag("MaxBulletText").GetComponent<TextMeshProUGUI>();
+            _reloadText = GameObject.FindGameObjectWithTag("ReloadText");
         }
 
         BattleModeSetup();
@@ -132,10 +142,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
         //Chinemachineカメラの参照を読みこむ
         _virtualCamera = GameObject.FindGameObjectWithTag("Camera").GetComponent<CinemachineFreeLook>();
 
+        _playerMainWeponNumber.Value = PlayerPrefs.GetInt("MainWeponNumber");
         _playerMainWeponNumber.Subscribe(weponNumcber => SetMainWepon(weponNumcber)).AddTo(this);
-        //自身の子オブジェクトとなっている銃を取得
 
-        
         _hpText = GameObject.FindGameObjectWithTag("HpText").GetComponent<TextMeshProUGUI>();
         _hpImage = GameObject.FindGameObjectWithTag("HpImage").GetComponent<Image>();
 
@@ -240,12 +249,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     private void SetMainWepon(int weponNum)
     {
-        _presentMainWepon.gameObject.SetActive(false);
+
+        _mainWeponList.ForEach(wepon => wepon.gameObject.SetActive(false));
         _mainWeponList[weponNum].SetActive(true);
+        PlayerPrefs.SetInt("MainWeponNumber", weponNum);
+        Debug.Log(PlayerPrefs.GetInt("MainWeponNumber"));
         _presentMainWepon = _mainWeponList[weponNum].GetComponent<GunBase>();
         _presentMainWepon.RestBullet.Value = _presentMainWepon.BulletCap;
-        _presentMainWepon.BulletText.text = _presentMainWepon.RestBullet.Value.ToString();
-        _presentMainWepon.MaxBulletText.text = _presentMainWepon.BulletCap.ToString();
+        _bulletText.text = _presentMainWepon.RestBullet.Value.ToString();
+        _maxBulletText.text = _presentMainWepon.BulletCap.ToString();
     }
 
     /// <summary>
@@ -278,14 +290,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     void ReadInput()
     {
-        
-
         //WASDのキーを読み取る
         _horizontal = Input.GetAxisRaw("Horizontal");
         _vertical = Input.GetAxis("Vertical");
 
         //マウスの位置を読み取る
-        mouseInputX = Input.GetAxis("Mouse X");
+        _mouseInputX = Input.GetAxis("Mouse X");
     }
 
     /// <summary>
@@ -345,7 +355,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     void PlayerRotate()
     {
         transform.rotation = Quaternion.Euler(transform.eulerAngles.x,
-            transform.eulerAngles.y + mouseInputX * _xCameraSpeed,
+            transform.eulerAngles.y + _mouseInputX * _xCameraSpeed,
             transform.eulerAngles.z);
 
     }
@@ -396,9 +406,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
         else
         {
-            animator.SetBool("Aim", false);
             _aiming = false;
             _virtualCamera.m_Lens.FieldOfView = Mathf.Lerp(_zoomFov, _originFov, _fovDuration);
+            animator.SetBool("Aim", false);
 
         }
     }
@@ -536,20 +546,4 @@ public class PlayerController : MonoBehaviourPunCallbacks
                     
         }
     }
-
-    ///// <summary>
-    ///// サブウェポンを設定する
-    ///// </summary>
-    //void SetSubWepon()
-    //{
-    //    _player.SubWepon = _mainWeponList[_playerMainWeponNumber.Value];
-    //}
-
-    ///// <summary>
-    ///// メインウェポンを設定する
-    ///// </summary>
-    //void SetAbility()
-    //{
-    //    _player.SetAbility = (PlayerController.AbilityList)_playerAbilityNumber.Value;
-    //}
 }

@@ -106,6 +106,7 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
 
     private void Update()
     {
+       
         if(SceneManager.GetActiveScene().name == "BattleMode")
         {
             if (!photonView.IsMine)

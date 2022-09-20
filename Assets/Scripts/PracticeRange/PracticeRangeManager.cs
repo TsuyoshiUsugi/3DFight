@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// PracticeRange用のコンポーネント
@@ -19,6 +20,7 @@ public class PracticeRangeManager : MonoBehaviour
     [SerializeField] bool _showEuipmentSetting;
     [SerializeField] GameObject _settingButton;
     [SerializeField] GameObject _equipmentButton;
+    [SerializeField] GameObject _homeButton;
 
     [Header("設定パネル")]
     [SerializeField] Slider _xCamSpeedSlider;
@@ -59,6 +61,7 @@ public class PracticeRangeManager : MonoBehaviour
         _equipmentPanel.SetActive(false);
         _settingButton.SetActive(false);
         _equipmentButton.SetActive(false);
+        _homeButton.SetActive(false);
         _fadeInImage.SetActive(true);
     }
 
@@ -84,6 +87,7 @@ public class PracticeRangeManager : MonoBehaviour
 
             _settingButton.SetActive(true);
             _equipmentButton.SetActive(true);
+            _homeButton.SetActive(true);
             SettingEquipment();
         }
         //カーソル見える時
@@ -95,6 +99,7 @@ public class PracticeRangeManager : MonoBehaviour
             _player.Wait = false;
             _settingButton.SetActive(false);
             _equipmentButton.SetActive(false);
+            _homeButton.SetActive(false);
             _settingPanel.SetActive(false);
             _equipmentPanel.SetActive(false);
 
@@ -164,6 +169,15 @@ public class PracticeRangeManager : MonoBehaviour
     {
         _equipmentPanel.SetActive(true);
         _settingPanel.SetActive(false);
+    }
+
+    /// <summary>
+    /// ボタンから設定する
+    /// 押されるとホーム画面に戻る
+    /// </summary>
+    public void ToHome()
+    {
+        SceneManager.LoadScene("MenuScene");
     }
 
     

@@ -1,6 +1,7 @@
 using UnityEngine;
 using Photon.Pun;
 using System.Collections.Generic;
+using TMPro;
 
 public class SpawnManager : MonoBehaviour 
 {

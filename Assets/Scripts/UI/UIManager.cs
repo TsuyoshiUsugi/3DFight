@@ -45,6 +45,10 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
 
         _hitMarker.SetActive(false);
+        _xCamSpeedSlider.value = PlayerPrefs.GetFloat("xCamSpeed");
+        _yCamSpeedSlider.value = PlayerPrefs.GetFloat("yCamSpeed");
+
+
     }
 
     private void Update()
@@ -99,7 +103,7 @@ public class UIManager : MonoBehaviourPunCallbacks
     }
 
     /// <summary>
-    /// 試合シーン遷移後、表示汁テキストに名前を入れる
+    /// 試合シーン遷移後、表示するテキストに名前を入れる
     /// </summary>
     void ShowPlayerName()
     {

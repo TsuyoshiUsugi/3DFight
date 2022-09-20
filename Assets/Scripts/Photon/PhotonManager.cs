@@ -6,6 +6,7 @@ using Photon.Realtime;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using DG.Tweening;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Photonに関する主要な処理を行うクラス
@@ -696,4 +697,8 @@ public class PhotonManager : SaveData
         _roundDataTable.transform.DOLocalMove(new Vector3(403, 331, 0), 0.5f).SetEase(Ease.OutQuad);
     }
 
+    public void EnterPracticeRange()
+    {
+        SceneManager.LoadScene("PracticeRange");
+    }
 }

@@ -5,6 +5,7 @@ using UniRx;
 using Cinemachine;
 using Cysharp.Threading.Tasks;
 using Photon.Pun;
+using TMPro;
 
 /// <summary>
 /// バトルシーンの管理を行うコンポーネント
@@ -44,6 +45,8 @@ public class GameM : MonoBehaviourPunCallbacks
     [SerializeField] PlayerController _enemy;
     public PlayerController Enemy {set => _enemy = value;}
     [SerializeField] GameObject _hitMarker;
+    [SerializeField] TextMeshProUGUI _bulletText;
+    [SerializeField] TextMeshProUGUI _maxBulletText;
 
     //時間処理(試合中)
     [SerializeField] bool _startCount;
@@ -90,6 +93,7 @@ public class GameM : MonoBehaviourPunCallbacks
         //Timelineのシグナルを受信
         if (_endOP)
         {
+           
 
             CursorSet();
 
@@ -99,6 +103,7 @@ public class GameM : MonoBehaviourPunCallbacks
 
             GetEnemyInstance();
 
+            CamSetting();
             if (_startCount && _limitTime.Value > 0f)
             {
                
@@ -116,7 +121,6 @@ public class GameM : MonoBehaviourPunCallbacks
                 Hit();
             }
 
-            CamSetting();
 
         }
 
@@ -173,7 +177,6 @@ public class GameM : MonoBehaviourPunCallbacks
         if (Input.GetKeyDown(KeyCode.Escape) && !_nowSetting)
         {
             _nowSetting = true;
-            Debug.Log("見せたい");
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
             _uIManager.GetComponent<UIManager>().Setting = true;
@@ -182,7 +185,6 @@ public class GameM : MonoBehaviourPunCallbacks
         else if (Input.GetKeyDown(KeyCode.Escape) && _nowSetting)
         {
             _nowSetting = false;
-            Debug.Log("消したい");
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
             _uIManager.GetComponent<UIManager>().Setting = false;
@@ -237,7 +239,6 @@ public class GameM : MonoBehaviourPunCallbacks
     /// </summary>
     void CamSetting()
     {
-        
         _player.XCamSpeed = PlayerPrefs.GetFloat("xCamSpeed");
         _player.YCamSpeed = PlayerPrefs.GetFloat("yCamSpeed");
     }
