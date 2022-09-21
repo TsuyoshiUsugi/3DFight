@@ -44,10 +44,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] List<GameObject> _mainWeponList;
 
     [Header("サブ")]
-    [SerializeField] GameObject _subWepon;
-    public GameObject SubWepon { get => _subWepon; set => _subWepon = value; }
+    [SerializeField] SubWeponBase _presentSubWepon;
+    public SubWeponBase SubWepon { get => _presentSubWepon; set => _presentSubWepon = value; }
     [SerializeField] ReactiveProperty<int> _playerSubWeponNumber;
     public int SubWeponNumber { set => _playerSubWeponNumber.Value = value; }
+    [SerializeField] List<GameObject> _subWeponList;
 
     [Header("アビリティ")]
     [SerializeField] AbilityList _ability;
@@ -82,6 +83,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [Header("Playerステータス")]
     [SerializeField] ReactiveProperty<float> _playerHp;
     [SerializeField] bool _aiming;
+    [SerializeField] bool _showMain;
     [SerializeField] float _walkSpeedWhileAiming;
     [SerializeField] float _presentWalkSpeed;
     [SerializeField] float _walkSpeed;
@@ -145,8 +147,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _playerMainWeponNumber.Value = PlayerPrefs.GetInt("MainWeponNumber");
         _playerMainWeponNumber.Subscribe(weponNumcber => SetMainWepon(weponNumcber)).AddTo(this);
 
+        //プレイヤーに関連するUIを読み取る
         _hpText = GameObject.FindGameObjectWithTag("HpText").GetComponent<TextMeshProUGUI>();
         _hpImage = GameObject.FindGameObjectWithTag("HpImage").GetComponent<Image>();
+
+
 
         //カメラの位置をきめる
         _virtualCamera.LookAt = _eye.transform;
@@ -160,7 +165,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
             .ThrottleFirst(TimeSpan.FromSeconds(_abilityCoolTime))
             .Subscribe(_ => Ability());
 
+        this.UpdateAsObservable()
+            .Where(_ => Input.GetAxisRaw("MouseScrollWheel") > 0)
+            .ThrottleFirst(TimeSpan.FromSeconds(0.2))
+            .Subscribe(_ => ChangeWeponTab(false));
 
+        this.UpdateAsObservable()
+            .Where(_ => Input.GetAxisRaw("MouseScrollWheel") < 0)
+            .ThrottleFirst(TimeSpan.FromSeconds(0.2))
+            .Subscribe(_ => ChangeWeponTab(true));
     }
 
     
@@ -194,9 +207,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         Jump();
 
-        Shot();
+        while(_showMain)
+        {
+            Shot();
 
-        Reload();
+            Reload();
+
+        }
+
 
     }
 
@@ -240,24 +258,87 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
         }
 
-        Aim();
+        while(_showMain)
+        {
+
+            Aim();
+        }
         
     }
 
     /// <summary>
-    /// 現在のWeponNumberの武器をアクティブにし、そのスクリプトの参照を渡す
+    /// マウスホイールの入力に従ってメインとサブのタブを入れ替える
+    /// </summary>
+    void ChangeWeponTab(bool up)
+    {
+        //メインタブを表示していたら
+        if(up)
+        {
+            _showMain = false;
+            //サブ武器を表示する処理
+            SetSubWepon(_playerSubWeponNumber.Value);
+        }
+        else
+        {
+            _showMain = true;
+            //メイン武器を表示する処理
+            SetMainWepon(_playerMainWeponNumber.Value);
+        }
+    }
+
+    /// <summary>
+    /// 現在のMainWeponNumberの武器をアクティブにし、そのスクリプトの参照を渡す
     /// </summary>
     private void SetMainWepon(int weponNum)
     {
-
+        //全てのメインウェポンの表示を消す
         _mainWeponList.ForEach(wepon => wepon.gameObject.SetActive(false));
+        _subWeponList.ForEach(wepon => wepon.gameObject.SetActive(false));
+        //アクティブにする武器の表示
         _mainWeponList[weponNum].SetActive(true);
+
+        //アクティブにする武器の値をセーブ
         PlayerPrefs.SetInt("MainWeponNumber", weponNum);
-        Debug.Log(PlayerPrefs.GetInt("MainWeponNumber"));
+
+        //参照するスクリプトを変更
         _presentMainWepon = _mainWeponList[weponNum].GetComponent<GunBase>();
-        _presentMainWepon.RestBullet.Value = _presentMainWepon.BulletCap;
+
+        //練習場にいるなら残弾をマックスに戻す
+        if (SceneManager.GetActiveScene().name == "PracticeRange")
+        {
+            _presentMainWepon.RestBullet.Value = _presentMainWepon.BulletCap;
+        }
+
+        //テキスト表示を直す
         _bulletText.text = _presentMainWepon.RestBullet.Value.ToString();
         _maxBulletText.text = _presentMainWepon.BulletCap.ToString();
+    }
+
+    /// <summary>
+    /// 選択されているサブ武器を装備する
+    /// </summary>
+    void SetSubWepon(int subweponNum)
+    {
+        _mainWeponList.ForEach(wepon => wepon.gameObject.SetActive(false));
+        _subWeponList.ForEach(wepon => wepon.gameObject.SetActive(false));
+
+        _subWeponList[subweponNum].SetActive(true);
+
+        //アクティブにする武器の値をセーブ
+        PlayerPrefs.SetInt("SubWeponNumber", subweponNum);
+
+        //参照するスクリプトを変更
+        _presentSubWepon = _subWeponList[subweponNum].GetComponent<SubWeponBase>();
+
+        //残弾をマックスに戻す
+        if(SceneManager.GetActiveScene().name == "PracticeRange")
+        {
+            _presentSubWepon.RestBullet = _presentSubWepon.BulletCap;
+        }
+
+        //テキスト表示を直す
+        _bulletText.text = _presentSubWepon.RestBullet.ToString();
+        _maxBulletText.text = _presentSubWepon.BulletCap.ToString();
     }
 
     /// <summary>
@@ -510,12 +591,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
 
         _playerHp.Value -= damage;
+        if(_playerHp.Value < 0)
+        {
+            _playerHp.Value = 0;
+        }
+
         photonView.RPC("ShowHitMarker", RpcTarget.Others);
 
         DOTween.To(() => _hpImage.fillAmount,
            x => _hpImage.fillAmount = x,
            _hpImage.fillAmount -= damage / 100,
-           2f);
+           2f).SetAutoKill();
 
         if (_playerHp.Value <= 0)
         {
@@ -528,6 +614,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     void Die()
     {
+        if(SceneManager.GetActiveScene().name == "PracticeRange")
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
         _photonGameManager.GameEnd = true;
     }
 
