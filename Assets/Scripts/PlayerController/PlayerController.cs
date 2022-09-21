@@ -84,6 +84,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] ReactiveProperty<float> _playerHp;
     [SerializeField] bool _aiming;
     [SerializeField] bool _showMain;
+    public bool ShowMain { get => _showMain; set => _showMain = value; }
     [SerializeField] float _walkSpeedWhileAiming;
     [SerializeField] float _presentWalkSpeed;
     [SerializeField] float _walkSpeed;
@@ -140,6 +141,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
 
         BattleModeSetup();
+
+        _showMain = true;
 
         //Chinemachineカメラの参照を読みこむ
         _virtualCamera = GameObject.FindGameObjectWithTag("Camera").GetComponent<CinemachineFreeLook>();
@@ -207,12 +210,16 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         Jump();
 
-        while(_showMain)
+        if(_showMain)
         {
             Shot();
 
             Reload();
 
+        }
+        else
+        {
+            ThrowGranade();
         }
 
 
@@ -258,7 +265,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
         }
 
-        while(_showMain)
+        if(_showMain)
         {
 
             Aim();
@@ -515,6 +522,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 _presentMainWepon.PullTrigger = true;
                 _presentMainWepon.Shot();
             }
+        }
+    }
+
+    /// <summary>
+    /// グレネードを投げるメソッド
+    /// </summary>
+    void ThrowGranade()
+    {
+        if(Input.GetButtonDown("Shot"))
+        {
+            _presentSubWepon.Throw();
         }
     }
 

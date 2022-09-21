@@ -69,6 +69,7 @@ public class EquipmentBase : MonoBehaviour, IPointerClickHandler
         {
             case ItemType.mainWepon:
                 _player.MainWeponNumber = _itemNumber;
+                _player.ShowMain = true;
                 break;
             case ItemType.subWepon:
                 _player.SubWeponNumber = _itemNumber;

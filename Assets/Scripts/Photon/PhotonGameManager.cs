@@ -122,13 +122,13 @@ public class PhotonGameManager : SaveData
         {
             SaveRoundData("Lose", PhotonNetwork.NickName, _enemyName);
             _loserID = null;
-            SceneManager.LoadScene(6);
+            SceneManager.LoadScene("LoseScene");
         }
         else
         {
             SaveRoundData("Win", PhotonNetwork.NickName, _enemyName);
             _loserID = null;
-            SceneManager.LoadScene(7);
+            SceneManager.LoadScene("WinScene");
         }
     }
 }

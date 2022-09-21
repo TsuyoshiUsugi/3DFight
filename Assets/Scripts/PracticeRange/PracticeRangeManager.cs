@@ -50,6 +50,7 @@ public class PracticeRangeManager : MonoBehaviour
         UISetup();
 
         _player.Wait = false;
+        _player.ShowMain = true;
     }
 
     /// <summary>

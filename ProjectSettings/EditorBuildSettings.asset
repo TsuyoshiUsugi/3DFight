@@ -4,4 +4,23 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/StartScene.unity
+    guid: e778138794bc2d9499bb7b108118a817
+  - enabled: 1
+    path: Assets/Scenes/MenuScene.unity
+    guid: 39e3a11e4112feb4d994013288a764f9
+  - enabled: 1
+    path: Assets/Scenes/PracticeRange.unity
+    guid: 5d1f9e6addaebab439eb75f9e4d8124e
+  - enabled: 1
+    path: Assets/Scenes/BattleMode.unity
+    guid: fbf9a6273aebfee4990b776bc0cb9fc1
+  - enabled: 1
+    path: Assets/Scenes/LoseScene.unity
+    guid: f56dd56439e29fb4291bbe43f4c93d8b
+  - enabled: 1
+    path: Assets/Scenes/WinScene.unity
+    guid: 569ece4cab8a1a8479de1db5b4c1b0d1
+  m_configObjects: {}
