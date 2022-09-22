@@ -43,6 +43,7 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
 
     /// <summary>反動</summary>
     [SerializeField] float _recoil = default;
+    public float Recoil { get => _recoil; }
 
     /// <summary>引き金が引かれたか</summary>
     [SerializeField] bool _pullTrigger = false;
@@ -174,8 +175,8 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
                 {
                     FireBullet(_playerLook, _muzzle.transform.position);
                 }
-                _audioSource.PlayOneShot(_shotSound);
 
+                _player.VirtualCam.m_YAxis.Value -= _recoil;
                 _restBullets.Value--;
 
                 //次に撃てるまで間を空ける
@@ -200,11 +201,11 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     [PunRPC]
     protected virtual void FireBullet(Vector3 playerLook, Vector3 muzzle)
     {
+        _audioSource.PlayOneShot(_shotSound);
+
         GameObject bullet = Instantiate(_bullet, muzzle, _muzzle.transform.rotation);
 
-        
         Vector3 heading = (playerLook - muzzle).normalized;
-
         bullet.GetComponent<Rigidbody>().AddForce(heading * bulletSpeed, ForceMode.Impulse);
         bullet.GetComponent<Bullet>().Dir = heading;
     }
@@ -230,7 +231,6 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
             return;
         }
 
-        //リロードアニメーション（未実装）これはリロードインターバルと合わせる？
         StartCoroutine("ReloadInterval");
     }
     

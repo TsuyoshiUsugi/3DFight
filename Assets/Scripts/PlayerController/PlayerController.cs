@@ -32,9 +32,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] GameObject _eye;
     [SerializeField] SpawnManager _spawnManager;
     [SerializeField] CinemachineFreeLook _virtualCamera;
+    public CinemachineFreeLook VirtualCam { get => _virtualCamera; }
     [SerializeField] PhotonGameManager _photonGameManager;
     [SerializeField] GameM _gameManager;
-    [SerializeField] GameObject _hand;
+    [SerializeField] GameObject _arm;
     [SerializeField] AudioSource _audioSource;
 
     [Header("装備")]
@@ -429,29 +430,39 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
 
         animator.SetFloat("VSpeed", _vertical);
-        FootStepSound();
 
-        //足音を鳴らすローカルメソッド
-        void FootStepSound()
+        if (SceneManager.GetActiveScene().name == "PracticeRange")
         {
-            if (_rb.velocity.x != 0)
+            FootStepSound();
+        }
+        else
+        {
+
+            photonView.RPC(nameof(FootStepSound), RpcTarget.All);
+        }
+    }
+
+    //足音を鳴らすメソッド
+    [PunRPC]
+    void FootStepSound()
+    {
+        if (_rb.velocity.x != 0)
+        {
+            if (_audioSource.isPlaying)
             {
-                if (_audioSource.isPlaying)
-                {
-                    return;
-                }
-                else
-                {
-                    _audioSource.PlayOneShot(_footSound);
-                }
+                return;
             }
-            else if(_rb.velocity.x == 0 || _jumpCount == 1)
+            else
             {
-                _audioSource.Stop();
+                _audioSource.Play();
             }
         }
-
+        else if (_rb.velocity.x == 0 || _rb.velocity.y != 0)
+        {
+            _audioSource.Stop();
+        }
     }
+
 
     /// <summary>
     /// プレイヤーの向きのメソッド
@@ -529,16 +540,28 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (Input.GetButtonDown("Shot"))
         {
+            StartCoroutine(nameof(Recoil));
             if (!_aiming)
             {
+
+
                 HipFire();
             }
             else
             {
                 _presentMainWepon.PullTrigger = true;
+
+
                 _presentMainWepon.Shot();
             }
         }
+    }
+
+    IEnumerator Recoil()
+    {
+        _arm.transform.localEulerAngles = new Vector3(312.576904f, 7.79674625f, 354.016663f);
+        yield return new WaitForSeconds(0.1f);
+        _arm.transform.localEulerAngles = new Vector3(350.217804f, 357.685791f, 5.62762594f);
     }
 
     /// <summary>
@@ -562,9 +585,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
             _presentMainWepon.transform.localEulerAngles = new Vector3(7.95424366f, 80.7865524f, 257.894958f);
         }
         animator.SetBool("Aiming", true);
+
         _presentMainWepon.PullTrigger = true;
         _presentMainWepon.Shot();
-        StopAllCoroutines();
+        StopCoroutine(KeepHipFire());
         StartCoroutine(KeepHipFire());
         
     }

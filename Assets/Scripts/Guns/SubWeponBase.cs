@@ -16,6 +16,8 @@ public class SubWeponBase : MonoBehaviour
     [SerializeField] GameObject _bomb;
 
     [SerializeField] float _throwSpeed;
+
+    [SerializeField] Vector3 _playerLook;
     // Start is called before the first frame update
     void Start()
     {
@@ -25,7 +27,8 @@ public class SubWeponBase : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(_restBullet.Value <= 0)
+        _playerLook = GetComponentInParent<PlayerController>().PlayerLook;
+        if (_restBullet.Value <= 0)
         {
             this.gameObject.SetActive(false);
         }
@@ -39,9 +42,14 @@ public class SubWeponBase : MonoBehaviour
         if(_restBullet.Value > 0)
         {
             _restBullet.Value--;
-            var bomb = Instantiate(_bomb, this.transform.position, Quaternion.identity);
-            Vector3 cameraForward = Vector3.Scale(transform.forward, new Vector3(1, 0, 1)).normalized;
-            bomb.GetComponent<Rigidbody>().AddForce(cameraForward * _throwSpeed, ForceMode.Impulse);
+            Vector3 heading = (_playerLook - transform.position).normalized;
+            GameObject bomb = Instantiate(_bomb, transform.position, Quaternion.identity);
+            bomb.GetComponent<Rigidbody>().AddForce(heading * _throwSpeed, ForceMode.Impulse);
+            
+        }
+        else
+        {
+            this.gameObject.SetActive(false);
         }
     }
 }

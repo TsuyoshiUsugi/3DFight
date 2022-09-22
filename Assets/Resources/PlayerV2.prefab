@@ -209,7 +209,7 @@ MonoBehaviour:
     value: 10
   _shotInterval: 0.1
   _reloadTime: 1
-  _recoil: 0
+  _recoil: 0.01
   _pullTrigger: 0
   _canShot: 1
   _bullet: {fileID: 940468897711769930, guid: fe4a27d9478db08408072a2f93250f76, type: 3}
@@ -245,7 +245,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -290,7 +290,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -771,6 +771,7 @@ GameObject:
   - component: {fileID: 3726889091510399879}
   - component: {fileID: 9169251712284946443}
   - component: {fileID: 3674032424622165460}
+  - component: {fileID: 7982612667394369219}
   m_Layer: 0
   m_Name: PlayerV2
   m_TagString: Player
@@ -851,8 +852,8 @@ MonoBehaviour:
   _virtualCamera: {fileID: 0}
   _photonGameManager: {fileID: 0}
   _gameManager: {fileID: 0}
-  _hand: {fileID: 6946117845139269298}
-  _audioSource: {fileID: 0}
+  _arm: {fileID: 1180516727968550866}
+  _audioSource: {fileID: 7982612667394369219}
   _presentMainWepon: {fileID: 6637363013152328120}
   _playerMainWeponNumber:
     value: 0
@@ -899,7 +900,7 @@ MonoBehaviour:
   _hit: 0
   _bulletText: {fileID: 0}
   _maxBulletText: {fileID: 0}
-  _footSound: {fileID: 0}
+  _footSound: {fileID: 8300000, guid: b6963af9d765b4d4493564ec824e182b, type: 3}
 --- !u!136 &8966795757880454958
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1024,6 +1025,102 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 0}
+--- !u!82 &7982612667394369219
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2700251746912137572}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: b6963af9d765b4d4493564ec824e182b, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &2906657458496806227
 GameObject:
   m_ObjectHideFlags: 0
@@ -1302,7 +1399,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 2152
+  m_VersionIndex: 2182
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -1541,7 +1638,8 @@ MonoBehaviour:
     value: 0
   _bulletCap: 1
   _bomb: {fileID: 4102607013576419610, guid: 6a5e9ede630d4254ea45e2f4702ae9be, type: 3}
-  _throwSpeed: 1000
+  _throwSpeed: 10
+  _playerLook: {x: 0, y: 0, z: 0}
 --- !u!1 &4129885360734196786
 GameObject:
   m_ObjectHideFlags: 0
@@ -1980,7 +2078,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 2152
+  m_VersionIndex: 2182
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -2766,7 +2864,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 2159
+  m_VersionIndex: 2189
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -3708,6 +3806,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4827310862354986815, guid: c5c478e059f556b4a9bac505445bb98d,
         type: 3}
+      propertyPath: _bullet
+      value: 
+      objectReference: {fileID: 940468897711769930, guid: 6cb88f18ccf56594282abe1c19042f59,
+        type: 3}
+    - target: {fileID: 4827310862354986815, guid: c5c478e059f556b4a9bac505445bb98d,
+        type: 3}
       propertyPath: _muzzle
       value: 
       objectReference: {fileID: 3260292417112318105}
@@ -3716,6 +3820,11 @@ PrefabInstance:
       propertyPath: _player
       value: 
       objectReference: {fileID: 7982612666569193970}
+    - target: {fileID: 4827310862354986815, guid: c5c478e059f556b4a9bac505445bb98d,
+        type: 3}
+      propertyPath: _recoil
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 4827310862354986815, guid: c5c478e059f556b4a9bac505445bb98d,
         type: 3}
       propertyPath: _canShot
@@ -3914,7 +4023,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -3959,7 +4068,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
