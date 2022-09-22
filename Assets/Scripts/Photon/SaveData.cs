@@ -8,9 +8,9 @@ using Newtonsoft.Json;
 /// </summary>
 public class SaveData : MonoBehaviourPunCallbacks
 {
-    protected List<string> _resultList = new List<string>();
-    protected List<string> _myNameList = new List<string>();
-    protected List<string> _enemyNameList = new List<string>();
+    protected List<string> _resultList;
+    protected List<string> _myNameList;
+    protected List<string> _enemyNameList;
 
     /// <summary>
     /// Ÿ”s‚ğ•Û‘¶‚·‚éƒƒ\ƒbƒh
@@ -18,6 +18,7 @@ public class SaveData : MonoBehaviourPunCallbacks
     /// </summary>
     protected void SaveRoundData(string result, string myName, string enemyName)
     {
+        Debug.Log(_resultList.Count);
         _resultList.Add(result);
         _myNameList.Add(myName);
         _enemyNameList.Add(enemyName);

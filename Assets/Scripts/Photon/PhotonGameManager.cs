@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Photon.Pun;
+using System.Collections.Generic;
 
 /// <summary>
 /// バトルシーンにおけるPhoton関連のマネージャーコンポーネント

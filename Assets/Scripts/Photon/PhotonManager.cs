@@ -611,35 +611,40 @@ public class PhotonManager : SaveData
         //ラウンドデータ表示
         _roundDataTable.gameObject.SetActive(true);
 
+
         ////各データをbarに入れる
-        for (int i = _resultData.Count - 1; i >= 0 ; i--)
+        if (_resultData != null)
         {
-            Debug.Log(i);
-            if (_resultData[i] == "Win")
+
+            for (int i = _resultData.Count - 1; i >= 0; i--)
             {
-                GameObject winBar = Instantiate(_winBar.gameObject);
-                var names = winBar.GetComponentsInChildren<TextMeshProUGUI>();
-                names[1].text = _myNameData[i];
-                names[3].text = _enemyNameData[i];
+                Debug.Log(i);
+                if (_resultData[i] == "Win")
+                {
+                    GameObject winBar = Instantiate(_winBar.gameObject);
+                    var names = winBar.GetComponentsInChildren<TextMeshProUGUI>();
+                    names[1].text = _myNameData[i];
+                    names[3].text = _enemyNameData[i];
 
-                winBar.transform.SetParent(_roundDataTable.transform);
-                winBar.transform.localScale = Vector3.one;
+                    winBar.transform.SetParent(_roundDataTable.transform);
+                    winBar.transform.localScale = Vector3.one;
+                }
+                else
+                {
+                    GameObject loseBar = Instantiate(_loseBar.gameObject);
+                    var names = loseBar.GetComponentsInChildren<TextMeshProUGUI>();
+                    names[1].text = _myNameData[i];
+                    names[3].text = _enemyNameData[i];
+                    loseBar.transform.SetParent(_roundDataTable.transform);
+                    loseBar.transform.localScale = Vector3.one;
+
+                }
+
             }
-            else
-            {
-                GameObject loseBar = Instantiate(_loseBar.gameObject);
-                var names = loseBar.GetComponentsInChildren<TextMeshProUGUI>();
-                names[1].text = _myNameData[i];
-                names[3].text = _enemyNameData[i];
-                loseBar.transform.SetParent(_roundDataTable.transform);
-                loseBar.transform.localScale = Vector3.one;
 
-            }
-
+            _winTimes = PlayerPrefs.GetInt("WinTimes");
+            _loseTimes = PlayerPrefs.GetInt("LoseTimes");
         }
-
-        _winTimes = PlayerPrefs.GetInt("WinTimes");
-        _loseTimes = PlayerPrefs.GetInt("LoseTimes");
 
         _battleStatsPanel.SetActive(false);
     }
