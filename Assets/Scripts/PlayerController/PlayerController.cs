@@ -218,8 +218,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             ThrowGranade();
         }
-
-
     }
 
     private void FixedUpdate()
