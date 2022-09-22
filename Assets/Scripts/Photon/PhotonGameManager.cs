@@ -48,13 +48,6 @@ public class PhotonGameManager : SaveData
 
     private void Update()
     {
-        if(_timeOut)
-        {
-            photonView.RPC(nameof(TimeOver), RpcTarget.All);
-            photonView.RPC(nameof(ProcessingAfterCompletion), RpcTarget.All);
-            return;
-        }
-
         if(GameEnd)
         {
 
@@ -65,13 +58,23 @@ public class PhotonGameManager : SaveData
     }
 
     /// <summary>
-    /// どちらかが制限時間オーバーしたときに行われる
+    /// どちらかが制限時間オーバーしたときにゲームマネージャーによって行われる
     /// </summary>
     /// <param name="end"></param>
+    public void TimeOver()
+    {
+        photonView.RPC(nameof(EndGameByTimeOut), RpcTarget.All);
+        
+    }
+
+    /// <summary>
+    /// 時間切れの場合の試合終了処理
+    /// </summary>
     [PunRPC]
-    void TimeOver()
+    void EndGameByTimeOut()
     {
         _timeOut = true;
+        photonView.RPC(nameof(ProcessingAfterCompletion), RpcTarget.All);
     }
 
     /// <summary>
@@ -114,13 +117,17 @@ public class PhotonGameManager : SaveData
     {
         if(_timeOut)
         {
-            SceneManager.LoadScene(6);
+            SaveRoundData("Lose", PhotonNetwork.NickName, _enemyName);
+            CountLose();
+
+            SceneManager.LoadScene("LoseScene");
             return;
         }
 
         if (_myNameID == _loserID)
         {
             SaveRoundData("Lose", PhotonNetwork.NickName, _enemyName);
+            CountLose();
             _loserID = null;
             SceneManager.LoadScene("LoseScene");
         }
@@ -128,7 +135,24 @@ public class PhotonGameManager : SaveData
         {
             SaveRoundData("Win", PhotonNetwork.NickName, _enemyName);
             _loserID = null;
+            CountWin();
             SceneManager.LoadScene("WinScene");
+        }
+
+        //負け数をセーブする
+        void CountLose()
+        {
+            int loseTimes = PlayerPrefs.GetInt("LoseTimes");
+            loseTimes++;
+            PlayerPrefs.SetInt("LoseTimes", loseTimes);
+        }
+        
+        //勝ち数をセーブする
+        void CountWin()
+        {
+            int winTimes = PlayerPrefs.GetInt("WinTimes");
+            winTimes++;
+            PlayerPrefs.SetInt("WinTimes", winTimes);
         }
     }
 }

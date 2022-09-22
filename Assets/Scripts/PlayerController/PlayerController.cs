@@ -196,11 +196,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (_wait)
         {
-        
             return; 
         }
-
-        _virtualCamera.m_YAxis.m_InputAxisValue = _yCameraSpeed;
 
         ReadInput();
 

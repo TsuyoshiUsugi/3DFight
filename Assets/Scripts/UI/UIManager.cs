@@ -30,9 +30,6 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] bool _setting;
     public bool Setting { get => _setting; set => _setting = value; }
     [SerializeField] GameObject _settingPanel;
-    [SerializeField] Slider _xCamSpeedSlider;
-    [SerializeField] Slider _yCamSpeedSlider;
-
     //ééçáíÜ
     [SerializeField] GameObject _hitMarker;
 
@@ -45,9 +42,6 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
 
         _hitMarker.SetActive(false);
-        _xCamSpeedSlider.value = PlayerPrefs.GetFloat("xCamSpeed");
-        _yCamSpeedSlider.value = PlayerPrefs.GetFloat("yCamSpeed");
-
 
     }
 
@@ -71,8 +65,6 @@ public class UIManager : MonoBehaviourPunCallbacks
         if (_setting)
         {
             _settingPanel.SetActive(true);
-            PlayerPrefs.SetFloat("xCamSpeed", _xCamSpeedSlider.value);
-            PlayerPrefs.SetFloat("yCamSpeed", _yCamSpeedSlider.value);
         }
         else if (!Setting)
         {

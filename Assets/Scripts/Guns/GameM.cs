@@ -47,6 +47,7 @@ public class GameM : MonoBehaviourPunCallbacks
     [SerializeField] GameObject _hitMarker;
     [SerializeField] TextMeshProUGUI _bulletText;
     [SerializeField] TextMeshProUGUI _maxBulletText;
+    [SerializeField] GameObject _camSettingManager;
 
     //時間処理(試合中)
     [SerializeField] bool _startCount;
@@ -102,11 +103,10 @@ public class GameM : MonoBehaviourPunCallbacks
             SwicthPlayingObj(true);
 
             GetEnemyInstance();
-
-            CamSetting();
+       
             if (_startCount && _limitTime.Value > 0f)
             {
-               
+                _camSettingManager.gameObject.SetActive(true);
                 if (_nowSetting)
                 {
                     _player.Wait = true;
@@ -118,12 +118,12 @@ public class GameM : MonoBehaviourPunCallbacks
 
                 CountPlayTime();
 
-                Hit();
+                if(PhotonNetwork.PlayerList.Length > 1)
+                {
+                    Hit();
+                }
             }
-
-
         }
-
     }
 
     
@@ -147,11 +147,11 @@ public class GameM : MonoBehaviourPunCallbacks
     /// <param name="onOff"></param>
     void SwicthPlayingObj(bool onOff)
     {
-
         _spawnManager.gameObject.SetActive(onOff);
         _playingUI.gameObject.SetActive(onOff);
         _playerCam.gameObject.SetActive(onOff);
         _uIManager.gameObject.SetActive(onOff);
+        
     }
 
     /// <summary>
@@ -210,7 +210,7 @@ public class GameM : MonoBehaviourPunCallbacks
         //0秒以下ならリターン
         if (time < 0)
         {
-            _photonGameManager.GetComponent<PhotonGameManager>().TimeOut = true;
+            _photonGameManager.GetComponent<PhotonGameManager>().TimeOver();
             return;
         }
 
@@ -231,16 +231,6 @@ public class GameM : MonoBehaviourPunCallbacks
         _showNumber[2].sprite = _numberSprite[eachPlace[1]];
         _showNumber[3].sprite = _numberSprite[eachPlace[0]];
      
-    }
-
-    /// <summary>
-    /// カメラの設定をするメソッド
-    /// プレイヤーの追跡と感度を設定する
-    /// </summary>
-    void CamSetting()
-    {
-        _player.XCamSpeed = PlayerPrefs.GetFloat("xCamSpeed");
-        _player.YCamSpeed = PlayerPrefs.GetFloat("yCamSpeed");
     }
 
     /// <summary>

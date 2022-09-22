@@ -89,7 +89,6 @@ public class PhotonManager : SaveData
     /// <summary>‘JˆÚƒV[ƒ“–¼</summary>
     [SerializeField] string _levelToPlay;
 
-
     ////////////////////// íÑUI ////////////////////////
     [SerializeField] RectTransform _roundDataTable;
 
@@ -112,6 +111,10 @@ public class PhotonManager : SaveData
     [SerializeField] float _winTimes;
     [SerializeField] float _loseTimes;
 
+    [SerializeField] TextMeshProUGUI _winPercent;
+    [SerializeField] TextMeshProUGUI _winTimesText;
+    [SerializeField] TextMeshProUGUI _loseTimesText;
+
     [SerializeField] Vector3 _start;
     [SerializeField] Vector3 _end;
 
@@ -123,7 +126,7 @@ public class PhotonManager : SaveData
     {
         //static•Ï”‚ÉŠi”[
         _instance = this;
-       // SaveRoundData("Win", "Dummy", "Dummy");
+
         ReadDate();
 
         _resultData = _resultList;
@@ -131,7 +134,7 @@ public class PhotonManager : SaveData
         _enemyNameData = _enemyNameList;
 
         StatsDataInit();
-
+        ReadPercentData();
     }
 
     private void Start()
@@ -635,6 +638,9 @@ public class PhotonManager : SaveData
 
         }
 
+        _winTimes = PlayerPrefs.GetInt("WinTimes");
+        _loseTimes = PlayerPrefs.GetInt("LoseTimes");
+
         _battleStatsPanel.SetActive(false);
     }
 
@@ -665,6 +671,16 @@ public class PhotonManager : SaveData
         float winPer = _winTimes / (_winTimes + _loseTimes);
         percentImage.fillAmount = 0;
         percentImage.DOFillAmount(winPer, 0.5f).SetEase(Ease.OutQuad);
+    }
+
+    /// <summary>
+    /// Ÿ—¦‚âŸ‚¿”•‰‚¯”‚ğ•\¦‚·‚é
+    /// </summary>
+    void ReadPercentData()
+    {
+        _winPercent.text = $"Win Percent : {_winTimes / (_winTimes + _loseTimes)}%";
+        _winTimesText.text = $"Win :{_winTimes}";
+        _loseTimesText.text = $"Lose :{_loseTimes}";
     }
 
     /// <summary>

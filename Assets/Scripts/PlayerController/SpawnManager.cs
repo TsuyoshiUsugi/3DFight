@@ -10,6 +10,7 @@ public class SpawnManager : MonoBehaviour
     /// <summary>スポーンするプレイヤーオブジェクト</summary>
     [SerializeField] GameObject _playerPrefab;
 
+    [SerializeField] CamSettingManager _camSettingMAnager;
     /// <summary>スポーンしたプレイヤーオブジェクト</summary>
     GameObject _player;
 
@@ -61,5 +62,6 @@ public class SpawnManager : MonoBehaviour
     void Spawn(Transform spawnPoint)
     {
         _player = PhotonNetwork.Instantiate(_playerPrefab.name, spawnPoint.position, spawnPoint.rotation);
+        _camSettingMAnager.Player = _player.GetComponent<PlayerController>();
     }
 }

@@ -63,7 +63,6 @@ public class Bullet : MonoBehaviour
     {
         Vector3 rayPosition = transform.position + new Vector3(0.0f, 0.0f, 0.0f);
         Ray ray = new Ray(rayPosition, _dir);
-        Debug.DrawRay(rayPosition, _dir * rayDistance, Color.red);
 
         //ìGÇ…è’ìÀÇµÇΩÇ∆Ç´ÇÃèàóù
         RaycastHit hit;
@@ -73,8 +72,8 @@ public class Bullet : MonoBehaviour
             {
                 Debug.Log("Hit");
                 hit.collider.GetComponent<PlayerController>().Damage(_bulletDamage);
-                Destroy(this.gameObject);
             }
+            Destroy(this.gameObject);
         }
     }
 
