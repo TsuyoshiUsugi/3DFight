@@ -174,6 +174,7 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
                 {
                     FireBullet(_playerLook, _muzzle.transform.position);
                 }
+                _audioSource.PlayOneShot(_shotSound);
 
                 _restBullets.Value--;
 
@@ -185,6 +186,7 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
             else
             {
                 _canShot = false;
+                _audioSource.PlayOneShot(_noAmmoSound);
                 StartCoroutine("ShotInterval");
                 _pullTrigger = false;
             }

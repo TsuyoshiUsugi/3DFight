@@ -683,7 +683,8 @@ public class PhotonManager : SaveData
     /// </summary>
     void ReadPercentData()
     {
-        _winPercent.text = $"Win Percent : {_winTimes / (_winTimes + _loseTimes)}%";
+        float percent = (_winTimes / (_winTimes + _loseTimes)) * 100;
+        _winPercent.text = $"Win Percent : {Mathf.Floor(percent)}%";
         _winTimesText.text = $"Win :{_winTimes}";
         _loseTimesText.text = $"Lose :{_loseTimes}";
     }

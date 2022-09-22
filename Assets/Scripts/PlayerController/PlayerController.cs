@@ -35,6 +35,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] PhotonGameManager _photonGameManager;
     [SerializeField] GameM _gameManager;
     [SerializeField] GameObject _hand;
+    [SerializeField] AudioSource _audioSource;
 
     [Header("装備")]
     [Header("メイン")]
@@ -120,11 +121,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public TextMeshProUGUI BulletText { set => _bulletText = value; }
     [SerializeField] TextMeshProUGUI _maxBulletText;
     public TextMeshProUGUI MaxBullteText { set => _maxBulletText = value; }
-
-
     public GameObject SettingPanel { get => _settingPanel; set => _settingPanel = value; }
 
-    
+    [Header("効果音")]
+    [SerializeField] AudioClip _footSound;
 
     private void Start()
     {
@@ -417,8 +417,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         //カメラの向いてる方にプレイヤーを動かす
         _rb.velocity = new Vector3(moveForward.normalized.x * _presentWalkSpeed, _rb.velocity.y, moveForward.normalized.z * _presentWalkSpeed);
-        
-        if(_horizontal < 0)
+
+        if (_horizontal < 0)
         {
             animator.SetFloat("HoriSpeed", _horizontal * -1);
         }
@@ -426,9 +426,30 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             animator.SetFloat("HoriSpeed", _horizontal);
         }
-        
+
 
         animator.SetFloat("VSpeed", _vertical);
+        FootStepSound();
+
+        //足音を鳴らすローカルメソッド
+        void FootStepSound()
+        {
+            if (_rb.velocity.x != 0)
+            {
+                if (_audioSource.isPlaying)
+                {
+                    return;
+                }
+                else
+                {
+                    _audioSource.PlayOneShot(_footSound);
+                }
+            }
+            else if(_rb.velocity.x == 0 || _jumpCount == 1)
+            {
+                _audioSource.Stop();
+            }
+        }
 
     }
 
