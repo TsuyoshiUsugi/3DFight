@@ -48,6 +48,7 @@ public class GameM : MonoBehaviourPunCallbacks
     [SerializeField] TextMeshProUGUI _bulletText;
     [SerializeField] TextMeshProUGUI _maxBulletText;
     [SerializeField] GameObject _camSettingManager;
+    [SerializeField] GameObject _alert;
 
     //éûä‘èàóù(ééçáíÜ)
     [SerializeField] bool _startCount;
@@ -72,6 +73,7 @@ public class GameM : MonoBehaviourPunCallbacks
     // Start is called before the first frame update
     void Start()
     {
+        _alert.SetActive(false);
 
         _nowSetting = false;
 
@@ -115,6 +117,11 @@ public class GameM : MonoBehaviourPunCallbacks
                 else
                 {
                     _player.Wait = false;
+                }
+
+                if(_limitTime.Value < 14.5f)
+                {
+                    _alert.SetActive(true);
                 }
 
                 CountPlayTime();
@@ -217,10 +224,7 @@ public class GameM : MonoBehaviourPunCallbacks
 
             //åªç›éûä‘Ç100î{ÇµÇƒÇªÇÍÇºÇÍÇÃåÖÇíäèo
             int fourNumber = (int)MathF.Floor(time * 100);
-        if(fourNumber < 1600)
-        {
-            gameObject.GetComponent<AudioSource>().Play();
-        }
+
 
         int[] eachPlace = new int[4];
         
