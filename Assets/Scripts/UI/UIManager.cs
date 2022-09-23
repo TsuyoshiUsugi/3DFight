@@ -37,7 +37,6 @@ public class UIManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsConnected)
         {
-
             ShowPlayerName();
         }
 
@@ -82,13 +81,14 @@ public class UIManager : MonoBehaviourPunCallbacks
 
         _showStartBattleNumber.ToList().ForEach(obj => obj.gameObject.SetActive(false));
 
+        gameObject.GetComponent<AudioSource>().Play();
         for (int i = _presenCountTime; i >= 0; i--)
         {
             _showStartBattleNumber[i].gameObject.SetActive(true);
             yield return  _showStartBattleNumber[i].DOScale(Vector3.zero, 1.5f).SetEase(Ease.OutCirc).WaitForCompletion();
             _showStartBattleNumber[i].gameObject.SetActive(false);
         }
-
+        gameObject.GetComponent<AudioSource>().Stop();
         _gameManager.GetComponent<GameM>().StartCount = true;
 
         this.gameObject.SetActive(false);

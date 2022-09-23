@@ -55,6 +55,7 @@ public class GameM : MonoBehaviourPunCallbacks
     [SerializeField] Image[] _showNumber = new Image[4];
     [SerializeField] Sprite[] _numberSprite = new Sprite[9];
     [SerializeField] ReactiveProperty<float> _limitTime;
+    [SerializeField] AudioClip _beforeEnd;
 
     //ŠÔˆ—(‡‘O)
     [SerializeField] bool _startBattleCount;
@@ -216,6 +217,10 @@ public class GameM : MonoBehaviourPunCallbacks
 
             //Œ»İŠÔ‚ğ100”{‚µ‚Ä‚»‚ê‚¼‚ê‚ÌŒ…‚ğ’Šo
             int fourNumber = (int)MathF.Floor(time * 100);
+        if(fourNumber < 1600)
+        {
+            gameObject.GetComponent<AudioSource>().Play();
+        }
 
         int[] eachPlace = new int[4];
         

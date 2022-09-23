@@ -36,7 +36,6 @@ public class Test : MonoBehaviour
                 Debug.Log("Hit");
                 hit.collider.GetComponent<PlayerController>().Damage(_bulletDamage);
             }
-            //Destroy(this.gameObject);
         }
     }
 }

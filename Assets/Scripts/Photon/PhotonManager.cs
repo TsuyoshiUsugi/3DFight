@@ -416,7 +416,6 @@ public class PhotonManager : SaveData
     {
         if( roomInfo.PlayerCount == roomInfo.MaxPlayers)
         {
-            Debug.Log("ルームの上限人数に達しています");
             return;
         }
         //ルームに参加
@@ -626,7 +625,6 @@ public class PhotonManager : SaveData
 
             for (int i = _resultData.Count - 1; i >= 0; i--)
             {
-                Debug.Log(i);
                 if (_resultData[i] == "Win")
                 {
                     GameObject winBar = Instantiate(_winBar.gameObject);
@@ -687,13 +685,13 @@ public class PhotonManager : SaveData
         var percentImage = _percentImages.GetComponent<Image>();
         var backPercentImage = _backPercentImage.GetComponent<Image>();
 
-        _percentImages.transform.DOLocalMove(new Vector3(-466f, 0, 0), 1f).SetEase(Ease.OutQuad).OnComplete(ShowStatsText);
-        _backPercentImage.transform.DOLocalMove(new Vector3(-466f, 0, 0), 1f).SetEase(Ease.OutQuad).OnComplete(ShowStatsText);
+        _percentImages.transform.DOLocalMove(new Vector3(-466f, 0, 0), 1f).SetEase(Ease.OutQuad).OnComplete(ShowStatsText).SetAutoKill();
+        _backPercentImage.transform.DOLocalMove(new Vector3(-466f, 0, 0), 1f).SetEase(Ease.OutQuad).OnComplete(ShowStatsText).SetAutoKill();
 
         //円グラフを埋める
         float winPer = _winTimes / (_winTimes + _loseTimes);
         percentImage.fillAmount = 0;
-        percentImage.DOFillAmount(winPer, 0.5f).SetEase(Ease.OutQuad);
+        percentImage.DOFillAmount(winPer, 0.5f).SetEase(Ease.OutQuad).SetAutoKill();
     }
 
     /// <summary>
@@ -717,7 +715,7 @@ public class PhotonManager : SaveData
         //上にずらしながら段々表示
         _winPerDate.transform.localPosition = _start;
         _winPerDate.gameObject.SetActive(true);
-        _winPerDate.transform.DOLocalMove(_end, 0.5f).SetEase(Ease.OutQuad).OnComplete(ShowRoundData);
+        _winPerDate.transform.DOLocalMove(_end, 0.5f).SetEase(Ease.OutQuad).OnComplete(ShowRoundData).SetAutoKill();
     }
 
     /// <summary>
@@ -734,7 +732,7 @@ public class PhotonManager : SaveData
         _roundDataTable.gameObject.SetActive(true);
        
 
-        _roundDataTable.transform.DOLocalMove(new Vector3(403, 331, 0), 0.5f).SetEase(Ease.OutQuad);
+        _roundDataTable.transform.DOLocalMove(new Vector3(403, 331, 0), 0.5f).SetEase(Ease.OutQuad).SetAutoKill();
     }
 
     /// <summary>

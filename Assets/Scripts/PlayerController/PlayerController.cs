@@ -686,7 +686,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
             _playerHp.Value = 0;
         }
 
-        photonView.RPC("ShowHitMarker", RpcTarget.Others);
+        if(SceneManager.GetActiveScene().name == "BattleMode")
+        {
+            photonView.RPC("ShowHitMarker", RpcTarget.Others);
+        }
 
         DOTween.To(() => _hpImage.fillAmount,
            x => _hpImage.fillAmount = x,
@@ -708,7 +711,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
-        _photonGameManager.GameEnd = true;
+        else
+        {
+            _photonGameManager.GameEnd = true;
+        }
     }
 
     /// <summary>
@@ -757,7 +763,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 _playerHp.Value += 20;
 
                 _hpImage.fillAmount += 0.2f;
-                Debug.Log("aaaa");
 
                 if (_playerHp.Value > 100)
                 {
@@ -773,6 +778,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     void AbilityCoolTimeTween(int time)
     {
         _abilityCoolTimePanel.fillAmount = 1;
-        _abilityCoolTimePanel.DOFillAmount(0, time);
+        _abilityCoolTimePanel.DOFillAmount(0, time).SetAutoKill();
     }
 }

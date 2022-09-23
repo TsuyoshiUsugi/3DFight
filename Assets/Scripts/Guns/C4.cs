@@ -4,6 +4,9 @@ using UnityEngine;
 using Photon.Pun;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// 生成された爆弾のコンポーネント
+/// </summary>
 public class C4 : MonoBehaviourPunCallbacks
 {
     [SerializeField] bool _detonate;
@@ -41,10 +44,13 @@ public class C4 : MonoBehaviourPunCallbacks
         }
     }
 
+    /// <summary>
+    /// 法線を取得して当たったところに沿うように向きを変える（WIP）
+    /// </summary>
+    /// <param name="collision"></param>
     private void OnCollisionEnter(Collision collision)
     {
         Vector3 norm = collision.contacts[0].normal;
-        //this.transform.rotation = new Vector3 (-norm.x  * 2f, 0,  -norm.z * 2f);
     }
 
     [PunRPC]

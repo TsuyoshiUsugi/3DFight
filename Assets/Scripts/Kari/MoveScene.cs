@@ -26,20 +26,6 @@ public class MoveScene : MonoBehaviour
     string _result = "Result";
     string _setting = "Settings";
 
-    private void Start()
-    {
-        if (!PhotonNetwork.IsConnected)
-        {
-            Debug.Log("РЏС±ВµВƒВ№ВєВс");
-
-        }
-        else
-        {
-            Debug.Log("РЏС±НѕВЁ");
-        }
-    }
-
-
     public void MoveToMenu()
     {
         SceneManager.LoadScene(_menu);

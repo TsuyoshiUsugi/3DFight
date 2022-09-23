@@ -21,6 +21,6 @@ public class FadeIn : MonoBehaviour
 
     void Fade()
     {
-        this.GetComponent<Image>().DOFade(endValue: 0f, duration: 1f).OnComplete(()=> this.gameObject.SetActive(false));
+        this.GetComponent<Image>().DOFade(endValue: 0f, duration: 1f).OnComplete(()=> this.gameObject.SetActive(false)).SetAutoKill();
     }
 }
