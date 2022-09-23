@@ -540,12 +540,16 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (Input.GetButtonDown("Shot"))
         {
-            StartCoroutine(nameof(Recoil));
+            
             if (!_aiming)
             {
 
 
                 HipFire();
+                if(_presentMainWepon.RestBullet.Value > 0)
+                {
+                    StartCoroutine(nameof(Recoil));
+                }
             }
             else
             {
@@ -553,6 +557,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
 
                 _presentMainWepon.Shot();
+                if (_presentMainWepon.RestBullet.Value > 0)
+                {
+                    StartCoroutine(nameof(Recoil));
+                }
             }
         }
     }
@@ -718,7 +726,16 @@ public class PlayerController : MonoBehaviourPunCallbacks
             case AbilityList.sideStep:
                 Vector3 cameraForward = Vector3.Scale(transform.forward, new Vector3(1, 0, 1)).normalized;
                 _rb.AddForce(cameraForward * 500, ForceMode.Impulse);
-                break;         
+                break;
+            case AbilityList.autoHeal:
+                
+                _playerHp.Value += 20;
+                if(_playerHp.Value > 100)
+                {
+                    _playerHp.Value = 100;
+                }
+                
+                break;
         }
     }
 }

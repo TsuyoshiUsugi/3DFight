@@ -1638,6 +1638,7 @@ MonoBehaviour:
     value: 0
   _bulletCap: 1
   _bomb: {fileID: 4102607013576419610, guid: 6a5e9ede630d4254ea45e2f4702ae9be, type: 3}
+  _bombPath: Bomb (1)
   _throwSpeed: 10
   _playerLook: {x: 0, y: 0, z: 0}
 --- !u!1 &4129885360734196786

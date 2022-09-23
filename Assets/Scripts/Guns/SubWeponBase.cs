@@ -2,11 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
+using UnityEngine.SceneManagement;
+using Photon.Pun;
+using TMPro;
 
 /// <summary>
 /// サブ武器のベースとなるクラス
 /// </summary>
-public class SubWeponBase : MonoBehaviour
+public class SubWeponBase : MonoBehaviourPunCallbacks
 {
     [SerializeField] ReactiveProperty<int> _restBullet;
     public int RestBullet { get => _restBullet.Value; set => _restBullet.Value = value; }
@@ -14,6 +17,7 @@ public class SubWeponBase : MonoBehaviour
     public int BulletCap { get => _bulletCap; set => _bulletCap = value; }
 
     [SerializeField] GameObject _bomb;
+    [SerializeField] string _bombPath;
 
     [SerializeField] float _throwSpeed;
 
@@ -21,7 +25,21 @@ public class SubWeponBase : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        if (SceneManager.GetActiveScene().name == "BattleMode")
+        {
+            if (!photonView.IsMine)
+            {
+                return;
+            }
+        }
+        _restBullet.Value = _bulletCap;
+
+        var _bulletText = GameObject.FindGameObjectWithTag("BulletText").GetComponent<TextMeshProUGUI>();
+        _bulletText.text = _restBullet.Value.ToString();
+        var _maxBulletText = GameObject.FindGameObjectWithTag("MaxBulletText").GetComponent<TextMeshProUGUI>();
+        _maxBulletText.text = _bulletCap.ToString();
+
+        _restBullet.Subscribe(restBullet => _bulletText.text = restBullet.ToString()).AddTo(gameObject);
     }
 
     // Update is called once per frame
@@ -43,8 +61,19 @@ public class SubWeponBase : MonoBehaviour
         {
             _restBullet.Value--;
             Vector3 heading = (_playerLook - transform.position).normalized;
-            GameObject bomb = Instantiate(_bomb, transform.position, Quaternion.identity);
-            bomb.GetComponent<Rigidbody>().AddForce(heading * _throwSpeed, ForceMode.Impulse);
+
+            if (SceneManager.GetActiveScene().name == "BattleMode")
+            {
+                GameObject bomb = PhotonNetwork.Instantiate(_bombPath, transform.position, Quaternion.identity);
+                bomb.GetComponent<Rigidbody>().AddForce(heading * _throwSpeed, ForceMode.Impulse);
+            }
+            else
+            {
+                GameObject bomb = Instantiate(_bomb, transform.position, Quaternion.identity);
+                bomb.GetComponent<Rigidbody>().AddForce(heading * _throwSpeed, ForceMode.Impulse);
+            }
+
+
             
         }
         else

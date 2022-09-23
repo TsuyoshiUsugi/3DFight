@@ -21,7 +21,6 @@ public class C4 : MonoBehaviourPunCallbacks
                 if (Input.GetButtonDown("Shot"))
                 {
                     photonView.RPC(nameof(Detonate), RpcTarget.All);
-                    Destroy(this.gameObject);
                 }
             }
         }
@@ -29,8 +28,7 @@ public class C4 : MonoBehaviourPunCallbacks
         {
             if (Input.GetButtonDown("Shot"))
             {
-                Instantiate(_blast, this.gameObject.transform.position, Quaternion.identity);
-                Destroy(this.gameObject);
+                Detonate();
             }
         }
     }
@@ -43,9 +41,17 @@ public class C4 : MonoBehaviourPunCallbacks
         }
     }
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        Vector3 norm = collision.contacts[0].normal;
+        //this.transform.rotation = new Vector3 (-norm.x  * 2f, 0,  -norm.z * 2f);
+    }
+
     [PunRPC]
     void Detonate()
     {
         Instantiate(_blast, this.gameObject.transform.position, Quaternion.identity);
+        Destroy(this.gameObject);
     }
+
 }
