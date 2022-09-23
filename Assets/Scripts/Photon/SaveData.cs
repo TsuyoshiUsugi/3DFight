@@ -16,28 +16,27 @@ public class SaveData : MonoBehaviourPunCallbacks
     /// 勝敗を保存するメソッド
     /// リストのデータ数が9を超えたら古いものから削除
     /// </summary>
-    protected void SaveRoundData(string result, string myName, string enemyName)
-    {
-        Debug.Log(_resultList.Count);
-        _resultList.Add(result);
-        _myNameList.Add(myName);
-        _enemyNameList.Add(enemyName);
+    //protected void SaveRoundData(string result, string myName, string enemyName)
+    //{
+    //    _resultList.Add(result);
+    //    _myNameList.Add(myName);
+    //    _enemyNameList.Add(enemyName);
 
-        if (_resultList.Count > 9)
-        {
-            _resultList.RemoveAt(0);
-            _myNameList.RemoveAt(0);
-            _enemyNameList.RemoveAt(0);
-        }
+    //    if (_resultList.Count > 9)
+    //    {
+    //        _resultList.RemoveAt(0);
+    //        _myNameList.RemoveAt(0);
+    //        _enemyNameList.RemoveAt(0);
+    //    }
 
-        string stringResultData = JsonConvert.SerializeObject(_resultList);
-        string stringMyNameData = JsonConvert.SerializeObject(_myNameList);
-        string stringEnemyNameData = JsonConvert.SerializeObject(_enemyNameList);
+    //    string stringResultData = JsonConvert.SerializeObject(_resultList);
+    //    string stringMyNameData = JsonConvert.SerializeObject(_myNameList);
+    //    string stringEnemyNameData = JsonConvert.SerializeObject(_enemyNameList);
 
-        PlayerPrefs.SetString("Result", stringResultData);
-        PlayerPrefs.SetString("MyName", stringMyNameData);
-        PlayerPrefs.SetString("EnemyName", stringEnemyNameData);
-    }
+    //    PlayerPrefs.SetString("Result", stringResultData);
+    //    PlayerPrefs.SetString("MyName", stringMyNameData);
+    //    PlayerPrefs.SetString("EnemyName", stringEnemyNameData);
+    //}
 
     /// <summary>
     /// 勝敗を読みこむメソッド
