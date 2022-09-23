@@ -104,6 +104,8 @@ public class PhotonManager : SaveData
 
     [SerializeField] RectTransform _percentImages;
 
+    [SerializeField] RectTransform _backPercentImage;
+
     [SerializeField] RectTransform _winBar;
 
     [SerializeField] RectTransform _loseBar;
@@ -412,8 +414,14 @@ public class PhotonManager : SaveData
     /// </summary>
     public void JoinRoom(RoomInfo roomInfo)
     {
+        if( roomInfo.PlayerCount == roomInfo.MaxPlayers)
+        {
+            Debug.Log("ルームの上限人数に達しています");
+            return;
+        }
         //ルームに参加
         PhotonNetwork.JoinRoom(roomInfo.Name);
+
 
         //UIを閉じる
         CloseMenuUI();
@@ -657,8 +665,10 @@ public class PhotonManager : SaveData
     {
         //位置の初期化
         _percentImages.transform.localPosition = new Vector3(-466f, -60, 0);
+        _backPercentImage.transform.localPosition = new Vector3(-466f, -60, 0);
 
         var alpha = _percentImages.GetComponent<Image>();
+        var backAlpha = _backPercentImage.GetComponent<Image>();
 
         DOTween.ToAlpha(
             () => alpha.color,
@@ -666,11 +676,19 @@ public class PhotonManager : SaveData
             255,
             1f).OnUpdate(() => _percentImages.transform.DOLocalMove(new Vector3(-466f, 0, 0), 1f).SetEase(Ease.OutQuad).OnComplete(ShowStatsText)).Kill(true);
 
+        DOTween.ToAlpha(
+            () => backAlpha.color,
+            x => backAlpha.color = x,
+            255,
+            1f).OnUpdate(() => _backPercentImage.transform.DOLocalMove(new Vector3(-466f, 0, 0), 1f).SetEase(Ease.OutQuad).OnComplete(ShowStatsText)).Kill(true);
+
         //Percent表示
         //上にずらしながら段々表示
         var percentImage = _percentImages.GetComponent<Image>();
+        var backPercentImage = _backPercentImage.GetComponent<Image>();
 
         _percentImages.transform.DOLocalMove(new Vector3(-466f, 0, 0), 1f).SetEase(Ease.OutQuad).OnComplete(ShowStatsText);
+        _backPercentImage.transform.DOLocalMove(new Vector3(-466f, 0, 0), 1f).SetEase(Ease.OutQuad).OnComplete(ShowStatsText);
 
         //円グラフを埋める
         float winPer = _winTimes / (_winTimes + _loseTimes);
@@ -719,8 +737,23 @@ public class PhotonManager : SaveData
         _roundDataTable.transform.DOLocalMove(new Vector3(403, 331, 0), 0.5f).SetEase(Ease.OutQuad);
     }
 
+    /// <summary>
+    /// 射撃練習場に入る。ボタンから行う
+    /// </summary>
     public void EnterPracticeRange()
     {
         SceneManager.LoadScene("PracticeRange");
+    }
+
+    /// <summary>
+    /// ゲーム終了
+    /// </summary>
+    public void QuitGame()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 }
