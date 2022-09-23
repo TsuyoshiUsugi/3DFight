@@ -76,6 +76,7 @@ public class EquipmentBase : MonoBehaviour, IPointerClickHandler
                 break;
             case ItemType.Ability:
                 _player.PlayerAbilityNumber = _itemNumber;
+                PlayerPrefs.SetInt("AbilityNumber", _itemNumber);
                 break;
         }
 

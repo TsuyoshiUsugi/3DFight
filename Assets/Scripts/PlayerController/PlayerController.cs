@@ -55,9 +55,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [Header("アビリティ")]
     [SerializeField] AbilityList _ability;
     public AbilityList SetAbility { get => _ability; set => _ability = value; }
-    [SerializeField] int _abilityCoolTime;
+    [SerializeField] List<int> _abilityCoolTimeList;
     [SerializeField] ReactiveProperty<int> _playerAbilityNumber;
     public int PlayerAbilityNumber { set => _playerAbilityNumber.Value = value; }
+    [SerializeField] List<Sprite> abilityImages;
+    [SerializeField] Image abilityImage;
+    [SerializeField] Image _abilityCoolTimePanel;
+    
 
     /// <summary>
     /// アビリティ一覧
@@ -164,9 +168,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         //非同期処理の登録
         _playerHp.Subscribe(presentHp => _hpText.text = presentHp.ToString()).AddTo(gameObject);
+
+        InitAbility();
+
         this.UpdateAsObservable()
             .Where(_ => Input.GetButtonDown("Ability") && photonView.IsMine)
-            .ThrottleFirst(TimeSpan.FromSeconds(_abilityCoolTime))
+            .ThrottleFirst(TimeSpan.FromSeconds(_abilityCoolTimeList[_playerAbilityNumber.Value]))
             .Subscribe(_ => Ability());
 
         this.UpdateAsObservable()
@@ -194,6 +201,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
 
         }
+
+        InitAbility();
 
         if (_wait)
         {
@@ -342,6 +351,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
         //テキスト表示を直す
         _bulletText.text = _presentSubWepon.RestBullet.ToString();
         _maxBulletText.text = _presentSubWepon.BulletCap.ToString();
+    }
+
+    void InitAbility()
+    {
+        _playerAbilityNumber.Value = PlayerPrefs.GetInt("AbilityNumber");
+        _ability = (AbilityList)Enum.ToObject(typeof(AbilityList), _playerAbilityNumber.Value);
     }
 
     /// <summary>
