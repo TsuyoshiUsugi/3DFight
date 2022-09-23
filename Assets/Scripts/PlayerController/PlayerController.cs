@@ -58,10 +58,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] List<int> _abilityCoolTimeList;
     [SerializeField] ReactiveProperty<int> _playerAbilityNumber;
     public int PlayerAbilityNumber { set => _playerAbilityNumber.Value = value; }
-    [SerializeField] List<Sprite> abilityImages;
-    [SerializeField] Image abilityImage;
+    [SerializeField] List<Sprite> _abilityImages;
+    [SerializeField] Image _abilityImage;
     [SerializeField] Image _abilityCoolTimePanel;
-    
+    IDisposable _subscribeAbility;
 
     /// <summary>
     /// アビリティ一覧
@@ -147,6 +147,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         BattleModeSetup();
 
+        _abilityImage = GameObject.FindGameObjectWithTag("AbilityImage").GetComponent<Image>();
+        _abilityCoolTimePanel = GameObject.FindGameObjectWithTag("CoolTimePanel").GetComponent<Image>();
+
         _showMain = true;
 
         //Chinemachineカメラの参照を読みこむ
@@ -169,12 +172,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         //非同期処理の登録
         _playerHp.Subscribe(presentHp => _hpText.text = presentHp.ToString()).AddTo(gameObject);
 
-        InitAbility();
-
-        this.UpdateAsObservable()
-            .Where(_ => Input.GetButtonDown("Ability") && photonView.IsMine)
-            .ThrottleFirst(TimeSpan.FromSeconds(_abilityCoolTimeList[_playerAbilityNumber.Value]))
-            .Subscribe(_ => Ability());
+        _playerAbilityNumber.Subscribe(_ => InitAbility());
 
         this.UpdateAsObservable()
             .Where(_ => Input.GetAxisRaw("MouseScrollWheel") > 0)
@@ -198,11 +196,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             {
                 return;
             }
-
-
         }
-
-        InitAbility();
 
         if (_wait)
         {
@@ -353,10 +347,27 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _maxBulletText.text = _presentSubWepon.BulletCap.ToString();
     }
 
+    /// <summary>
+    /// 新たに選択されたアビリティを登録する
+    /// </summary>
     void InitAbility()
     {
+        if(_subscribeAbility != null)
+        {
+            _subscribeAbility.Dispose();
+            
+        }
         _playerAbilityNumber.Value = PlayerPrefs.GetInt("AbilityNumber");
         _ability = (AbilityList)Enum.ToObject(typeof(AbilityList), _playerAbilityNumber.Value);
+        _abilityImage.sprite = _abilityImages[_playerAbilityNumber.Value];
+
+        _subscribeAbility = this.UpdateAsObservable()
+            .Where(_ => Input.GetButtonDown("Ability") && photonView.IsMine)
+            .ThrottleFirst(TimeSpan.FromSeconds(_abilityCoolTimeList[_playerAbilityNumber.Value]))
+            .Subscribe(_ => Ability()).AddTo(this);
+
+        DOTween.Kill(_abilityCoolTimePanel);
+        _abilityCoolTimePanel.fillAmount = 0;
     }
 
     /// <summary>
@@ -629,9 +640,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             _presentMainWepon.transform.localEulerAngles = new Vector3(17.9899387f, 80.6679688f, 271.117798f);
         }
-        
     }
-
 
     /// <summary>
     /// 銃のリロードのメソッド
@@ -739,18 +748,31 @@ public class PlayerController : MonoBehaviourPunCallbacks
         switch(_ability)
         {
             case AbilityList.sideStep:
+                AbilityCoolTimeTween(_abilityCoolTimeList[_playerAbilityNumber.Value]);
                 Vector3 cameraForward = Vector3.Scale(transform.forward, new Vector3(1, 0, 1)).normalized;
                 _rb.AddForce(cameraForward * 500, ForceMode.Impulse);
                 break;
             case AbilityList.autoHeal:
-                
+                AbilityCoolTimeTween(_abilityCoolTimeList[_playerAbilityNumber.Value]);
                 _playerHp.Value += 20;
-                if(_playerHp.Value > 100)
+
+                _hpImage.fillAmount += 0.2f;
+                Debug.Log("aaaa");
+
+                if (_playerHp.Value > 100)
                 {
                     _playerHp.Value = 100;
                 }
-                
                 break;
         }
+    }
+
+    /// <summary>
+    /// アビリティパネルのトゥイーンを行う
+    /// </summary>
+    void AbilityCoolTimeTween(int time)
+    {
+        _abilityCoolTimePanel.fillAmount = 1;
+        _abilityCoolTimePanel.DOFillAmount(0, time);
     }
 }

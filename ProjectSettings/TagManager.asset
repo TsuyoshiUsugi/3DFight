@@ -5,6 +5,25 @@ TagManager:
   serializedVersion: 2
   tags:
   - Shootable
+  - YSlider
+  - XSlider
+  - BulletText
+  - ReloadText
+  - SettingPanel
+  - Camera
+  - HpText
+  - ReloadImage
+  - HpImage
+  - MaxBulletText
+  - Bullet
+  - HitMarker
+  - SpawnManager
+  - PhotonManager
+  - GameManager
+  - Eye
+  - AbilityImage
+  - CoolTimePanel
+  - Target
   layers:
   - Default
   - TransparentFX

@@ -30,7 +30,10 @@ public class Bullet : MonoBehaviour
     /// <summary>
     /// 銃のダメ―ジのプロパティ
     /// </summary>
-    public float BulletDamage { get => _bulletDamage; } 
+    public float BulletDamage { get => _bulletDamage; }
+
+    [SerializeField] Vector3 _current;
+    [SerializeField] Vector3 _previous;
 
     void Start()
     {
@@ -54,26 +57,45 @@ public class Bullet : MonoBehaviour
             Destroy(this.gameObject);
         }
 
-        Hit();
 
+        if(_current != null)
+        {
+            _previous = _current;
+        }
+        _current = transform.position;
+        Hit();
     }
 
     [ContextMenu(nameof(Hit))]
     void Hit()
     {
-        Vector3 rayPosition = transform.position + new Vector3(0.0f, 0.0f, 0.0f);
-        Ray ray = new Ray(rayPosition, _dir);
+        Vector3 rayPosition = _current;
+        var dir = _previous - _current; 
+        Ray ray = new Ray(rayPosition, dir.normalized);
 
         //敵に衝突したときの処理
         RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, rayDistance))
+        if (Physics.Raycast(ray, out hit, dir.magnitude))
         {
             if (hit.collider.tag == "Player")
             {
                 Debug.Log("Hit");
                 hit.collider.GetComponent<PlayerController>().Damage(_bulletDamage);
+                Destroy(this.gameObject);
+
             }
-            Destroy(this.gameObject);
+
+            if (hit.collider.tag == "Target")
+            {
+                hit.collider.GetComponent<PracticeTarget>().HitTarget = true;
+                Destroy(this.gameObject);
+            }
+            if(hit.collider.tag == "Wall")
+            {
+                Destroy(this.gameObject);
+            }
+
+
         }
     }
 
