@@ -172,7 +172,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         //非同期処理の登録
         _playerHp.Subscribe(presentHp => _hpText.text = presentHp.ToString()).AddTo(gameObject);
 
-        _playerAbilityNumber.Subscribe(_ => InitAbility());
+        _playerAbilityNumber.Value = PlayerPrefs.GetInt("AbilityNumber");
+        _playerAbilityNumber.Subscribe(num => InitAbility(num));
 
         this.UpdateAsObservable()
             .Where(_ => Input.GetAxisRaw("MouseScrollWheel") > 0)
@@ -350,21 +351,20 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// <summary>
     /// 新たに選択されたアビリティを登録する
     /// </summary>
-    void InitAbility()
+    void InitAbility(int num)
     {
         if(_subscribeAbility != null)
         {
             _subscribeAbility.Dispose();
-            
         }
-        _playerAbilityNumber.Value = PlayerPrefs.GetInt("AbilityNumber");
-        _ability = (AbilityList)Enum.ToObject(typeof(AbilityList), _playerAbilityNumber.Value);
+        
+        _ability = (AbilityList)Enum.ToObject(typeof(AbilityList), num);
         _abilityImage.sprite = _abilityImages[_playerAbilityNumber.Value];
 
         _subscribeAbility = this.UpdateAsObservable()
             .Where(_ => Input.GetButtonDown("Ability") && photonView.IsMine)
             .ThrottleFirst(TimeSpan.FromSeconds(_abilityCoolTimeList[_playerAbilityNumber.Value]))
-            .Subscribe(_ => Ability()).AddTo(this);
+            .Subscribe(_ => Ability());
 
         DOTween.Kill(_abilityCoolTimePanel);
         _abilityCoolTimePanel.fillAmount = 0;
