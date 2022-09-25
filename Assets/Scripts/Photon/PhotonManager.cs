@@ -9,11 +9,7 @@ using DG.Tweening;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Photonに関する主要な処理を行うクラス
-/// 
-/// 詳細動作
-/// ロビーやルームに接続したときの処理
-///
+/// メニューシーンのマネージャーコンポーネント
 /// </summary>
 public class PhotonManager : SaveData
 {
@@ -24,26 +20,22 @@ public class PhotonManager : SaveData
     [SerializeField] GameObject _loadingPanel;
     [SerializeField] Text _loadingText;
 
-    /// <summary>ボタンの親オブジェクト</summary>
+    /// <summary>全ロビーボタンが入った親オブジェクト</summary>
     [SerializeField] GameObject _buttons;
 
-    [SerializeField] GameObject _createRoomPanel;
-
     [Header("ルームパネル")]
+    [SerializeField] GameObject _createRoomPanel;
     [SerializeField] GameObject _roomPanel;
     [SerializeField] Text _roomName;
     [SerializeField] Text _enterRoomName;
 
+    [Header("エラーパネル")]
     [SerializeField] GameObject _errorPanel;
     [SerializeField] Text _errorText;
 
-    /// <summary>ルーム一覧</summary>
+    [Header("ルームパネル")]
     [SerializeField] GameObject _roomListPanel;
-
-    /// <summary>ルームボタン格納</summary>
     [SerializeField] Room _originalRoomButton;
-
-    /// <summary>ルームボタンの親オブジェクト</summary>
     [SerializeField] GameObject _roomButtonContent;
 
     /// <summary>ルームの情報を扱う辞書</summary>
