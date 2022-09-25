@@ -18,13 +18,10 @@ using UnityEngine.SceneManagement;
 public class PhotonManager : SaveData
 {
     static PhotonManager _instance;
-
     public static PhotonManager Instance { get => _instance; set => _instance = value; }
 
-    /// <summary>ロードパネル</summary>
+    [Header("ロードパネル")]
     [SerializeField] GameObject _loadingPanel;
-
-    /// <summary>ロードテキスト</summary>
     [SerializeField] Text _loadingText;
 
     /// <summary>ボタンの親オブジェクト</summary>
@@ -32,19 +29,12 @@ public class PhotonManager : SaveData
 
     [SerializeField] GameObject _createRoomPanel;
 
-    /// <summary>ルーム名の入力テキスト</summary>
-    [SerializeField] Text enterRoomName;
-
-    /// <summary>ルームパネル</summary>
+    [Header("ルームパネル")]
     [SerializeField] GameObject _roomPanel;
-
-    /// <summary>ルームネーム</summary>
     [SerializeField] Text _roomName;
+    [SerializeField] Text _enterRoomName;
 
-    /// <summary>エラーパネル</summary>
     [SerializeField] GameObject _errorPanel;
-
-    /// <summary>エラーテキスト</summary>
     [SerializeField] Text _errorText;
 
     /// <summary>ルーム一覧</summary>
@@ -248,7 +238,7 @@ public class PhotonManager : SaveData
     /// </summary>
     public void CreateRoomButton()
     {
-        if (!string.IsNullOrEmpty(enterRoomName.text))
+        if (!string.IsNullOrEmpty(_enterRoomName.text))
         {
             RoomOptions options = new RoomOptions
             {
@@ -256,7 +246,7 @@ public class PhotonManager : SaveData
             };
 
             //ルーム作成
-            PhotonNetwork.CreateRoom(enterRoomName.text, options);
+            PhotonNetwork.CreateRoom(_enterRoomName.text, options);
 
             CloseMenuUI();
 
