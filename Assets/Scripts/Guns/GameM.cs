@@ -137,7 +137,7 @@ public class GameM : MonoBehaviourPunCallbacks
     
 
     /// <summary>
-    /// Openingオブジェクトのオンオフ
+    /// 試合開始時に流れるムービーのオブジェクトのオンオフ
     /// </summary>
     /// <param name="onOff"></param>
     void SwicthOpObj(bool onOff)
@@ -150,7 +150,7 @@ public class GameM : MonoBehaviourPunCallbacks
     }
 
     /// <summary>
-    /// playingオブジェクトのオンオフ
+    /// 試合中のオブジェクトのオンオフ
     /// </summary>
     /// <param name="onOff"></param>
     void SwicthPlayingObj(bool onOff)
@@ -163,7 +163,7 @@ public class GameM : MonoBehaviourPunCallbacks
     }
 
     /// <summary>
-    /// otherオブジェクトのオンオフ
+    /// シーンの状態に関係のないオブジェクトのオンオフ
     /// </summary>
     /// <param name="onOff"></param>
     void SwicthOtherObj(bool onOff)

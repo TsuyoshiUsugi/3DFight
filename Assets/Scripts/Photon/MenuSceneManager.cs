@@ -21,7 +21,7 @@ public class MenuSceneManager : SaveData
     [SerializeField] GameObject _loadingPanel;
     [SerializeField] Text _loadingText;
 
-    /// <summary>全ロビーボタンが入った親オブジェクト</summary>
+    /// <summary>全てのロビーに表示されるボタンが入った親オブジェクト</summary>
     [SerializeField] GameObject _buttons;
 
     [Header("ルームパネル")]
@@ -64,7 +64,7 @@ public class MenuSceneManager : SaveData
     [SerializeField] InputField _nameInput;
 
     /// <summary>一部屋の最大人数</summary>
-    int _maxPlayerNum = 2;
+    byte _maxPlayerNum = 2;
 
     /// <summary>名前を入力したか判定</summary>
     static bool _setName;
@@ -76,11 +76,13 @@ public class MenuSceneManager : SaveData
     [SerializeField] string _battleMode;
 
     ////////////////////// 戦績UI ////////////////////////
-    [SerializeField] RectTransform _roundDataTable;
+
+    [SerializeField] MenuUIManager menuUiManager;
 
     List<string> _resultData = new List<string>();
     List<string> _myNameData = new List<string>();
     List<string> _enemyNameData = new List<string>();
+    [SerializeField] RectTransform _roundDataTable;
 
     [SerializeField] GameObject _battleStatsPanel;
 
@@ -244,7 +246,7 @@ public class MenuSceneManager : SaveData
     {
         if (!string.IsNullOrEmpty(_enterRoomName.text))
         {
-            RoomOptions options = new RoomOptions { MaxPlayers = 2};
+            RoomOptions options = new RoomOptions { MaxPlayers = _maxPlayerNum};
 
             //ルーム作成
             PhotonNetwork.CreateRoom(_enterRoomName.text, options);
@@ -331,6 +333,7 @@ public class MenuSceneManager : SaveData
     /// <param name="roomList"></param>
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
+        //ルーム情報を一旦初期化
         RoomUIInitialize();
 
        　//辞書に登録
