@@ -32,7 +32,7 @@ public class Room : MonoBehaviour
     public void OpenRoom()
     {
         //ƒ‹[ƒ€Q‰ÁŠÖ”‚ğŒÄ‚Ño‚·
-        PhotonManager.Instance.JoinRoom(_info);
+        MenuSceneManager.Instance.JoinRoom(_info);
     }
 
 }
