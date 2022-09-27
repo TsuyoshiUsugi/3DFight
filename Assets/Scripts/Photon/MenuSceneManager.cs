@@ -12,7 +12,7 @@ using UnityEngine.SceneManagement;
 /// メニューシーンのマネージャーコンポーネント
 /// ネットワーク系の処理を行う
 /// </summary>
-public class MenuSceneManager : SaveData
+public class MenuSceneManager : MonoBehaviourPunCallbacks
 {
     static MenuSceneManager _instance;
     public static MenuSceneManager Instance => _instance;
@@ -36,7 +36,10 @@ public class MenuSceneManager : SaveData
 
     [Header("ルームパネル")]
     [SerializeField] GameObject _roomListPanel;
+
+    /// <summary>生成するボタンのPrefab内のスクリプト</summary>
     [SerializeField] Room _originalRoomButton;
+
     [SerializeField] GameObject _roomButtonContent;
 
     /// <summary>ルームの情報を扱う辞書</summary>
@@ -75,56 +78,13 @@ public class MenuSceneManager : SaveData
     /// <summary>遷移シーン名</summary>
     [SerializeField] string _battleMode;
 
-    ////////////////////// 戦績UI ////////////////////////
-
-    [SerializeField] MenuUIManager menuUiManager;
-
-    List<string> _resultData = new List<string>();
-    List<string> _myNameData = new List<string>();
-    List<string> _enemyNameData = new List<string>();
-    [SerializeField] RectTransform _roundDataTable;
-
+    /// <summary>遷移シーン名</summary>
     [SerializeField] GameObject _battleStatsPanel;
-
-    [SerializeField] RectTransform _backImages;
-
-    [SerializeField] RectTransform _winPerDate;
-
-    [SerializeField] RectTransform _percentImages;
-
-    [SerializeField] RectTransform _backPercentImage;
-
-    [SerializeField] RectTransform _winBar;
-
-    [SerializeField] RectTransform _loseBar;
-
-    [SerializeField] float _winTimes;
-    [SerializeField] float _loseTimes;
-
-    [SerializeField] TextMeshProUGUI _winPercent;
-    [SerializeField] TextMeshProUGUI _winTimesText;
-    [SerializeField] TextMeshProUGUI _loseTimesText;
-
-    [SerializeField] Vector3 _start;
-    [SerializeField] Vector3 _end;
-
-    [SerializeField] int _waitTime;
-
-
 
     private void Awake()
     {
         //static変数に格納
         _instance = this;
-
-        ReadDate();
-
-        _resultData = _resultList;
-        _myNameData = _myNameList;
-        _enemyNameData = _enemyNameList;
-
-        StatsDataInit();
-        ReadPercentData();
     }
 
     private void Start()
@@ -573,159 +533,6 @@ public class MenuSceneManager : SaveData
     public void PlayGame()
     {
         PhotonNetwork.LoadLevel(_battleMode);
-    }
-
-    /// <summary>
-    /// 戦績UIを表示する
-    /// ボタンから設定する
-    /// Escで元に戻る
-    /// </summary>
-    public async void ShowStats()
-    {
-        _battleStatsPanel.SetActive(true);
-
-        _roundDataTable.gameObject.SetActive(false);
-
-        _winPerDate.gameObject.SetActive(false);
-
-        //連鎖して戦績UI全て表示
-        ShowPercent();
-
-        await UniTask.WaitUntil(() => Input.GetKeyDown(KeyCode.Escape));
-
-        _battleStatsPanel.SetActive(false);
-    }
-
-    /// <summary>
-    /// 戦績データの初期化処理
-    /// </summary>
-    void StatsDataInit()
-    {
-        _battleStatsPanel.SetActive(true);
-
-        //BackImage表示
-        _backImages.gameObject.SetActive(true);
-        
-        //グラフ表示
-        _percentImages.gameObject.SetActive(true);
-        //ラウンドデータ表示
-        _roundDataTable.gameObject.SetActive(true);
-
-
-        ////各データをbarに入れる
-        if (_resultData != null)
-        {
-
-            for (int i = _resultData.Count - 1; i >= 0; i--)
-            {
-                if (_resultData[i] == "Win")
-                {
-                    GameObject winBar = Instantiate(_winBar.gameObject);
-                    var names = winBar.GetComponentsInChildren<TextMeshProUGUI>();
-                    names[1].text = _myNameData[i];
-                    names[3].text = _enemyNameData[i];
-
-                    winBar.transform.SetParent(_roundDataTable.transform);
-                    winBar.transform.localScale = Vector3.one;
-                }
-                else
-                {
-                    GameObject loseBar = Instantiate(_loseBar.gameObject);
-                    var names = loseBar.GetComponentsInChildren<TextMeshProUGUI>();
-                    names[1].text = _myNameData[i];
-                    names[3].text = _enemyNameData[i];
-                    loseBar.transform.SetParent(_roundDataTable.transform);
-                    loseBar.transform.localScale = Vector3.one;
-
-                }
-
-            }
-
-            _winTimes = PlayerPrefs.GetInt("WinTimes");
-            _loseTimes = PlayerPrefs.GetInt("LoseTimes");
-        }
-
-        _battleStatsPanel.SetActive(false);
-    }
-
-
-    /// <summary>
-    /// パーセントグラフUIのトゥイーン
-    /// </summary>
-    void ShowPercent()
-    {
-        //位置の初期化
-        _percentImages.transform.localPosition = new Vector3(-466f, -60, 0);
-        _backPercentImage.transform.localPosition = new Vector3(-466f, -60, 0);
-
-        var alpha = _percentImages.GetComponent<Image>();
-        var backAlpha = _backPercentImage.GetComponent<Image>();
-
-        DOTween.ToAlpha(
-            () => alpha.color,
-            x => alpha.color = x,
-            255,
-            1f).OnUpdate(() => _percentImages.transform.DOLocalMove(new Vector3(-466f, 0, 0), 1f).SetEase(Ease.OutQuad).OnComplete(ShowStatsText)).Kill(true);
-
-        DOTween.ToAlpha(
-            () => backAlpha.color,
-            x => backAlpha.color = x,
-            255,
-            1f).OnUpdate(() => _backPercentImage.transform.DOLocalMove(new Vector3(-466f, 0, 0), 1f).SetEase(Ease.OutQuad).OnComplete(ShowStatsText)).Kill(true);
-
-        //Percent表示
-        //上にずらしながら段々表示
-        var percentImage = _percentImages.GetComponent<Image>();
-        var backPercentImage = _backPercentImage.GetComponent<Image>();
-
-        _percentImages.transform.DOLocalMove(new Vector3(-466f, 0, 0), 1f).SetEase(Ease.OutQuad).OnComplete(ShowStatsText).SetAutoKill();
-        _backPercentImage.transform.DOLocalMove(new Vector3(-466f, 0, 0), 1f).SetEase(Ease.OutQuad).OnComplete(ShowStatsText).SetAutoKill();
-
-        //円グラフを埋める
-        float winPer = _winTimes / (_winTimes + _loseTimes);
-        percentImage.fillAmount = 0;
-        percentImage.DOFillAmount(winPer, 0.5f).SetEase(Ease.OutQuad).SetAutoKill();
-    }
-
-    /// <summary>
-    /// 勝率や勝ち数負け数を表示する
-    /// </summary>
-    void ReadPercentData()
-    {
-        float percent = (_winTimes / (_winTimes + _loseTimes)) * 100;
-        _winPercent.text = $"Win Percent : {Mathf.Floor(percent)}%";
-        _winTimesText.text = $"Win :{_winTimes}";
-        _loseTimesText.text = $"Lose :{_loseTimes}";
-    }
-
-    /// <summary>
-    /// 勝率などのテキストのトゥイーン
-    /// </summary>
-    void ShowStatsText()
-    {
-        
-        //stats表示
-        //上にずらしながら段々表示
-        _winPerDate.transform.localPosition = _start;
-        _winPerDate.gameObject.SetActive(true);
-        _winPerDate.transform.DOLocalMove(_end, 0.5f).SetEase(Ease.OutQuad).OnComplete(ShowRoundData).SetAutoKill();
-    }
-
-    /// <summary>
-    /// ラウンド結果UIのトゥイーン
-    /// </summary>
-    void ShowRoundData()
-    {
-       
-        //RoundData表示
-        //上にずらしながら段々表示
-        //各ラウンドデータを少しずつ表示
-        //ラウンドデータのフレーム自体を移動
-        _roundDataTable.transform.localPosition = new Vector3(403, 271, 0);
-        _roundDataTable.gameObject.SetActive(true);
-       
-
-        _roundDataTable.transform.DOLocalMove(new Vector3(403, 331, 0), 0.5f).SetEase(Ease.OutQuad).SetAutoKill();
     }
 
     /// <summary>

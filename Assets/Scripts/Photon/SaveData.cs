@@ -8,19 +8,5 @@ using Newtonsoft.Json;
 /// </summary>
 public class SaveData : MonoBehaviourPunCallbacks
 {
-    protected List<string> _resultList;
-    protected List<string> _myNameList;
-    protected List<string> _enemyNameList;
-
-    /// <summary>
-    /// Ÿ”s‚ğ“Ç‚İ‚±‚Şƒƒ\ƒbƒh
-    /// </summary>
-    protected void ReadDate()
-    {
-        Debug.Log(PlayerPrefs.GetString("Result"));
-
-        _resultList = JsonConvert.DeserializeObject<List<string>>(PlayerPrefs.GetString("Result"));
-        _myNameList = JsonConvert.DeserializeObject<List<string>>(PlayerPrefs.GetString("MyName"));
-        _enemyNameList = JsonConvert.DeserializeObject<List<string>>(PlayerPrefs.GetString("EnemyName"));
-    }
+  
 }

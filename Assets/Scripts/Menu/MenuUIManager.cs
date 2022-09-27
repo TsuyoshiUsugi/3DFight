@@ -5,6 +5,7 @@ using TMPro;
 using Newtonsoft.Json;
 using DG.Tweening;
 using UnityEngine.UI;
+using Cysharp.Threading.Tasks;
 
 /// <summary>
 /// menuシーンのUIを操作するUIマネージャークラス
@@ -12,11 +13,10 @@ using UnityEngine.UI;
 /// </summary>
 public class MenuUIManager : MonoBehaviour
 {
+    //保存されたデータを保持するリスト
     List<string> _resultData = new List<string>();
     List<string> _myNameData = new List<string>();
     List<string> _enemyNameData = new List<string>();
-
-    [SerializeField] MenuSceneManager _menuSceneManager;
 
     [SerializeField] GameObject _battleStatsPanel;
 
@@ -40,14 +40,17 @@ public class MenuUIManager : MonoBehaviour
     [SerializeField] float _winTimes;
     [SerializeField] float _loseTimes;
 
+    [Header("戦績テキスト")]
     [SerializeField] TextMeshProUGUI _winPercent;
     [SerializeField] TextMeshProUGUI _winTimesText;
     [SerializeField] TextMeshProUGUI _loseTimesText;
 
-    [SerializeField] Vector3 _start;
-    [SerializeField] Vector3 _end;
+    [Header("戦績テキストのTween開始地点")]
+    [SerializeField] Vector3 _statsTextStartPos;
+    [SerializeField] Vector3 _statsTextEndPos;
 
-    [SerializeField] int _waitTime;
+    /// <summary>Tweenにかかる時間</summary>
+    [SerializeField] float _tweenTime;
 
     // Start is called before the first frame update
     void Start()
@@ -59,10 +62,18 @@ public class MenuUIManager : MonoBehaviour
         ReadPercentData();
     }
 
-    // Update is called once per frame
-    void Update()
+    /// <summary>
+    /// 戦績UIを表示する
+    /// ボタンから設定する
+    /// Escで元に戻る
+    /// </summary>
+    public async void ShowStats()
     {
-        
+        ShowPercent();
+
+        await UniTask.WaitUntil(() => Input.GetKeyDown(KeyCode.Escape));
+
+        _battleStatsPanel.SetActive(false);
     }
 
     /// <summary>
@@ -109,7 +120,16 @@ public class MenuUIManager : MonoBehaviour
         //データを表示するUIのバーに入れるローカル関数
         void SetRoundDataBar(int i)
         {
-            GameObject bar = Instantiate(_winBar.gameObject);
+            GameObject bar;
+
+            if (_resultData[i] == "Win")
+            {
+                bar = Instantiate(_winBar.gameObject);
+            }
+            else
+            {
+                bar = Instantiate(_loseBar.gameObject);
+            }
             var names = bar.GetComponentsInChildren<TextMeshProUGUI>();
 
             //配列の一番目と三番目が名前を入れるところなのでそれぞれ入れる
@@ -164,21 +184,21 @@ public class MenuUIManager : MonoBehaviour
             () => percentImage.color,
             x => percentImage.color = x,
             255,
-            1f).OnUpdate(() => _percentImage.transform.DOLocalMove(new Vector3(-466f, 0, 0), 1f).SetEase(Ease.OutQuad).OnComplete(ShowStatsText)).Kill(true);
+            1f).OnUpdate(() => _percentImage.transform.DOLocalMove(new Vector3(-466f, 0, 0), _tweenTime).SetEase(Ease.OutQuad).OnComplete(ShowStatsText)).Kill(true);
 
         DOTween.ToAlpha(
             () => backPercentImage.color,
             x => backPercentImage.color = x,
             255,
-            1f).OnUpdate(() => _backPercentImage.transform.DOLocalMove(new Vector3(-466f, 0, 0), 1f).SetEase(Ease.OutQuad).OnComplete(ShowStatsText)).Kill(true);
+            1f).OnUpdate(() => _backPercentImage.transform.DOLocalMove(new Vector3(-466f, 0, 0), _tweenTime).SetEase(Ease.OutQuad).OnComplete(ShowStatsText)).Kill(true);
 
-        _percentImage.transform.DOLocalMove(new Vector3(-466f, 0, 0), 1f).SetEase(Ease.OutQuad).SetAutoKill();
-        _backPercentImage.transform.DOLocalMove(new Vector3(-466f, 0, 0), 1f).SetEase(Ease.OutQuad).OnComplete(ShowStatsText).SetAutoKill();
+        _percentImage.transform.DOLocalMove(new Vector3(-466f, 0, 0), _tweenTime).SetEase(Ease.OutQuad).SetAutoKill();
+        _backPercentImage.transform.DOLocalMove(new Vector3(-466f, 0, 0), _tweenTime).SetEase(Ease.OutQuad).OnComplete(ShowStatsText).SetAutoKill();
 
         //円グラフを埋める
         float winPer = _winTimes / (_winTimes + _loseTimes);
         percentImage.fillAmount = 0;
-        percentImage.DOFillAmount(winPer, 0.5f).SetEase(Ease.OutQuad).SetAutoKill();
+        percentImage.DOFillAmount(winPer, _tweenTime).SetEase(Ease.OutQuad).SetAutoKill();
     }
 
     /// <summary>
@@ -188,9 +208,9 @@ public class MenuUIManager : MonoBehaviour
     /// </summary>
     void ShowStatsText()
     {
-        _winPerDate.transform.localPosition = _start;
+        _winPerDate.transform.localPosition = _statsTextStartPos;
         _winPerDate.gameObject.SetActive(true);
-        _winPerDate.transform.DOLocalMove(_end, 0.5f).SetEase(Ease.OutQuad).OnComplete(ShowRoundData).SetAutoKill();
+        _winPerDate.transform.DOLocalMove(_statsTextEndPos, _tweenTime).SetEase(Ease.OutQuad).OnComplete(ShowRoundData).SetAutoKill();
     }
 
     /// <summary>
@@ -201,7 +221,7 @@ public class MenuUIManager : MonoBehaviour
     {
         _roundDataTable.transform.localPosition = new Vector3(403, 271, 0);
         _roundDataTable.gameObject.SetActive(true);
-        _roundDataTable.transform.DOLocalMove(new Vector3(403, 331, 0), 0.5f).SetEase(Ease.OutQuad).SetAutoKill();
+        _roundDataTable.transform.DOLocalMove(new Vector3(403, 331, 0), _tweenTime).SetEase(Ease.OutQuad).SetAutoKill();
     }
 }
 
