@@ -162,8 +162,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _hpText = GameObject.FindGameObjectWithTag("HpText").GetComponent<TextMeshProUGUI>();
         _hpImage = GameObject.FindGameObjectWithTag("HpImage").GetComponent<Image>();
 
-
-
         //ƒJƒƒ‰‚ÌˆÊ’u‚ğ‚«‚ß‚é
         _virtualCamera.LookAt = _eye.transform;
         _virtualCamera.Follow = _eye.transform;
@@ -212,12 +210,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         Jump();
 
+        //ƒƒCƒ“•Ší‚ğ‘•”õ‚µ‚Ä‚¢‚é‚©
         if(_showMain)
         {
             Shot();
 
             Reload();
-
         }
         else
         {

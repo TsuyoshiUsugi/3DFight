@@ -9,7 +9,7 @@ using Cysharp.Threading.Tasks;
 
 /// <summary>
 /// menuシーンのUIを操作するUIマネージャークラス
-/// MenuSceneManagerから指示を受けてUIを操作する
+/// 現状は戦績UIの表示機能のみ。戦績ボタンから設定する
 /// </summary>
 public class MenuUIManager : MonoBehaviour
 {
@@ -37,6 +37,7 @@ public class MenuUIManager : MonoBehaviour
     [SerializeField] RectTransform _winBar;
     [SerializeField] RectTransform _loseBar;
 
+    //テキストに入れる勝ち負けの数
     [SerializeField] float _winTimes;
     [SerializeField] float _loseTimes;
 
@@ -45,9 +46,17 @@ public class MenuUIManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI _winTimesText;
     [SerializeField] TextMeshProUGUI _loseTimesText;
 
-    [Header("戦績テキストのTween開始地点")]
+    [Header("戦績テキストのTween開始地点と終了位置")]
     [SerializeField] Vector3 _statsTextStartPos;
     [SerializeField] Vector3 _statsTextEndPos;
+
+    [Header("パーセントグラフUIのTween開始地点と終了位置")]
+    [SerializeField] Vector3 _percentGrahphStartPos;
+    [SerializeField] Vector3 _percentGrahpEndPos;
+
+    [Header("ラウンドデータUIのTween開始地点と終了位置")]
+    [SerializeField] Vector3 _roundDataUIStartPos;
+    [SerializeField] Vector3 _roundDataUIEndPos;
 
     /// <summary>Tweenにかかる時間</summary>
     [SerializeField] float _tweenTime;
@@ -69,11 +78,16 @@ public class MenuUIManager : MonoBehaviour
     /// </summary>
     public async void ShowStats()
     {
+        SetActivityOfStatsDataUI(true);
+
+        _winPerDate.gameObject.SetActive(false);
+        _roundDataTable.gameObject.SetActive(false);
+
         ShowPercent();
 
         await UniTask.WaitUntil(() => Input.GetKeyDown(KeyCode.Escape));
 
-        _battleStatsPanel.SetActive(false);
+        SetActivityOfStatsDataUI(false);
     }
 
     /// <summary>
@@ -174,31 +188,30 @@ public class MenuUIManager : MonoBehaviour
     void ShowPercent()
     {
         //位置の初期化
-        _percentImage.transform.localPosition = new Vector3(-466f, -60, 0);
-        _backPercentImage.transform.localPosition = new Vector3(-466f, -60, 0);
+        _percentImage.transform.localPosition = _percentGrahphStartPos;
+        _backPercentImage.transform.localPosition = _percentGrahphStartPos;
 
         var percentImage = _percentImage.GetComponent<Image>();
         var backPercentImage = _backPercentImage.GetComponent<Image>();
-
+        
+        //アルファ値を最大にしながら動かす
         DOTween.ToAlpha(
             () => percentImage.color,
             x => percentImage.color = x,
             255,
-            1f).OnUpdate(() => _percentImage.transform.DOLocalMove(new Vector3(-466f, 0, 0), _tweenTime).SetEase(Ease.OutQuad).OnComplete(ShowStatsText)).Kill(true);
+            1f).OnUpdate(() => _percentImage.transform.DOLocalMove(_percentGrahpEndPos, _tweenTime).SetEase(Ease.OutQuad).OnComplete(ShowStatsText));
 
+        //アルファ値を最大にしながら動かす
         DOTween.ToAlpha(
             () => backPercentImage.color,
             x => backPercentImage.color = x,
             255,
-            1f).OnUpdate(() => _backPercentImage.transform.DOLocalMove(new Vector3(-466f, 0, 0), _tweenTime).SetEase(Ease.OutQuad).OnComplete(ShowStatsText)).Kill(true);
-
-        _percentImage.transform.DOLocalMove(new Vector3(-466f, 0, 0), _tweenTime).SetEase(Ease.OutQuad).SetAutoKill();
-        _backPercentImage.transform.DOLocalMove(new Vector3(-466f, 0, 0), _tweenTime).SetEase(Ease.OutQuad).OnComplete(ShowStatsText).SetAutoKill();
+            1f).OnUpdate(() => _backPercentImage.transform.DOLocalMove(_percentGrahpEndPos, _tweenTime).SetEase(Ease.OutQuad).OnComplete(ShowStatsText));
 
         //円グラフを埋める
         float winPer = _winTimes / (_winTimes + _loseTimes);
         percentImage.fillAmount = 0;
-        percentImage.DOFillAmount(winPer, _tweenTime).SetEase(Ease.OutQuad).SetAutoKill();
+        percentImage.DOFillAmount(winPer, _tweenTime).SetEase(Ease.OutQuad);
     }
 
     /// <summary>
@@ -219,9 +232,9 @@ public class MenuUIManager : MonoBehaviour
     /// </summary>
     void ShowRoundData()
     {
-        _roundDataTable.transform.localPosition = new Vector3(403, 271, 0);
+        _roundDataTable.transform.localPosition = _roundDataUIStartPos;
         _roundDataTable.gameObject.SetActive(true);
-        _roundDataTable.transform.DOLocalMove(new Vector3(403, 331, 0), _tweenTime).SetEase(Ease.OutQuad).SetAutoKill();
+        _roundDataTable.transform.DOLocalMove(_roundDataUIEndPos, _tweenTime).SetEase(Ease.OutQuad).SetAutoKill();
     }
 }
 

@@ -3,8 +3,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
-using Cysharp.Threading.Tasks;
-using TMPro;
 using DG.Tweening;
 using UnityEngine.SceneManagement;
 
