@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
-using DG.Tweening;
 using UnityEngine.SceneManagement;
 
 /// <summary>
@@ -79,6 +78,8 @@ public class MenuSceneManager : MonoBehaviourPunCallbacks
     /// <summary>遷移シーン名</summary>
     [SerializeField] GameObject _battleStatsPanel;
 
+    [SerializeField] MenuUIManager _menuUIManager;
+
     private void Awake()
     {
         //static変数に格納
@@ -87,9 +88,6 @@ public class MenuSceneManager : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        //Tweenのキャパを増やす
-        DOTween.SetTweensCapacity(tweenersCapacity: 400, sequencesCapacity: 200);
-
         //UIをすべて閉じる関数を呼ぶ
         CloseMenuUI();
 
@@ -97,12 +95,10 @@ public class MenuSceneManager : MonoBehaviourPunCallbacks
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
-
         //パネルとテキストを更新
         _loadingPanel.SetActive(true);
         _loadingText.text = "ネットワークに接続中…";
 
-        
         IsConnected();
     }
 
@@ -198,7 +194,7 @@ public class MenuSceneManager : MonoBehaviourPunCallbacks
 
     /// <summary>
     /// ルームを作成ボタン用の関数 
-    /// ボタンで関数を使用する都合上publicになってしまっている。要検討
+    /// ボタンで関数を使用する
     /// </summary>
     public void CreateRoomButton()
     {
@@ -277,7 +273,7 @@ public class MenuSceneManager : MonoBehaviourPunCallbacks
 
     /// <summary>
     /// ルーム一覧パネルを開く関数作成
-    /// ボタンで関数を使用する都合上publicになってしまっている。要検討
+    /// ボタンで関数を使用する
     /// </summary>
     public void FindRoom()
     {
@@ -335,7 +331,7 @@ public class MenuSceneManager : MonoBehaviourPunCallbacks
             Room newButton = Instantiate(_originalRoomButton);
 
             //生成したボタンにルーム情報設定
-            newButton.RegisterRoomDetails(roomInfo.Value);
+            newButton.SetRoomInfo(roomInfo.Value);
 
             //親の設定
             newButton.transform.SetParent(_roomButtonContent.transform);
@@ -459,7 +455,7 @@ public class MenuSceneManager : MonoBehaviourPunCallbacks
     }
 
     /// <summary>
-    /// 名前決定時のボタン用関数、publicになっている。
+    /// 名前決定時のボタン用関数
     /// </summary>
     public void SetName()
     {
@@ -476,6 +472,8 @@ public class MenuSceneManager : MonoBehaviourPunCallbacks
             LobbyMenuDisplay();
 
             _setName = true;
+
+            _menuUIManager.SetName = true;
         }
     }
 
@@ -526,7 +524,7 @@ public class MenuSceneManager : MonoBehaviourPunCallbacks
 
     /// <summary>
     /// 遷移関数
-    /// ボタンから設定しているのでpublicになってしまっている
+    /// ボタンから設定
     /// </summary>
     public void PlayGame()
     {
@@ -551,5 +549,20 @@ public class MenuSceneManager : MonoBehaviourPunCallbacks
 #else
         Application.Quit();
 #endif
+    }
+
+    /// <summary>
+    /// 名前を変更する。ボタンから行う
+    /// </summary>
+    public void ChangeName()
+    {
+        CloseMenuUI();
+        _nameInputPanel.SetActive(true);
+
+        if (PlayerPrefs.HasKey("playerName"))
+        {
+            _placeHolderText.text = PlayerPrefs.GetString("playerName");
+            _nameInput.text = PlayerPrefs.GetString("playerName");
+        }
     }
 }

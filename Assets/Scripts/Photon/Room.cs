@@ -19,7 +19,7 @@ public class Room : MonoBehaviour
     /// Œ»óphotonManager‚ÌRoomListDisplay‚©‚çpublic‚ÅQÆ‚³‚ê‚Ä‚¢‚é
     /// </summary>
     /// <param name="info"></param>
-    public void RegisterRoomDetails(RoomInfo info)
+    public void SetRoomInfo(RoomInfo info)
     {
         //ƒ‹[ƒ€î•ñŠi”[
         this._info = info;

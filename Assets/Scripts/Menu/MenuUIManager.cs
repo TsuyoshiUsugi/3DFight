@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using DG.Tweening;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
+using Photon.Pun;
 
 /// <summary>
 /// menuシーンのUIを操作するUIマネージャークラス
@@ -58,17 +59,34 @@ public class MenuUIManager : MonoBehaviour
     [SerializeField] Vector3 _roundDataUIStartPos;
     [SerializeField] Vector3 _roundDataUIEndPos;
 
+    /// <summary>現在の名前を表示する欄</summary>
+    [SerializeField] Text _nameText;
+
     /// <summary>Tweenにかかる時間</summary>
     [SerializeField] float _tweenTime;
+
+    /// <summary>名前が設定されているか</summary>
+    [SerializeField] bool _setName;
+    public bool SetName { set => _setName = value; }
 
     // Start is called before the first frame update
     void Start()
     {
+        //Tweenのキャパを増やす
+        DOTween.SetTweensCapacity(tweenersCapacity: 400, sequencesCapacity: 200);
+
         ReadDate();
 
         StatsDataInit();
 
         ReadPercentData();
+    }
+
+    private void Update()
+    {
+        
+         _nameText.text = $"現在の名前：{PlayerPrefs.GetString("playerName")}";
+        
     }
 
     /// <summary>
@@ -115,14 +133,7 @@ public class MenuUIManager : MonoBehaviour
 
             for (int i = _resultData.Count - 1; i >= 0; i--)
             {
-                if (_resultData[i] == "Win")
-                {
-                    SetRoundDataBar(i);
-                }
-                else
-                {
-                    SetRoundDataBar(i);
-                }
+                SetRoundDataBar(i);
             }
 
             _winTimes = PlayerPrefs.GetInt("WinTimes");
@@ -169,7 +180,7 @@ public class MenuUIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 勝率や勝ち数負け数を表示する
+    /// 勝率や勝ち数負け数をUIに入れる
     /// </summary>
     void ReadPercentData()
     {
@@ -199,19 +210,19 @@ public class MenuUIManager : MonoBehaviour
             () => percentImage.color,
             x => percentImage.color = x,
             255,
-            1f).OnUpdate(() => _percentImage.transform.DOLocalMove(_percentGrahpEndPos, _tweenTime).SetEase(Ease.OutQuad).OnComplete(ShowStatsText));
+            1f).OnUpdate(() => _percentImage.transform.DOLocalMove(_percentGrahpEndPos, _tweenTime).SetEase(Ease.OutQuad)).SetAutoKill();
 
         //アルファ値を最大にしながら動かす
         DOTween.ToAlpha(
             () => backPercentImage.color,
             x => backPercentImage.color = x,
             255,
-            1f).OnUpdate(() => _backPercentImage.transform.DOLocalMove(_percentGrahpEndPos, _tweenTime).SetEase(Ease.OutQuad).OnComplete(ShowStatsText));
+            1f).OnUpdate(() => _backPercentImage.transform.DOLocalMove(_percentGrahpEndPos, _tweenTime).SetEase(Ease.OutQuad).OnComplete(ShowStatsText)).SetAutoKill();
 
         //円グラフを埋める
         float winPer = _winTimes / (_winTimes + _loseTimes);
         percentImage.fillAmount = 0;
-        percentImage.DOFillAmount(winPer, _tweenTime).SetEase(Ease.OutQuad);
+        percentImage.DOFillAmount(winPer, _tweenTime).SetEase(Ease.OutQuad).SetAutoKill();
     }
 
     /// <summary>
