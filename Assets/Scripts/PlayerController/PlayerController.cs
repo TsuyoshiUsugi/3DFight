@@ -31,8 +31,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] GameObject _armature;
     [SerializeField] GameObject _eye;
     [SerializeField] SpawnManager _spawnManager;
-    [SerializeField] CinemachineFreeLook _virtualCamera;
-    public CinemachineFreeLook VirtualCam => _virtualCamera; 
+    [SerializeField] CinemachineVirtualCamera _virtualCamera;
+    public CinemachineVirtualCamera VirtualCam => _virtualCamera; 
     [SerializeField] PhotonGameManager _photonGameManager;
     [SerializeField] BattleModeManager _gameManager;
 
@@ -178,7 +178,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             _reloadText = GameObject.FindGameObjectWithTag("ReloadText");
 
             //ChinemachineÉJÉÅÉâÇÃéQè∆Çì«Ç›Ç±Çﬁ
-            _virtualCamera = GameObject.FindGameObjectWithTag("Camera").GetComponent<CinemachineFreeLook>();
+            _virtualCamera = GameObject.FindGameObjectWithTag("Camera").GetComponent<CinemachineVirtualCamera>();
 
             BattleModeSetup();
 
@@ -311,7 +311,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     private void CamSetting()
     {
-        _virtualCamera.LookAt = _eye.transform;
         _virtualCamera.Follow = _eye.transform;
         _virtualCamera.m_Lens.FieldOfView = _originFov;
     }

@@ -176,7 +176,8 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
                     FireBullet(_playerLook, _muzzle.transform.position);
                 }
 
-                _player.VirtualCam.m_YAxis.Value -= _recoil;
+                //_player.VirtualCam.m_YAxis.Value -= _recoil;
+                
                 _restBullets.Value--;
 
                 //ŽŸ‚ÉŒ‚‚Ä‚é‚Ü‚ÅŠÔ‚ð‹ó‚¯‚é
