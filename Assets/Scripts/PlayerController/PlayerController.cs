@@ -35,6 +35,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public CinemachineFreeLook VirtualCam { get => _virtualCamera; }
     [SerializeField] PhotonGameManager _photonGameManager;
     [SerializeField] GameM _gameManager;
+
+    /// <summary>銃を持っている腕</summary>
     [SerializeField] GameObject _arm;
     [SerializeField] AudioSource _audioSource;
 
@@ -78,30 +80,53 @@ public class PlayerController : MonoBehaviourPunCallbacks
     float _horizontal;
     float _vertical;
     float _mouseInputX;
-    [SerializeField] float _zoomFov; 
-    [SerializeField] float _originFov; 
-    [SerializeField] float _fovDuration; 
+
+    /// <summary></summary>
+    /// <summary>ズーム時のFOV</summary>
+    [SerializeField] float _zoomFov;
+
+    /// <summary>元のFOV</summary>
+    [SerializeField] float _originFov;
+
+    /// <summary>ズームの遷移時間</summary>
+    [SerializeField] float _fovDuration;
+
+    /// <summary>カメラのX軸の速さ</summary>
     [SerializeField] float _xCameraSpeed;
     public float XCamSpeed { get => _xCameraSpeed; set => _xCameraSpeed = value; }
+
+    /// <summary>カメラのY軸の速さ</summary>
     [SerializeField] float _yCameraSpeed;
     public float YCamSpeed { get => _yCameraSpeed; set => _yCameraSpeed = value; }
 
     [Header("Playerステータス")]
     [SerializeField] ReactiveProperty<float> _playerHp;
+
+    /// <summary>Aimしているか</summary>
     [SerializeField] bool _aiming;
+
+    /// <summary>メイン武器を装備しているか</summary>
     [SerializeField] bool _showMain;
     public bool ShowMain { get => _showMain; set => _showMain = value; }
+
+    /// <summary>エイム時の移動スピード</summary>
     [SerializeField] float _walkSpeedWhileAiming;
+
+    /// <summary>現在の移動スピード</summary>
     [SerializeField] float _presentWalkSpeed;
+
+    /// <summary>歩き時の速さ</summary>
     [SerializeField] float _walkSpeed;
+
     [SerializeField] float _jumpForce;
+
+    /// <summary>ジャンプした回数</summary>
     [SerializeField] float _jumpCount;
+
+    /// <summary>ジャンプ回数の制限</summary>
     [SerializeField] float _jumpCountLimit;
-    [SerializeField] float _maxJumpSpeedLimit;
-    [SerializeField] float _downForce;
+
     [SerializeField] bool _canShoot;
-    [SerializeField] float _playerDamage;
-    public float PlayerDamage { get => _playerDamage; set => _playerDamage = value; }
 
     /// <summary>操作可能か判定する</summary>
     [SerializeField] bool _wait = true;
@@ -112,16 +137,20 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public Vector3 PlayerLook { get => _playerLook; set => _playerLook = value; }
 
     [Header("UI関係")]
-    [SerializeField] int _time;
     [SerializeField] Image _hpImage;
     [SerializeField] TextMeshProUGUI _hpText;
-    [SerializeField] int _displayAmmo;
-    [SerializeField] int _ammoText;
+
+    ///<summary>制限時間</summary>
+    [SerializeField] int _time;
+
     [SerializeField] GameObject _settingPanel;
     [SerializeField] GameObject _reloadText;
     public GameObject ReloadText { get => _reloadText; set => _reloadText = value; }
+
+    /// <summary>当たり判定</summary>
     [SerializeField] bool _hit;
-    public bool Hit { get => _hit; }
+    public bool Hit => _hit;
+
     [SerializeField] TextMeshProUGUI _bulletText;
     public TextMeshProUGUI BulletText { set => _bulletText = value; }
     [SerializeField] TextMeshProUGUI _maxBulletText;
@@ -131,9 +160,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [Header("効果音")]
     [SerializeField] AudioClip _footSound;
 
+    /// <summary>現在アクティブなシーン</summary>
+    [SerializeField] string _activeSceneName;
+
     private void Start()
     {
-        if (SceneManager.GetActiveScene().name == "BattleMode")
+        _activeSceneName = SceneManager.GetActiveScene().name;
+
+        if (_activeSceneName == "BattleMode")
         {
             if (!photonView.IsMine)
             {
@@ -206,7 +240,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         FocusPoint();
 
-        JampVelocityLimit();
 
         Jump();
 
@@ -705,24 +738,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     void Die()
     {
-        if(SceneManager.GetActiveScene().name == "PracticeRange")
+        if(_activeSceneName == "PracticeRange")
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
         else
         {
             _photonGameManager.GameEnd = true;
-        }
-    }
-
-    /// <summary>
-    /// 上方向の力を制限するメソッド
-    /// </summary>
-    void JampVelocityLimit()
-    {
-        if (_rb.velocity.y > _maxJumpSpeedLimit && _rb.velocity.y > 0)
-        {
-            _rb.velocity = new Vector3(_rb.velocity.x, _maxJumpSpeedLimit, _rb.velocity.z);
         }
     }
 
