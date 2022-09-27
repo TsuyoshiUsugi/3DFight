@@ -26,7 +26,7 @@ using TMPro;
 /// 
 /// 
 /// </summary>
-public class GameM : MonoBehaviourPunCallbacks
+public class BattleModeManager : SingletonMonoBehaviorForPun<BattleModeManager>
 {
 
     //í“¬‘O

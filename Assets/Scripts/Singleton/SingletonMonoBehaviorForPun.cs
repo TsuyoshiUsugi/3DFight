@@ -1,11 +1,12 @@
 using UnityEngine;
 using System;
+using Photon.Pun;
 
 /// <summary>
 /// シングルトンモノビヘイビアクラス
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class SingletonMonoBehavior<T>: MonoBehaviour where T : MonoBehaviour
+public abstract class SingletonMonoBehaviorForPun<T>: MonoBehaviourPunCallbacks where T : MonoBehaviourPunCallbacks
 {
     protected static T _instance;
 

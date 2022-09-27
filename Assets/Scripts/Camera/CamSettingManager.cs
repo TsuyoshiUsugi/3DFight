@@ -18,7 +18,7 @@ public class CamSettingManager : MonoBehaviour
     [SerializeField] Slider _xCamSlider;
     [SerializeField] Slider _yCamSlider;
     [SerializeField] GameObject _camSettingPanel;
-    [SerializeField] GameM _gameManager;
+    [SerializeField] BattleModeManager _gameManager;
     // Start is called before the first frame update
     void Start()
     {

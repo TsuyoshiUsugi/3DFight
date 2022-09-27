@@ -71,14 +71,19 @@ public class PracticeRangeManager : MonoBehaviour
     /// </summary>
     void UISetup()
     {
+        //カーソル消す
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
+
+        //戦闘に必要なUIだけ表示
         _playingUI.SetActive(true);
+
+        //装備画面のUI設定
         _equipmentPanel.SetActive(true);
-
         EquipmentSetting();
-
         CloseSettingUI();
+
+        //fadeInする
         _fadeInImage.SetActive(true);
 
     }
