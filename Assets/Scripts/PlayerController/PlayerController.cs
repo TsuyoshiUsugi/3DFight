@@ -30,6 +30,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] Animator animator;
     [SerializeField] GameObject _armature;
     [SerializeField] GameObject _eye;
+    public GameObject Eye => _eye;
+
     [SerializeField] SpawnManager _spawnManager;
     [SerializeField] CinemachineVirtualCamera _virtualCamera;
     public CinemachineVirtualCamera VirtualCam => _virtualCamera; 
@@ -80,6 +82,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     float _horizontal;
     float _vertical;
     float _mouseInputX;
+    float _mouseInputY;
 
     /// <summary></summary>
     /// <summary>ズーム時のFOV</summary>
@@ -215,7 +218,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         ReadInput();
 
-        PlayerRotate();
+        PlayerXRotate();
+
+        PlayerYRotate();
 
         FocusPoint();
 
@@ -233,6 +238,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             ThrowGranade();
         }
     }
+
 
     private void FixedUpdate()
     {
@@ -450,6 +456,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         //マウスの位置を読み取る
         _mouseInputX = Input.GetAxis("Mouse X");
+        _mouseInputY = Input.GetAxis("Mouse Y");
     }
 
     /// <summary>
@@ -478,10 +485,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     void Move()
     {
         //カメラの向き
-        Vector3 cameraForward = Vector3.Scale(transform.forward, new Vector3(1, 0, 1)).normalized;
-
+        Vector3 cameraForward = Vector3.Scale(Camera.main.transform.forward, new Vector3(1, 0, 1)).normalized;
+        Vector3 cameraRight = Camera.main.transform.right;
         //プレイヤーの進行方向
-        Vector3 moveForward = cameraForward * _vertical + transform.right * _horizontal;
+        Vector3 moveForward = cameraForward * _vertical + cameraRight * _horizontal;
 
         //カメラの向いてる方にプレイヤーを動かす
         _rb.velocity = new Vector3(moveForward.normalized.x * _presentWalkSpeed, _rb.velocity.y, moveForward.normalized.z * _presentWalkSpeed);
@@ -531,15 +538,24 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
 
     /// <summary>
-    /// プレイヤーの向きのメソッド
+    /// プレイヤーのX軸の向きのメソッド
     /// </summary>
-    void PlayerRotate()
+    void PlayerXRotate()
     {
         transform.rotation = Quaternion.Euler(transform.eulerAngles.x,
             transform.eulerAngles.y + _mouseInputX * _xCameraSpeed,
             transform.eulerAngles.z);
     }
 
+    /// <summary>
+    /// Y軸方向にEyeオブジェクトを動かす処理
+    /// </summary>
+    private void PlayerYRotate()
+    {
+        _eye.transform.localEulerAngles = new Vector3(_eye.transform.localEulerAngles.x + _mouseInputY * _yCameraSpeed,
+            _eye.transform.localEulerAngles.y,
+            _eye.transform.localEulerAngles.z);
+    }
     /// <summary>
     /// ジャンプのメソッド
     /// </summary>

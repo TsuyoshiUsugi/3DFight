@@ -12,7 +12,7 @@ using UniRx;
 public class CamSettingManager : MonoBehaviour
 {
     [Header("ŽQÆ")]
-    [SerializeField] CinemachineFreeLook _playerCam;
+    [SerializeField] CinemachineVirtualCamera _playerCam;
     [SerializeField] PlayerController _player;
     public PlayerController Player { set => _player = value; }
     [SerializeField] Slider _xCamSlider;
@@ -26,7 +26,6 @@ public class CamSettingManager : MonoBehaviour
         _camSettingPanel.SetActive(true);
         _xCamSlider.value = PlayerPrefs.GetFloat("xCamSpeed");
         _yCamSlider.value = PlayerPrefs.GetFloat("yCamSpeed");
-        _playerCam.m_YAxis.m_MaxSpeed = PlayerPrefs.GetFloat("yCamSpeed");
         _camSettingPanel.SetActive(false);
 
         if(_player == null)
@@ -34,6 +33,7 @@ public class CamSettingManager : MonoBehaviour
             _player = _gameManager.Player; 
         }
         _player.XCamSpeed = PlayerPrefs.GetFloat("xCamSpeed");
+        _player.YCamSpeed = PlayerPrefs.GetFloat("yCamSpeed");
 
         _xCamSlider.OnValueChangedAsObservable()
             .Subscribe(_ => SubscribeXCamSetting())
@@ -59,6 +59,6 @@ public class CamSettingManager : MonoBehaviour
     void SubscribeYCamSetting()
     {
          PlayerPrefs.SetFloat("yCamSpeed", _yCamSlider.value);
-        _playerCam.m_YAxis.m_MaxSpeed =_yCamSlider.value;
+        _player.YCamSpeed =_yCamSlider.value;
     }
 }

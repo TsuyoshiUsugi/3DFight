@@ -27,12 +27,10 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
 
     /// <summary>最大装弾数</summary>
     [SerializeField] int _bulletsCapacity;
-
     public int BulletCap { get => _bulletsCapacity; }
 
     /// <summary>残弾数</summary>
     [SerializeField] ReactiveProperty<int> _restBullets = default;
-
     public ReactiveProperty<int> RestBullet { get => _restBullets; set => _restBullets = value; }
 
     /// <summary>射撃間隔</summary>
@@ -63,10 +61,11 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     [SerializeField] GameObject _muzzle = default;
 
     /// <summary>弾丸のスピード</summary>
-    [SerializeField] float bulletSpeed;
+    [SerializeField] float _bulletSpeed;
 
     [SerializeField] AudioSource _audioSource;
 
+    /// <summary>レティクルが合っている場所</summary>
     [SerializeField] Vector3 _playerLook;
 
     TextMeshProUGUI _bulletText;
@@ -98,6 +97,8 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
         _reloadText = _player.ReloadText;
         _reloadText.SetActive(false);
 
+        _bulletSpeed = _bullet.GetComponent<Bullet>().BulletSpeed;
+
         _canShot = true;
         _pullTrigger = false;
 
@@ -127,17 +128,7 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     /// <summary>
     /// 引き金のプロパティ
     /// </summary>
-    public bool PullTrigger
-    {
-        get
-        {
-            return _pullTrigger;
-        }
-        set
-        {
-            _pullTrigger = value;
-        }
-    }
+    public bool PullTrigger { get => _pullTrigger; set => _pullTrigger = value; }
 
     /// <summary>
     /// 弾丸のプロパティ
@@ -176,7 +167,10 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
                     FireBullet(_playerLook, _muzzle.transform.position);
                 }
 
-                //_player.VirtualCam.m_YAxis.Value -= _recoil;
+                _player.Eye.transform.localEulerAngles = new Vector3(_player.Eye.transform.localEulerAngles.x + _recoil,
+                    _player.Eye.transform.localEulerAngles.y,
+                    _player.Eye.transform.localEulerAngles.z);
+    
                 
                 _restBullets.Value--;
 
@@ -207,8 +201,7 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
         GameObject bullet = Instantiate(_bullet, muzzle, _muzzle.transform.rotation);
 
         Vector3 heading = (playerLook - muzzle).normalized;
-        bullet.GetComponent<Rigidbody>().AddForce(heading * bulletSpeed, ForceMode.Impulse);
-        bullet.GetComponent<Bullet>().Dir = heading;
+        bullet.GetComponent<Rigidbody>().AddForce(heading * _bulletSpeed, ForceMode.Impulse);
     }
 
     /// <summary>
@@ -246,11 +239,14 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
 
         _canShot = false;
 
+        //リロードテキストを表示
         _reloadText.gameObject.SetActive(true);
-
         yield return new WaitForSeconds(_reloadTime);
         _reloadText.gameObject.SetActive(false);
+
         _canShot = true;
+
+        //弾を最大に
         _restBullets.Value = _bulletsCapacity;
 
         _reloading = false;

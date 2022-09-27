@@ -39,7 +39,7 @@ public class BattleModeManager : SingletonMonoBehaviorForPun<BattleModeManager>
     //í“¬’†
     [SerializeField] GameObject _spawnManager;
     [SerializeField] GameObject _playingUI;
-    [SerializeField] CinemachineFreeLook _playerCam;
+    [SerializeField] CinemachineVirtualCamera _playerCam;
     [SerializeField] PlayerController _player;
     public PlayerController Player { get => _player; set => _player = value; }
     [SerializeField] PlayerController _enemy;
