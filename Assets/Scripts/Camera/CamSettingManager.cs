@@ -34,6 +34,7 @@ public class CamSettingManager : MonoBehaviour
             _player = _gameManager.Player; 
         }
         _player.XCamSpeed = PlayerPrefs.GetFloat("xCamSpeed");
+
         _xCamSlider.OnValueChangedAsObservable()
             .Subscribe(_ => SubscribeXCamSetting())
             .AddTo(this);

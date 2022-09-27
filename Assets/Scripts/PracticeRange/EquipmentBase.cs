@@ -21,7 +21,6 @@ public class EquipmentBase : MonoBehaviour, IPointerClickHandler
     [Header("このアイテムのステータス")]
     [SerializeField] ItemType _itemType;
     [SerializeField] int _itemNumber;
-    [SerializeField] bool _selected;
     [SerializeField, TextArea(1, 3)] string _showText;
     public string ShowText { get => _showText; set => _showText = value; }
 
@@ -62,11 +61,14 @@ public class EquipmentBase : MonoBehaviour, IPointerClickHandler
     /// </summary>
     private void Seleccted()
     {
-        
+        //画像変更
         _showImageTab.sprite = _showImage;
+
+        //テキスト変更
         _showTextTab.text = _showText;
         switch (_itemType)
         {
+            //プレイヤーに情報を渡す
             case ItemType.mainWepon:
                 _player.MainWeponNumber = _itemNumber;
                 _player.ShowMain = true;

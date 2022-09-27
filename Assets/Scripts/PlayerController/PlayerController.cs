@@ -169,10 +169,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (_activeSceneName == "BattleMode")
         {
-            if (!photonView.IsMine)
-            {
-                return;
-            }
+            IsMineCheck();
 
             _bulletText = GameObject.FindGameObjectWithTag("BulletText").GetComponent<TextMeshProUGUI>();
             _maxBulletText = GameObject.FindGameObjectWithTag("MaxBulletText").GetComponent<TextMeshProUGUI>();
@@ -224,11 +221,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         if (SceneManager.GetActiveScene().name == "BattleMode")
         {
-        
-            if (!photonView.IsMine)
-            {
-                return;
-            }
+
+            IsMineCheck();
         }
 
         if (_wait)
@@ -260,10 +254,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         if (SceneManager.GetActiveScene().name == "BattleMode")
         {
-            if (!photonView.IsMine)
-            {
-                return;
-            }
+            IsMineCheck();
 
         }
 
@@ -281,10 +272,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         if (SceneManager.GetActiveScene().name == "BattleMode")
         {
-            if (!photonView.IsMine)
-            {
-                return;
-            }
+            IsMineCheck();
         }
 
 
