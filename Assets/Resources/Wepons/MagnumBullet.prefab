@@ -130,9 +130,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f04e1be3887768b4aad76ba4b7dabab8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _bulletSpeed: 400
+  _bulletSpeed: 200
   _bulletDamage: 40
-  rayDistance: 1.8
   _bulletRb: {fileID: 2956765651507509295}
   _current: {x: 0, y: 0, z: 0}
   _previous: {x: 0, y: 0, z: 0}
@@ -251,7 +250,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 940468897711769930}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
   m_Name: 

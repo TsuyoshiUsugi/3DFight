@@ -173,24 +173,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (_activeSceneName == "BattleMode")
         {
-            IsMineCheck();
+            if (!photonView.IsMine)
+            {
+                return;
+            }
 
-            //UIを読みこむ
-            _bulletText = GameObject.FindGameObjectWithTag("BulletText").GetComponent<TextMeshProUGUI>();
-            _maxBulletText = GameObject.FindGameObjectWithTag("MaxBulletText").GetComponent<TextMeshProUGUI>();
-            _reloadText = GameObject.FindGameObjectWithTag("ReloadText");
-
-            //Chinemachineカメラの参照を読みこむ
-            _virtualCamera = GameObject.FindGameObjectWithTag("Camera").GetComponent<CinemachineVirtualCamera>();
-
-            BattleModeSetup();
-
-            _abilityImage = GameObject.FindGameObjectWithTag("AbilityImage").GetComponent<Image>();
-            _abilityCoolTimePanel = GameObject.FindGameObjectWithTag("CoolTimePanel").GetComponent<Image>();
-
-            //プレイヤーに関連するUIを読み取る
-            _hpText = GameObject.FindGameObjectWithTag("HpText").GetComponent<TextMeshProUGUI>();
-            _hpImage = GameObject.FindGameObjectWithTag("HpImage").GetComponent<Image>();
+            BattleModeSetUp();
         }
 
         //メイン武器を表示させる
@@ -203,12 +191,37 @@ public class PlayerController : MonoBehaviourPunCallbacks
         SetAsynchronousProcess();
     }
 
+    /// <summary>
+    /// 対戦時に行う参照を取得する関数
+    /// </summary>
+    private void BattleModeSetUp()
+    {
+        //UIを読みこむ
+        _bulletText = BattleModeManager.Instance.BulletText;
+        _maxBulletText = BattleModeManager.Instance.MaxBulletText;
+        _reloadText = GameObject.FindGameObjectWithTag("ReloadText");
+
+        //Chinemachineカメラの参照を読みこむ
+        _virtualCamera = BattleModeManager.Instance.PlayerCam;
+
+        BattleModeSetup();
+
+        _abilityImage = GameObject.FindGameObjectWithTag("AbilityImage").GetComponent<Image>();
+        _abilityCoolTimePanel = GameObject.FindGameObjectWithTag("CoolTimePanel").GetComponent<Image>();
+
+        //プレイヤーに関連するUIを読み取る
+        _hpText = GameObject.FindGameObjectWithTag("HpText").GetComponent<TextMeshProUGUI>();
+        _hpImage = GameObject.FindGameObjectWithTag("HpImage").GetComponent<Image>();
+    }
 
     void Update()
     {
         if (_activeSceneName == "BattleMode")
         {
-            IsMineCheck();
+            if (!photonView.IsMine)
+            {
+                return;
+            }
         }
 
         if (_wait)
@@ -244,7 +257,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         if (_activeSceneName == "BattleMode")
         {
-            IsMineCheck();
+            if (!photonView.IsMine)
+            {
+                return;
+            }
         }
 
         if (_wait)
@@ -261,7 +277,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         if (_activeSceneName == "BattleMode")
         {
-            IsMineCheck();
+            if (!photonView.IsMine)
+            {
+                return;
+            }
         }
 
         if (_wait)
@@ -486,6 +505,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         //カメラの向き
         Vector3 cameraForward = Vector3.Scale(Camera.main.transform.forward, new Vector3(1, 0, 1)).normalized;
+
         Vector3 cameraRight = Camera.main.transform.right;
         //プレイヤーの進行方向
         Vector3 moveForward = cameraForward * _vertical + cameraRight * _horizontal;
@@ -515,7 +535,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
-    //足音を鳴らすメソッド
+    /// <summary>
+    /// 足音鳴らす
+    /// 調整中
+    /// </summary>
     [PunRPC]
     void FootStepSound()
     {

@@ -40,13 +40,21 @@ public class BattleModeManager : SingletonMonoBehaviorForPun<BattleModeManager>
     [SerializeField] GameObject _spawnManager;
     [SerializeField] GameObject _playingUI;
     [SerializeField] CinemachineVirtualCamera _playerCam;
+    public CinemachineVirtualCamera PlayerCam => _playerCam;
     [SerializeField] PlayerController _player;
     public PlayerController Player { get => _player; set => _player = value; }
     [SerializeField] PlayerController _enemy;
     public PlayerController Enemy {set => _enemy = value;}
     [SerializeField] GameObject _hitMarker;
+
+    /// <summary>現在の弾数のテキスト</summary>
     [SerializeField] TextMeshProUGUI _bulletText;
+    public TextMeshProUGUI BulletText => _bulletText;
+
+    /// <summary>現在の銃の最大の弾数のテキスト</summary>
     [SerializeField] TextMeshProUGUI _maxBulletText;
+    public TextMeshProUGUI MaxBulletText => _maxBulletText;
+
     [SerializeField] GameObject _camSettingManager;
     [SerializeField] GameObject _alert;
 
