@@ -20,11 +20,6 @@ public class Bullet : MonoBehaviour
     /// <summary>前フレームの位置</summary>
     [SerializeField] Vector3 _previous;
 
-    void Start()
-    {
-
-    }
-  
     private void Update()
     {
         if(_current != null)
@@ -38,12 +33,12 @@ public class Bullet : MonoBehaviour
 
     /// <summary>
     /// 当たり判定を行う関数
-    /// 現在の地点から前フレームの地点までrayを飛ばして判定
+    /// 前フレームの位置から現在の位置までrayを飛ばして判定
     /// </summary>
     void Hit()
     {
         Vector3 rayPosition = _current;
-        var dir = _previous - _current; 
+        var dir = _current - _previous; 
         Ray ray = new Ray(rayPosition, dir.normalized);
 
         //敵に衝突したときの処理
@@ -63,6 +58,7 @@ public class Bullet : MonoBehaviour
                 hit.collider.GetComponent<PracticeTarget>().HitTarget = true;
                 Destroy(this.gameObject);
             }
+
             if(hit.collider.tag == "Wall")
             {
                 Destroy(this.gameObject);
