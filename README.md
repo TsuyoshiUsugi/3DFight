@@ -1,5 +1,8 @@
 # 1年次前期末審査会　最多得票作品賞
+![DSC_0139](https://user-images.githubusercontent.com/104509665/193547383-b96ebff0-0c93-44be-92df-afec79cfa1c6.JPG)
+
 # 1年次前期末講評会　最優秀賞
+![DSC_0138](https://user-images.githubusercontent.com/104509665/193547425-3160e2a3-61d3-4ac5-8c2c-06983422a760.JPG)
 
 # ゲーム概要
 1年次前期末審査会（オリジナルのゲームを発表する学内の発表会）に向けて制作した作品です。  
