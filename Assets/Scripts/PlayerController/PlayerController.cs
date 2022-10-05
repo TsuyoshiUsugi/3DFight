@@ -166,7 +166,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// <summary>現在アクティブなシーン</summary>
     [SerializeField] string _activeSceneName;
 
-    private void Start()
+    private void Awake()
     {
         //現在のシーンの名前を入れておく
         _activeSceneName = SceneManager.GetActiveScene().name;
@@ -178,35 +178,40 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 return;
             }
 
-            BattleModeSetUp();
+            BattleModeSetting();
         }
+
+        ReadEquipmentData();
+
+        SetAsynchronousProcess();
 
         //メイン武器を表示させる
         _showMain = true;
 
         CamSetting();
+    }
 
-        ReadEquipmentData();
-
-        SetAsynchronousProcess();
+    private void Start()
+    {
+        
     }
 
     /// <summary>
     /// 対戦時に行う参照を取得する関数
     /// </summary>
-    private void BattleModeSetUp()
+    private void BattleModeSetting()
     {
+        BattleModeSetup();
+
         //UIを読みこむ
         _bulletText = BattleModeManager.Instance.BulletText;
         _maxBulletText = BattleModeManager.Instance.MaxBulletText;
-        _reloadText = GameObject.FindGameObjectWithTag("ReloadText");
+        _reloadText = BattleModeManager.Instance.ReloadText;
 
         //Chinemachineカメラの参照を読みこむ
         _virtualCamera = BattleModeManager.Instance.PlayerCam;
 
-        BattleModeSetup();
-
-        _abilityImage = GameObject.FindGameObjectWithTag("AbilityImage").GetComponent<Image>();
+        _abilityImage = BattleModeManager.Instance.AbilityImage;
         _abilityCoolTimePanel = GameObject.FindGameObjectWithTag("CoolTimePanel").GetComponent<Image>();
 
         //プレイヤーに関連するUIを読み取る
@@ -372,11 +377,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
         //アクティブにする武器の表示
         _mainWeponList[weponNum].SetActive(true);
 
+        //参照するスクリプトを変更
+        _presentMainWepon = _mainWeponList[weponNum].GetComponent<GunBase>();
+
+        if(!photonView.IsMine)
+        {
+            return;
+        }
+
         //アクティブにする武器の値をセーブ
         PlayerPrefs.SetInt("MainWeponNumber", weponNum);
 
-        //参照するスクリプトを変更
-        _presentMainWepon = _mainWeponList[weponNum].GetComponent<GunBase>();
 
         //練習場にいるなら残弾をマックスに戻す
         if (_activeSceneName == "PracticeRange")
@@ -399,11 +410,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         _subWeponList[subweponNum].SetActive(true);
 
+        //参照するスクリプトを変更
+        _presentSubWepon = _subWeponList[subweponNum].GetComponent<SubWeponBase>();
+
+        if (!photonView.IsMine)
+        {
+            return;
+        }
+
         //アクティブにする武器の値をセーブ
         PlayerPrefs.SetInt("SubWeponNumber", subweponNum);
 
-        //参照するスクリプトを変更
-        _presentSubWepon = _subWeponList[subweponNum].GetComponent<SubWeponBase>();
 
         //残弾をマックスに戻す
         if(_activeSceneName == "PracticeRange")
@@ -440,17 +457,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     }
 
     /// <summary>
-    /// 操作しているのが自分か確認する
-    /// </summary>
-    void IsMineCheck()
-    {
-        if (!photonView.IsMine)
-        {
-            return;
-        }
-    }
-
-    /// <summary>
     /// 対戦時に行う参照取得処理
     /// </summary>
     void BattleModeSetup()
@@ -483,7 +489,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     void FocusPoint()
     {
-        IsMineCheck();
+        if (!photonView.IsMine)
+        {
+            return;
+        }
 
         int centerX = Screen.width / 2;
         int centerY = Screen.height / 2;

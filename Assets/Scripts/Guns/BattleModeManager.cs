@@ -54,6 +54,14 @@ public class BattleModeManager : SingletonMonoBehaviorForPun<BattleModeManager>
     /// <summary>現在の銃の最大の弾数のテキスト</summary>
     [SerializeField] TextMeshProUGUI _maxBulletText;
     public TextMeshProUGUI MaxBulletText => _maxBulletText;
+    
+    /// <summary>リロードテキストのオブジェクト</summary>
+    [SerializeField] GameObject _reloadText;
+    public GameObject ReloadText => _reloadText;
+
+    /// <summary>アビリティの画像を表示するUI</summary>
+    [SerializeField] Image _abilityImage;
+    public Image AbilityImage => _abilityImage;
 
     [SerializeField] GameObject _camSettingManager;
     [SerializeField] GameObject _alert;
@@ -105,8 +113,6 @@ public class BattleModeManager : SingletonMonoBehaviorForPun<BattleModeManager>
         //Timelineのシグナルを受信
         if (_endOP)
         {
-           
-
             CursorSet();
 
             SwicthOpObj(false);

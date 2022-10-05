@@ -22,10 +22,9 @@ public class Bullet : MonoBehaviour
 
     private void Update()
     {
-        if(_current != null)
-        {
-            _previous = _current;
-        }
+        
+         _previous = _current;
+        
         _current = transform.position;
 
         Hit();
@@ -37,9 +36,10 @@ public class Bullet : MonoBehaviour
     /// </summary>
     void Hit()
     {
-        Vector3 rayPosition = _current;
-        var dir = _current - _previous; 
+        Vector3 rayPosition = _previous;
+        var dir = _previous - _current; 
         Ray ray = new Ray(rayPosition, dir.normalized);
+        Debug.DrawRay(rayPosition, dir, Color.green, 10);
 
         //ìGÇ…è’ìÀÇµÇΩÇ∆Ç´ÇÃèàóù
         RaycastHit hit;
@@ -47,7 +47,6 @@ public class Bullet : MonoBehaviour
         {
             if (hit.collider.tag == "Player")
             {
-                Debug.Log("Hit");
                 hit.collider.GetComponent<PlayerController>().Damage(_bulletDamage);
                 Destroy(this.gameObject);
 
@@ -58,13 +57,6 @@ public class Bullet : MonoBehaviour
                 hit.collider.GetComponent<PracticeTarget>().HitTarget = true;
                 Destroy(this.gameObject);
             }
-
-            if(hit.collider.tag == "Wall")
-            {
-                Destroy(this.gameObject);
-            }
-
-
         }
     }
 
