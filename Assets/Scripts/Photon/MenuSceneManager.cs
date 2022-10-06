@@ -383,7 +383,7 @@ public class MenuSceneManager : MonoBehaviourPunCallbacks
     {
         //名前テキストを初期化
         InitializePlayerList();
-
+        Debug.Log("ルームプレイヤー取得");
         //プレイヤー表示関数
         PlayerDisplay();
     }

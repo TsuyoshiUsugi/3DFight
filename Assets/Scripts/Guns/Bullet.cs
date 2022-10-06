@@ -69,7 +69,7 @@ public class Bullet : MonoBehaviour
     [ContextMenu(nameof(Hit))]
     void Hit()
     {
-        Vector3 rayPosition = _current;
+        Vector3 rayPosition = _previous;
         var dir = _previous - _current; 
         Ray ray = new Ray(rayPosition, dir.normalized);
 
@@ -82,7 +82,6 @@ public class Bullet : MonoBehaviour
                 Debug.Log("Hit");
                 hit.collider.GetComponent<PlayerController>().Damage(_bulletDamage);
                 Destroy(this.gameObject);
-
             }
 
             if (hit.collider.tag == "Target")
@@ -90,12 +89,7 @@ public class Bullet : MonoBehaviour
                 hit.collider.GetComponent<PracticeTarget>().HitTarget = true;
                 Destroy(this.gameObject);
             }
-            if(hit.collider.tag == "Wall")
-            {
-                Destroy(this.gameObject);
-            }
-
-
+            Destroy(this.gameObject);
         }
     }
 
