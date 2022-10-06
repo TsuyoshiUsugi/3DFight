@@ -62,6 +62,18 @@ public class BattleModeManager : SingletonMonoBehaviorForPun<BattleModeManager>
     /// <summary>アビリティの画像を表示するUI</summary>
     [SerializeField] Image _abilityImage;
     public Image AbilityImage => _abilityImage;
+    
+    /// <summary>アビリティのクールタイムを表示するパネル</summary>
+    [SerializeField] Image _abilityCoolTimePanel;
+    public Image AbilityCoolTimePanel => _abilityCoolTimePanel;
+
+    /// <summary>Hpテキスト</summary>
+    [SerializeField] TextMeshProUGUI _hpText;
+    public TextMeshProUGUI HpText => _hpText;
+
+    /// <summary>Hpの背景画像</summary>
+    [SerializeField] Image _hpImage;
+    public Image HpImage => _hpImage;
 
     [SerializeField] GameObject _camSettingManager;
     [SerializeField] GameObject _alert;

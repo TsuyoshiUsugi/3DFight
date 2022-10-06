@@ -20,7 +20,7 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     */
 
     /// <summary>ŽËŒ‚‰¹</summary>
-    [SerializeField] AudioClip _shotSound = default;
+    [SerializeField] AudioClip _shotSound;
 
     /// <summary>ŽËŒ‚‰¹</summary>
     [SerializeField] AudioClip _noAmmoSound = default;
@@ -196,12 +196,12 @@ public abstract class GunBase : MonoBehaviourPunCallbacks
     [PunRPC]
     protected virtual void FireBullet(Vector3 playerLook, Vector3 muzzle)
     {
-        _audioSource.PlayOneShot(_shotSound);
 
         GameObject bullet = Instantiate(_bullet, muzzle, _muzzle.transform.rotation);
 
         Vector3 heading = (playerLook - muzzle).normalized;
         bullet.GetComponent<Rigidbody>().AddForce(heading * _bulletSpeed, ForceMode.Impulse);
+        _audioSource.PlayOneShot(_shotSound);
     }
 
     /// <summary>

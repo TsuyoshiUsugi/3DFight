@@ -212,11 +212,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _virtualCamera = BattleModeManager.Instance.PlayerCam;
 
         _abilityImage = BattleModeManager.Instance.AbilityImage;
-        _abilityCoolTimePanel = GameObject.FindGameObjectWithTag("CoolTimePanel").GetComponent<Image>();
+        _abilityCoolTimePanel = BattleModeManager.Instance.AbilityCoolTimePanel;
 
         //プレイヤーに関連するUIを読み取る
-        _hpText = GameObject.FindGameObjectWithTag("HpText").GetComponent<TextMeshProUGUI>();
-        _hpImage = GameObject.FindGameObjectWithTag("HpImage").GetComponent<Image>();
+        _hpText = BattleModeManager.Instance.HpText;
+        _hpImage = BattleModeManager.Instance.HpImage;
     }
 
     void Update()
