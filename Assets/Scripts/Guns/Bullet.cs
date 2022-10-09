@@ -32,18 +32,19 @@ public class Bullet : MonoBehaviour
     /// </summary>
     public float BulletDamage { get => _bulletDamage; }
 
-    [SerializeField] Vector3 _current;
-    [SerializeField] Vector3 _previous;
+    Vector3 _current;
+    Vector3 _previous;
 
     void Start()
     {
-
+        _current = transform.position;
     }
   
     private void Update()
     {
+        
         _previous = _current;
-
+        
         _current = transform.position;
 
         Hit();
@@ -74,7 +75,7 @@ public class Bullet : MonoBehaviour
                 Destroy(this.gameObject);
             }
 
-            Debug.Log(hit.transform.position);
+            Debug.Log(hit.collider.gameObject.transform.position);
             Destroy(this.gameObject);
         }
     }

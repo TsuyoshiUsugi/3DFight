@@ -183,7 +183,6 @@ public class MenuSceneManager : MonoBehaviourPunCallbacks
 
     /// <summary>
     /// ルームを作るボタン用の関数作成
-    /// ボタンで関数を使用する都合上publicになってしまっている。要検討
     /// </summary>
     public void OpenCreateRoomPanel()
     {
