@@ -178,7 +178,6 @@ public class MenuSceneManager : MonoBehaviourPunCallbacks
 
         //名前が入力済みか確認してUI更新
         ConfirmationName();
-
     }
 
     /// <summary>
@@ -219,6 +218,7 @@ public class MenuSceneManager : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         CloseMenuUI();
+
         _roomPanel.SetActive(true);
 
         //ルームの名前を反映
@@ -233,6 +233,10 @@ public class MenuSceneManager : MonoBehaviourPunCallbacks
 
     /// <summary>
     /// ルームを退出する関数
+<<<<<<< HEAD
+=======
+    /// ボタンで関数を使用する
+>>>>>>> 99b3ca560314c0a9aeb4453129390950705fe98d
     /// </summary>
     public void LeaveRoom()
     {
@@ -314,7 +318,6 @@ public class MenuSceneManager : MonoBehaviourPunCallbacks
 
         //ルームボタン表示関数
         RoomListDisplay(_roomList);
-
     }
 
     /// <summary>
@@ -362,9 +365,9 @@ public class MenuSceneManager : MonoBehaviourPunCallbacks
         {
             return;
         }
+
         //ルームに参加
         PhotonNetwork.JoinRoom(roomInfo.Name);
-
 
         //UIを閉じる
         CloseMenuUI();

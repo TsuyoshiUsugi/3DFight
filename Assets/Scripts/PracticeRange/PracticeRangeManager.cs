@@ -1,8 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UniRx;
 using UnityEngine.SceneManagement;
 
 /// <summary>
@@ -10,17 +8,34 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class PracticeRangeManager : MonoBehaviour
 {
-    [Header("UI関連")] 
-    [SerializeField] GameObject _playingUI;
-    [SerializeField] GameObject _settingPanel;
+    [Header("UI関連")]
     [SerializeField] GameObject _fadeInImage;
+
+    /// <summary>プレイ中に表示するUI</summary>
+    [SerializeField] GameObject _playingUI;
+
+    /// <summary>感度設定パネル</summary>
+    [SerializeField] GameObject _settingPanel;
+
+    /// <summary>装備を表示するパネル</summary>
     [SerializeField] GameObject _equipmentPanel;
+
+    /// <summary>今設定画面を表示しているか</summary>
     [SerializeField] bool _nowSetting;
-    [SerializeField] bool _showSetting;
+
+    /// <summary>装備設定画面を表示しているか</summary>
     [SerializeField] bool _showEuipmentSetting;
+
+    /// <summary>設定のボタン</summary>
     [SerializeField] GameObject _settingButton;
+
+    /// <summary>装備のボタン</summary>
     [SerializeField] GameObject _equipmentButton;
+
+    /// <summary>ホーム画面に戻るボタン</summary>
     [SerializeField] GameObject _homeButton;
+
+    //メイン、サブ、アビリティそれぞれの画像とテキストを表示する場所
     [SerializeField] Image _mainImage;
     [SerializeField] Text _mainText;
     [SerializeField] Image _subImage;
@@ -28,14 +43,12 @@ public class PracticeRangeManager : MonoBehaviour
     [SerializeField] Image _abilityImage;
     [SerializeField] Text _abilityText;
 
-    [Header("設定パネル")]
+    [Header("感度調整用スライダー")]
     [SerializeField] Slider _xCamSpeedSlider;
     [SerializeField] Slider _yCamSpeedSlider;
 
-    [Header("Player関連")]
     [SerializeField] PlayerController _player;
     
-
     [Header("メイン、サブ武器のオブジェクトリスト")]
     [SerializeField] List<GameObject> _mainWeponList;
     [SerializeField] List<GameObject> _subWeponList;
@@ -58,21 +71,21 @@ public class PracticeRangeManager : MonoBehaviour
     /// </summary>
     void UISetup()
     {
+        //カーソル消す
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
+
+        //戦闘に必要なUIだけ表示
         _playingUI.SetActive(true);
 
-        _settingPanel.SetActive(true);
-        _xCamSpeedSlider.value = PlayerPrefs.GetFloat("xCamSpeed");
-        _yCamSpeedSlider.value = PlayerPrefs.GetFloat("yCamSpeed");
-        _settingPanel.SetActive(false);
+        //装備画面のUI設定
         _equipmentPanel.SetActive(true);
-        EquipSetting();
-        _equipmentPanel.SetActive(false);
-        _settingButton.SetActive(false);
-        _equipmentButton.SetActive(false);
-        _homeButton.SetActive(false);
+        EquipmentSetting();
+        CloseSettingUI();
+
+        //fadeInする
         _fadeInImage.SetActive(true);
+
     }
 
     // Update is called once per frame
@@ -107,44 +120,22 @@ public class PracticeRangeManager : MonoBehaviour
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
             _player.Wait = false;
-            _settingButton.SetActive(false);
-            _equipmentButton.SetActive(false);
-            _homeButton.SetActive(false);
-            _settingPanel.SetActive(false);
-            _equipmentPanel.SetActive(false);
+
+            CloseSettingUI();
 
         }
     }
 
     /// <summary>
-    /// 感度設定をするメソッド
+    /// 設定画面をすべて閉じる関数
     /// </summary>
-    void SettingInput()
+    private void CloseSettingUI()
     {
-
-        if (_nowSetting)
-        {
-            _settingPanel.SetActive(true);
-
-        }
-        else if (!_nowSetting)
-        {
-            CamSetting();
-            PlayerPrefs.SetFloat("xCamSpeed", _xCamSpeedSlider.value);
-            PlayerPrefs.SetFloat("yCamSpeed", _yCamSpeedSlider.value);
-            _settingPanel.SetActive(false);
-        }
-    }
-
-    /// <summary>
-    /// 設定した感度をプレイヤーに読みこませるメソッド
-    /// </summary>
-    void CamSetting()
-    {
-        _player.XCamSpeed = _xCamSpeedSlider.value;
-        _player.YCamSpeed = _yCamSpeedSlider.value;
-        Debug.Log(_player.XCamSpeed);
-        Debug.Log(_player.YCamSpeed);
+        _settingButton.SetActive(false);
+        _equipmentButton.SetActive(false);
+        _homeButton.SetActive(false);
+        _settingPanel.SetActive(false);
+        _equipmentPanel.SetActive(false);
     }
 
     /// <summary>
@@ -155,12 +146,9 @@ public class PracticeRangeManager : MonoBehaviour
         if (_nowSetting)
         {
             _equipmentPanel.SetActive(true);
-            
-
         }
         else if (!_nowSetting)
         {
-
             _equipmentPanel.SetActive(false);
         }
     }
@@ -197,11 +185,14 @@ public class PracticeRangeManager : MonoBehaviour
     /// <summary>
     /// シーン遷移後最初に装備の画像を設定する
     /// </summary>
-    void EquipSetting()
+    void EquipmentSetting()
     {
+        //それぞれ表示する値を読み取る
         int weponNumber = PlayerPrefs.GetInt("MainWeponNumber");
         int subNumber = PlayerPrefs.GetInt("SubWeponNumber");
         int abilityNumber = PlayerPrefs.GetInt("AbilityNumber");
+
+        //反映
         _mainImage.sprite = _mainWeponList[weponNumber].GetComponent<EquipmentBase>().ShowImage;
         _mainText.text = _mainWeponList[weponNumber].GetComponent<EquipmentBase>().ShowText;
         _subImage.sprite = _subWeponList[subNumber].GetComponent<EquipmentBase>().ShowImage;

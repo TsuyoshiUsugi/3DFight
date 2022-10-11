@@ -6,20 +6,15 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     /// <summary>弾丸のスピード</summary>
-    [SerializeField] float bulletSpeed;
+    [SerializeField] float _bulletSpeed;
+    public float BulletSpeed => _bulletSpeed;
 
     /// <summary>弾丸のダメージ</summary>
-    [SerializeField] float _bulletDamage = 1;
-    
-    /// <summary>弾丸のとぶ方向</summary>
-    Vector3 _dir;
-
-    [SerializeField] float rayDistance;
-
-    public Vector3 Dir { get => _dir; set => _dir = value; }
+    [SerializeField] float _bulletDamage;
 
     [SerializeField] Rigidbody _bulletRb;
 
+<<<<<<< HEAD
     GameObject _muzzle;
 
     /// <summary>
@@ -44,18 +39,38 @@ public class Bullet : MonoBehaviour
     {
         
         _previous = _current;
+=======
+    /// <summary>現在の位置</summary>
+    [SerializeField] Vector3 _current;
+
+    /// <summary>前フレームの位置</summary>
+    [SerializeField] Vector3 _previous;
+
+    private void Update()
+    {
+        
+         _previous = _current;
+>>>>>>> 99b3ca560314c0a9aeb4453129390950705fe98d
         
         _current = transform.position;
 
         Hit();
     }
 
-    [ContextMenu(nameof(Hit))]
+    /// <summary>
+    /// 当たり判定を行う関数
+    /// 前フレームの位置から現在の位置までrayを飛ばして判定
+    /// </summary>
     void Hit()
     {
         Vector3 rayPosition = _previous;
+<<<<<<< HEAD
         var dir = _current - _previous; 
+=======
+        var dir = _previous - _current; 
+>>>>>>> 99b3ca560314c0a9aeb4453129390950705fe98d
         Ray ray = new Ray(rayPosition, dir.normalized);
+        Debug.DrawRay(rayPosition, dir, Color.green, 10);
 
         Debug.DrawRay(rayPosition, dir, Color.green, dir.magnitude);
         //敵に衝突したときの処理
@@ -64,7 +79,6 @@ public class Bullet : MonoBehaviour
         {
             if (hit.collider.tag == "Player")
             {
-                Debug.Log("Hit");
                 hit.collider.GetComponent<PlayerController>().Damage(_bulletDamage);
                 Destroy(this.gameObject);
             }
@@ -74,9 +88,12 @@ public class Bullet : MonoBehaviour
                 hit.collider.GetComponent<PracticeTarget>().HitTarget = true;
                 Destroy(this.gameObject);
             }
+<<<<<<< HEAD
 
             Debug.Log(hit.collider.gameObject.transform.position);
             Destroy(this.gameObject);
+=======
+>>>>>>> 99b3ca560314c0a9aeb4453129390950705fe98d
         }
     }
 

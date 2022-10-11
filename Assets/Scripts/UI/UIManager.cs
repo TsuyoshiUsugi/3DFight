@@ -89,7 +89,7 @@ public class UIManager : MonoBehaviourPunCallbacks
             _showStartBattleNumber[i].gameObject.SetActive(false);
         }
         gameObject.GetComponent<AudioSource>().Stop();
-        _gameManager.GetComponent<GameM>().StartCount = true;
+        _gameManager.GetComponent<BattleModeManager>().StartCount = true;
 
         this.gameObject.SetActive(false);
     }

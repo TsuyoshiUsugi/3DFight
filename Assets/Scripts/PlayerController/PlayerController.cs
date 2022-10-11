@@ -30,11 +30,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] Animator animator;
     [SerializeField] GameObject _armature;
     [SerializeField] GameObject _eye;
+    public GameObject Eye => _eye;
+
     [SerializeField] SpawnManager _spawnManager;
-    [SerializeField] CinemachineFreeLook _virtualCamera;
-    public CinemachineFreeLook VirtualCam { get => _virtualCamera; }
+    [SerializeField] CinemachineVirtualCamera _virtualCamera;
+    public CinemachineVirtualCamera VirtualCam => _virtualCamera; 
     [SerializeField] PhotonGameManager _photonGameManager;
-    [SerializeField] GameM _gameManager;
+    [SerializeField] BattleModeManager _gameManager;
+
+    /// <summary>銃を持っている腕</summary>
     [SerializeField] GameObject _arm;
     [SerializeField] AudioSource _audioSource;
 
@@ -78,30 +82,54 @@ public class PlayerController : MonoBehaviourPunCallbacks
     float _horizontal;
     float _vertical;
     float _mouseInputX;
-    [SerializeField] float _zoomFov; 
-    [SerializeField] float _originFov; 
-    [SerializeField] float _fovDuration; 
+    float _mouseInputY;
+
+    /// <summary></summary>
+    /// <summary>ズーム時のFOV</summary>
+    [SerializeField] float _zoomFov;
+
+    /// <summary>元のFOV</summary>
+    [SerializeField] float _originFov;
+
+    /// <summary>ズームの遷移時間</summary>
+    [SerializeField] float _fovDuration;
+
+    /// <summary>カメラのX軸の速さ</summary>
     [SerializeField] float _xCameraSpeed;
     public float XCamSpeed { get => _xCameraSpeed; set => _xCameraSpeed = value; }
+
+    /// <summary>カメラのY軸の速さ</summary>
     [SerializeField] float _yCameraSpeed;
     public float YCamSpeed { get => _yCameraSpeed; set => _yCameraSpeed = value; }
 
     [Header("Playerステータス")]
     [SerializeField] ReactiveProperty<float> _playerHp;
+
+    /// <summary>Aimしているか</summary>
     [SerializeField] bool _aiming;
+
+    /// <summary>メイン武器を装備しているか</summary>
     [SerializeField] bool _showMain;
     public bool ShowMain { get => _showMain; set => _showMain = value; }
+
+    /// <summary>エイム時の移動スピード</summary>
     [SerializeField] float _walkSpeedWhileAiming;
+
+    /// <summary>現在の移動スピード</summary>
     [SerializeField] float _presentWalkSpeed;
+
+    /// <summary>歩き時の速さ</summary>
     [SerializeField] float _walkSpeed;
+
     [SerializeField] float _jumpForce;
+
+    /// <summary>ジャンプした回数</summary>
     [SerializeField] float _jumpCount;
+
+    /// <summary>ジャンプ回数の制限</summary>
     [SerializeField] float _jumpCountLimit;
-    [SerializeField] float _maxJumpSpeedLimit;
-    [SerializeField] float _downForce;
+
     [SerializeField] bool _canShoot;
-    [SerializeField] float _playerDamage;
-    public float PlayerDamage { get => _playerDamage; set => _playerDamage = value; }
 
     /// <summary>操作可能か判定する</summary>
     [SerializeField] bool _wait = true;
@@ -112,16 +140,20 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public Vector3 PlayerLook { get => _playerLook; set => _playerLook = value; }
 
     [Header("UI関係")]
-    [SerializeField] int _time;
     [SerializeField] Image _hpImage;
     [SerializeField] TextMeshProUGUI _hpText;
-    [SerializeField] int _displayAmmo;
-    [SerializeField] int _ammoText;
+
+    ///<summary>制限時間</summary>
+    [SerializeField] int _time;
+
     [SerializeField] GameObject _settingPanel;
     [SerializeField] GameObject _reloadText;
     public GameObject ReloadText { get => _reloadText; set => _reloadText = value; }
+
+    /// <summary>当たり判定</summary>
     [SerializeField] bool _hit;
-    public bool Hit { get => _hit; }
+    public bool Hit => _hit;
+
     [SerializeField] TextMeshProUGUI _bulletText;
     public TextMeshProUGUI BulletText { set => _bulletText = value; }
     [SerializeField] TextMeshProUGUI _maxBulletText;
@@ -131,66 +163,66 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [Header("効果音")]
     [SerializeField] AudioClip _footSound;
 
-    private void Start()
+    /// <summary>現在アクティブなシーン</summary>
+    [SerializeField] string _activeSceneName;
+
+    private void Awake()
     {
-        if (SceneManager.GetActiveScene().name == "BattleMode")
+        //現在のシーンの名前を入れておく
+        _activeSceneName = SceneManager.GetActiveScene().name;
+
+        if (_activeSceneName == "BattleMode")
         {
             if (!photonView.IsMine)
             {
                 return;
             }
 
-            _bulletText = GameObject.FindGameObjectWithTag("BulletText").GetComponent<TextMeshProUGUI>();
-            _maxBulletText = GameObject.FindGameObjectWithTag("MaxBulletText").GetComponent<TextMeshProUGUI>();
-            _reloadText = GameObject.FindGameObjectWithTag("ReloadText");
+            BattleModeSetting();
         }
 
-        BattleModeSetup();
+        ReadEquipmentData();
 
-        _abilityImage = GameObject.FindGameObjectWithTag("AbilityImage").GetComponent<Image>();
-        _abilityCoolTimePanel = GameObject.FindGameObjectWithTag("CoolTimePanel").GetComponent<Image>();
+        SetAsynchronousProcess();
 
+        //メイン武器を表示させる
         _showMain = true;
 
-        //Chinemachineカメラの参照を読みこむ
-        _virtualCamera = GameObject.FindGameObjectWithTag("Camera").GetComponent<CinemachineFreeLook>();
-
-        _playerMainWeponNumber.Value = PlayerPrefs.GetInt("MainWeponNumber");
-        _playerMainWeponNumber.Subscribe(weponNumcber => SetMainWepon(weponNumcber)).AddTo(this);
-
-        //プレイヤーに関連するUIを読み取る
-        _hpText = GameObject.FindGameObjectWithTag("HpText").GetComponent<TextMeshProUGUI>();
-        _hpImage = GameObject.FindGameObjectWithTag("HpImage").GetComponent<Image>();
-
-        //カメラの位置をきめる
-        _virtualCamera.LookAt = _eye.transform;
-        _virtualCamera.Follow = _eye.transform;
-        _originFov = _virtualCamera.m_Lens.FieldOfView;
-
-        //非同期処理の登録
-        _playerHp.Subscribe(presentHp => _hpText.text = presentHp.ToString()).AddTo(gameObject);
-
-        _playerAbilityNumber.Value = PlayerPrefs.GetInt("AbilityNumber");
-        _playerAbilityNumber.Subscribe(num => InitAbility(num));
-
-        this.UpdateAsObservable()
-            .Where(_ => Input.GetAxisRaw("MouseScrollWheel") > 0)
-            .ThrottleFirst(TimeSpan.FromSeconds(0.2))
-            .Subscribe(_ => ChangeWeponTab(false));
-
-        this.UpdateAsObservable()
-            .Where(_ => Input.GetAxisRaw("MouseScrollWheel") < 0)
-            .ThrottleFirst(TimeSpan.FromSeconds(0.2))
-            .Subscribe(_ => ChangeWeponTab(true));
+        CamSetting();
     }
 
-    
+    private void Start()
+    {
+        
+    }
+
+    /// <summary>
+    /// 対戦時に行う参照を取得する関数
+    /// </summary>
+    private void BattleModeSetting()
+    {
+        BattleModeSetup();
+
+        //UIを読みこむ
+        _bulletText = BattleModeManager.Instance.BulletText;
+        _maxBulletText = BattleModeManager.Instance.MaxBulletText;
+        _reloadText = BattleModeManager.Instance.ReloadText;
+
+        //Chinemachineカメラの参照を読みこむ
+        _virtualCamera = BattleModeManager.Instance.PlayerCam;
+
+        _abilityImage = BattleModeManager.Instance.AbilityImage;
+        _abilityCoolTimePanel = BattleModeManager.Instance.AbilityCoolTimePanel;
+
+        //プレイヤーに関連するUIを読み取る
+        _hpText = BattleModeManager.Instance.HpText;
+        _hpImage = BattleModeManager.Instance.HpImage;
+    }
 
     void Update()
     {
-        if (SceneManager.GetActiveScene().name == "BattleMode")
+        if (_activeSceneName == "BattleMode")
         {
-        
             if (!photonView.IsMine)
             {
                 return;
@@ -204,9 +236,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         ReadInput();
 
-        FocusPoint();
+        PlayerXRotate();
 
-        JampVelocityLimit();
+        PlayerYRotate();
+
+        FocusPoint();
 
         Jump();
 
@@ -223,15 +257,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
+
     private void FixedUpdate()
     {
-        if (SceneManager.GetActiveScene().name == "BattleMode")
+        if (_activeSceneName == "BattleMode")
         {
             if (!photonView.IsMine)
             {
                 return;
             }
-
         }
 
         if (_wait)
@@ -241,19 +275,18 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         Move();
 
-        PlayerRotate();
+        
     }
 
     private void LateUpdate()
     {
-        if (SceneManager.GetActiveScene().name == "BattleMode")
+        if (_activeSceneName == "BattleMode")
         {
             if (!photonView.IsMine)
             {
                 return;
             }
         }
-
 
         if (_wait)
         {         
@@ -265,10 +298,51 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if(_showMain)
         {
-
             Aim();
         }
-        
+    }
+
+    /// <summary>
+    /// 非同期処理の設定
+    /// </summary>
+    private void SetAsynchronousProcess()
+    {
+        //違う武器が選択された時の処理を登録する
+        _playerMainWeponNumber.Subscribe(weponNumcber => SetMainWepon(weponNumcber)).AddTo(this);
+        _playerAbilityNumber.Subscribe(num => InitAbility(num)).AddTo(this);
+
+        //HPが変化した時の処理を登録
+        _playerHp.Subscribe(presentHp => _hpText.text = presentHp.ToString()).AddTo(gameObject);
+
+        //マウスホイールによる武器切り替えの処理の登録
+        this.UpdateAsObservable()
+            .Where(_ => Input.GetAxisRaw("MouseScrollWheel") > 0)
+            .ThrottleFirst(TimeSpan.FromSeconds(0.2))
+            .Subscribe(_ => ChangeWeponTab(false)).AddTo(this);
+
+        this.UpdateAsObservable()
+            .Where(_ => Input.GetAxisRaw("MouseScrollWheel") < 0)
+            .ThrottleFirst(TimeSpan.FromSeconds(0.2))
+            .Subscribe(_ => ChangeWeponTab(true)).AddTo(this);
+    }
+
+    /// <summary>
+    /// 武器とアビリティの値を読みこむ
+    /// サブ武器はまだ設定していない
+    /// </summary>
+    private void ReadEquipmentData()
+    {
+        _playerMainWeponNumber.Value = PlayerPrefs.GetInt("MainWeponNumber");
+        _playerAbilityNumber.Value = PlayerPrefs.GetInt("AbilityNumber");
+    }
+
+    /// <summary>
+    /// カメラの設定をする
+    /// </summary>
+    private void CamSetting()
+    {
+        _virtualCamera.Follow = _eye.transform;
+        _virtualCamera.m_Lens.FieldOfView = _originFov;
     }
 
     /// <summary>
@@ -296,20 +370,27 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     private void SetMainWepon(int weponNum)
     {
-        //全てのメインウェポンの表示を消す
+        //全ての装備の表示を消す
         _mainWeponList.ForEach(wepon => wepon.gameObject.SetActive(false));
         _subWeponList.ForEach(wepon => wepon.gameObject.SetActive(false));
+
         //アクティブにする武器の表示
         _mainWeponList[weponNum].SetActive(true);
-
-        //アクティブにする武器の値をセーブ
-        PlayerPrefs.SetInt("MainWeponNumber", weponNum);
 
         //参照するスクリプトを変更
         _presentMainWepon = _mainWeponList[weponNum].GetComponent<GunBase>();
 
+        if(!photonView.IsMine)
+        {
+            return;
+        }
+
+        //アクティブにする武器の値をセーブ
+        PlayerPrefs.SetInt("MainWeponNumber", weponNum);
+
+
         //練習場にいるなら残弾をマックスに戻す
-        if (SceneManager.GetActiveScene().name == "PracticeRange")
+        if (_activeSceneName == "PracticeRange")
         {
             _presentMainWepon.RestBullet.Value = _presentMainWepon.BulletCap;
         }
@@ -329,14 +410,20 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         _subWeponList[subweponNum].SetActive(true);
 
-        //アクティブにする武器の値をセーブ
-        PlayerPrefs.SetInt("SubWeponNumber", subweponNum);
-
         //参照するスクリプトを変更
         _presentSubWepon = _subWeponList[subweponNum].GetComponent<SubWeponBase>();
 
+        if (!photonView.IsMine)
+        {
+            return;
+        }
+
+        //アクティブにする武器の値をセーブ
+        PlayerPrefs.SetInt("SubWeponNumber", subweponNum);
+
+
         //残弾をマックスに戻す
-        if(SceneManager.GetActiveScene().name == "PracticeRange")
+        if(_activeSceneName == "PracticeRange")
         {
             _presentSubWepon.RestBullet = _presentSubWepon.BulletCap;
         }
@@ -364,19 +451,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
             .ThrottleFirst(TimeSpan.FromSeconds(_abilityCoolTimeList[_playerAbilityNumber.Value]))
             .Subscribe(_ => Ability());
 
+        //Tween処理を止めて0に戻す
         DOTween.Kill(_abilityCoolTimePanel);
         _abilityCoolTimePanel.fillAmount = 0;
-    }
-
-    /// <summary>
-    /// 操作しているのが自分か確認する
-    /// </summary>
-    void IsMineCheck()
-    {
-        if (!photonView.IsMine)
-        {
-            return;
-        }
     }
 
     /// <summary>
@@ -384,11 +461,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     void BattleModeSetup()
     {
-        if (SceneManager.GetActiveScene().name == "BattleMode")
+        if (_activeSceneName == "BattleMode")
         {
             gameObject.name = PhotonNetwork.NickName;
             _photonGameManager = GameObject.FindGameObjectWithTag("PhotonManager").GetComponent<PhotonGameManager>();
-            _gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameM>();
+            _gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<BattleModeManager>();
             _gameManager.Player = this;
         }
     }
@@ -404,6 +481,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         //マウスの位置を読み取る
         _mouseInputX = Input.GetAxis("Mouse X");
+        _mouseInputY = Input.GetAxis("Mouse Y");
     }
 
     /// <summary>
@@ -411,7 +489,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     void FocusPoint()
     {
-        if(!photonView.IsMine)
+        if (!photonView.IsMine)
         {
             return;
         }
@@ -435,10 +513,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
     void Move()
     {
         //カメラの向き
-        Vector3 cameraForward = Vector3.Scale(transform.forward, new Vector3(1, 0, 1)).normalized;
+        Vector3 cameraForward = Vector3.Scale(Camera.main.transform.forward, new Vector3(1, 0, 1)).normalized;
 
+        Vector3 cameraRight = Camera.main.transform.right;
         //プレイヤーの進行方向
-        Vector3 moveForward = cameraForward * _vertical + transform.right * _horizontal;
+        Vector3 moveForward = cameraForward * _vertical + cameraRight * _horizontal;
 
         //カメラの向いてる方にプレイヤーを動かす
         _rb.velocity = new Vector3(moveForward.normalized.x * _presentWalkSpeed, _rb.velocity.y, moveForward.normalized.z * _presentWalkSpeed);
@@ -461,12 +540,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
         else
         {
-
             photonView.RPC(nameof(FootStepSound), RpcTarget.All);
         }
     }
 
-    //足音を鳴らすメソッド
+    /// <summary>
+    /// 足音鳴らす
+    /// 調整中
+    /// </summary>
     [PunRPC]
     void FootStepSound()
     {
@@ -489,16 +570,24 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
 
     /// <summary>
-    /// プレイヤーの向きのメソッド
+    /// プレイヤーのX軸の向きのメソッド
     /// </summary>
-    void PlayerRotate()
+    void PlayerXRotate()
     {
         transform.rotation = Quaternion.Euler(transform.eulerAngles.x,
             transform.eulerAngles.y + _mouseInputX * _xCameraSpeed,
             transform.eulerAngles.z);
-
     }
 
+    /// <summary>
+    /// Y軸方向にEyeオブジェクトを動かす処理
+    /// </summary>
+    private void PlayerYRotate()
+    {
+        _eye.transform.localEulerAngles = new Vector3(_eye.transform.localEulerAngles.x + _mouseInputY * _yCameraSpeed,
+            _eye.transform.localEulerAngles.y,
+            _eye.transform.localEulerAngles.z);
+    }
     /// <summary>
     /// ジャンプのメソッド
     /// </summary>
@@ -541,14 +630,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
             _virtualCamera.m_Lens.FieldOfView = Mathf.Lerp(_originFov, _zoomFov, _fovDuration);
             _aiming = true;
             animator.SetBool("Aim", true);
-            
         }
         else
         {
             _aiming = false;
             _virtualCamera.m_Lens.FieldOfView = Mathf.Lerp(_zoomFov, _originFov, _fovDuration);
-            animator.SetBool("Aim", false);
-            
+            animator.SetBool("Aim", false);     
         }
     }
 
@@ -557,6 +644,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     void Shot()
     {
+        //リロードしてるなら行わない
         if(_presentMainWepon.Reloading)
         {
             return;
@@ -564,11 +652,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (Input.GetButtonDown("Shot"))
         {
-            
+            //エイムしていないとき
             if (!_aiming)
             {
-
-
                 HipFire();
                 if(_presentMainWepon.RestBullet.Value > 0)
                 {
@@ -579,7 +665,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             {
                 _presentMainWepon.PullTrigger = true;
 
-
                 _presentMainWepon.Shot();
                 if (_presentMainWepon.RestBullet.Value > 0)
                 {
@@ -589,6 +674,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
+    /// <summary>
+    /// 腕の角度をずらしてリコイルを表現する
+    /// </summary>
+    /// <returns></returns>
     IEnumerator Recoil()
     {
         _arm.transform.localEulerAngles = new Vector3(312.576904f, 7.79674625f, 354.016663f);
@@ -612,6 +701,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     void HipFire()
     {
+        //マグナムの時
         if(_playerMainWeponNumber.Value == 1)
         {
             _presentMainWepon.transform.localEulerAngles = new Vector3(7.95424366f, 80.7865524f, 257.894958f);
@@ -620,9 +710,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         _presentMainWepon.PullTrigger = true;
         _presentMainWepon.Shot();
+
         StopCoroutine(KeepHipFire());
         StartCoroutine(KeepHipFire());
-        
     }
 
     /// <summary>
@@ -631,9 +721,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// <returns></returns>
     IEnumerator KeepHipFire()
     {
-
         yield return new WaitForSeconds(3);
         animator.SetBool("Aiming", false);
+
+        //マグナムならもとに戻す
         if(_playerMainWeponNumber.Value == 1)
         {
             _presentMainWepon.transform.localEulerAngles = new Vector3(17.9899387f, 80.6679688f, 271.117798f);
@@ -705,24 +796,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     void Die()
     {
-        if(SceneManager.GetActiveScene().name == "PracticeRange")
+        if(_activeSceneName == "PracticeRange")
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
         else
         {
             _photonGameManager.GameEnd = true;
-        }
-    }
-
-    /// <summary>
-    /// 上方向の力を制限するメソッド
-    /// </summary>
-    void JampVelocityLimit()
-    {
-        if (_rb.velocity.y > _maxJumpSpeedLimit && _rb.velocity.y > 0)
-        {
-            _rb.velocity = new Vector3(_rb.velocity.x, _maxJumpSpeedLimit, _rb.velocity.z);
         }
     }
 
