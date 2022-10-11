@@ -130,12 +130,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f04e1be3887768b4aad76ba4b7dabab8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bulletSpeed: 1
+  bulletSpeed: 200
   _bulletDamage: 20
   rayDistance: 1.8
   _bulletRb: {fileID: 2956765651507509295}
-  _current: {x: 0, y: 0, z: 0}
-  _previous: {x: 0, y: 0, z: 0}
 --- !u!96 &-3753890653041377950
 TrailRenderer:
   serializedVersion: 2

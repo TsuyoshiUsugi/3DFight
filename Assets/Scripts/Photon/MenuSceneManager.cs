@@ -233,7 +233,6 @@ public class MenuSceneManager : MonoBehaviourPunCallbacks
 
     /// <summary>
     /// ルームを退出する関数
-    /// ボタンで関数を使用する都合上publicになってしまっている。要検討
     /// </summary>
     public void LeaveRoom()
     {
@@ -356,7 +355,6 @@ public class MenuSceneManager : MonoBehaviourPunCallbacks
 
     /// <summary>
     /// 引数のルームに入る関数
-    /// Roomから参照されているpublicな関数
     /// </summary>
     public void JoinRoom(RoomInfo roomInfo)
     {
